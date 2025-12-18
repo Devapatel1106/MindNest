@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/nav_overview"
+        android:title="@string/overview"
+        android:icon="@drawable/ic_dashboard"/>
+
+    <item android:id="@+id/nav_tasks"
+        android:title="@string/task"
+        android:icon="@drawable/assignment_add_24px"/>
+
+    <item android:id="@+id/nav_meditation"
+        android:title="@string/meditation"
+        android:icon="@drawable/spa_24px"/>
+
+    <item android:id="@+id/nav_journal"
+        android:title="@string/journal"
+        android:icon="@drawable/menu_book_24px"/>
+
+    <item android:id="@+id/nav_water"
+        android:title="@string/water"
+        android:icon="@drawable/water_full_24px"/>
+
+    <item android:id="@+id/nav_sleep"
+        android:title="@string/sleep"
+        android:icon="@drawable/airline_seat_individual_suite_24px"/>
+
+    <item android:id="@+id/nav_workout"
+        android:title="@string/workout"
+        android:icon="@drawable/exercise_24px"/>
+
+</menu>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MindNest</string>
+    <string name="welcome">Welcome to MindNest</string>
+    <string name="intro">Explore the app, Find some peace of mind to achieve good habits</string>
+    <string name="login">Login</string>
+    <string name="signin">Begin your calm journey</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="start">Get started</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="overview">Overview</string>
+    <string name="meditation">Meditation </string>
+    <string name="journal">Journal and Mood</string>
+    <string name="water">Water</string>
+    <string name="sleep">Sleep</string>
+    <string name="workout">Workout</string>
+    <string name="task">Tasks</string>
+    <string name="create">Create your account</string>
+    <string name="enter">Create your calm space</string>
+    <string name="create_acc">New Here? Sign up</string>
+    <string name="signup">Signup</string>
+    <string name="account">Already have an account? Log in</string>
+    <string name="logout">Logout</string>
+    <string name="info1">The Daily Task Module helps users manage their everyday to-do list with ease by allowing them to add, edit, and delete tasks. It keeps habits organized and supports consistency by helping users track what they’ve completed throughout the day.</string>
+    <string name="info2">The Meditation Module guides users through calming sessions with adjustable timers and soothing background audio. It helps build a daily relaxation routine by allowing users to start, pause, and save their meditation progress effortlessly.</string>
+    <string name="info3">The Journal and Mood Tracking Module enables users to record their thoughts and emotions while tracking daily moods over time. It promotes self-awareness by helping users reflect on patterns, emotional trends, and overall mental well-being.</string>
+    <string name="info4">The Water Intake Module helps users track their daily hydration by letting them add water intake and monitor progress toward their goal. It encourages healthy hydration habits through clear visual tracking.</string>
+    <string name="info5">The Sleep Tracking Module allows users to record their daily sleep hours and quality. It helps improve rest patterns by giving insight into how well and how long they are sleeping each night.</string>
+    <string name="info6">The Workout Module allows users to log their daily exercise with customizable options for workout type, duration, and intensity. It helps users stay active and maintain physical wellness by keeping all their workout records organized in one place.</string>
+    <string name="skip">Skip</string>
+</resources>
