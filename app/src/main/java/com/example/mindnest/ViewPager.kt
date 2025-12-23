@@ -8,6 +8,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mindnest.databinding.ActivityViewPagerBinding
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class ViewPager : AppCompatActivity(), View.OnClickListener {
 
@@ -23,9 +25,32 @@ class ViewPager : AppCompatActivity(), View.OnClickListener {
 
         binding.viewPager.adapter = MyViewPagerAdapter(this)
 
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, _ ->
+            tab.customView = layoutInflater.inflate(R.layout.tab_dot, null)
+        }.attach()
+
+        binding.tabLayout.addOnTabSelectedListener(object :
+            TabLayout.OnTabSelectedListener {
+
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                tab.customView?.isSelected = true
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+                tab.customView?.isSelected = false
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
+
         binding.btnSkip.setOnClickListener(this)
         binding.btnNext.setOnClickListener(this)
         binding.btnPrevious.setOnClickListener(this)
+
+        binding.btnFinish.setOnClickListener {
+            startActivity(Intent(this, DashboardActivity::class.java))
+            finish()
+        }
 
         updateButtons(0)
 
@@ -37,17 +62,19 @@ class ViewPager : AppCompatActivity(), View.OnClickListener {
             }
         )
 
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                startActivity(Intent(this@ViewPager, LogInActivity::class.java))
-                finish()
-            }
-        })
+        onBackPressedDispatcher.addCallback(this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    startActivity(
+                        Intent(this@ViewPager, LogInActivity::class.java)
+                    )
+                    finish()
+                }
+            })
     }
 
     override fun onClick(view: View) {
         when (view.id) {
-
             R.id.btnSkip -> {
                 startActivity(Intent(this, DashboardActivity::class.java))
                 finish()
@@ -55,27 +82,34 @@ class ViewPager : AppCompatActivity(), View.OnClickListener {
 
             R.id.btnNext -> {
                 val current = binding.viewPager.currentItem
-                val lastPage = binding.viewPager.adapter!!.itemCount - 1
-
-                if (current == lastPage) {
+                val last = binding.viewPager.adapter!!.itemCount - 1
+                if (current < last) {
+                    binding.viewPager.currentItem = current + 1
+                } else {
                     startActivity(Intent(this, DashboardActivity::class.java))
                     finish()
-                } else {
-                    binding.viewPager.currentItem = current + 1
                 }
             }
 
             R.id.btnPrevious -> {
-                val prevItem = binding.viewPager.currentItem - 1
-                if (prevItem >= 0) {
-                    binding.viewPager.currentItem = prevItem
-                }
+                val prev = binding.viewPager.currentItem - 1
+                if (prev >= 0) binding.viewPager.currentItem = prev
             }
         }
     }
 
     private fun updateButtons(position: Int) {
+        val last = binding.viewPager.adapter!!.itemCount - 1
+
         binding.btnPrevious.visibility =
             if (position == 0) View.INVISIBLE else View.VISIBLE
+
+        if (position == last) {
+            binding.btnNext.visibility = View.GONE
+            binding.btnFinish.visibility = View.VISIBLE
+        } else {
+            binding.btnNext.visibility = View.VISIBLE
+            binding.btnFinish.visibility = View.GONE
+        }
     }
 }

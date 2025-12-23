@@ -14,5 +14,14 @@
         <item name="cornerSizeBottomLeft">@dimen/_30sdp</item>
         <item name="cornerSizeBottomRight">@dimen/_30sdp</item>
     </style>
+    <style name="TabDotsStyle" parent="Widget.MaterialComponents.TabLayout">
+        <item name="tabIndicatorHeight">0dp</item>
+        <item name="tabRippleColor">@null</item>
+        <item name="tabBackground">@drawable/tab_indicator_dot</item>
+        <item name="tabPaddingStart">6dp</item>
+        <item name="tabPaddingEnd">6dp</item>
+        <item name="tabPaddingTop">6dp</item>
+        <item name="tabPaddingBottom">6dp</item>
+    </style>
 
 </resources>

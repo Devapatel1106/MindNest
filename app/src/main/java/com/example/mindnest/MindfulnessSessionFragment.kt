@@ -149,7 +149,6 @@ class MindfulnessSessionFragment : Fragment() {
         isRunning = false
         stopAudio()
         autoSaveSession()
-        Toast.makeText(requireContext(), "Session saved", Toast.LENGTH_SHORT).show()
     }
 
     private fun autoSaveSession() {
@@ -171,7 +170,11 @@ class MindfulnessSessionFragment : Fragment() {
 
         viewModel.addSession(newSession)
         viewModel.saveSessions(requireContext())
+        binding.rvPastSessions.post {
+            binding.rvPastSessions.scrollToPosition(0)
+        }
     }
+
 
     private fun updateTimerText(millis: Long) {
         val min = millis / 1000 / 60

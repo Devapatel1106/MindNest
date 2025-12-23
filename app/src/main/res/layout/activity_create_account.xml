@@ -102,7 +102,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:endIconMode="password_toggle"
-            app:endIconTint="@color/white"
+            app:endIconTint="@color/lavender_primary"
             app:hintEnabled="false"
             android:layout_marginTop="@dimen/_17sdp"
             app:boxBackgroundMode="none">

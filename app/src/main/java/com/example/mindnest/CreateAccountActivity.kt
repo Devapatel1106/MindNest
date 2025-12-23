@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
+import androidx.viewpager.widget.ViewPager
 import com.example.mindnest.databinding.ActivityCreateAccountBinding
 
 class CreateAccountActivity : AppCompatActivity() {
@@ -144,7 +145,7 @@ class CreateAccountActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                startActivity(Intent(this, ViewPager::class.java))
+                startActivity(Intent(this, com.example.mindnest.ViewPager::class.java))
                 finish()
             }
         }
