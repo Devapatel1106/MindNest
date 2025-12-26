@@ -41,4 +41,7 @@
     <string name="save">Save</string>
     <string name="Journal">Reflect your mood</string>
     <string name="journal_info">Reflect your mood by taking a quiet moment to understand how you truly feel. Writing it down helps you connect with your emotions and notice your patterns over time.</string>
+    <string name="mindfulness">Mindfulness</string>
+    <string name="mindful_info">Take a few minutes each day for mindful breathing and gentle stillness. Even small moments of mindfulness can help reset your mind and bring calm to your day.</string>
+
 </resources>

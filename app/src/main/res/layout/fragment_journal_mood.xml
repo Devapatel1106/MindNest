@@ -20,7 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- MONTHS (MOVING / HORIZONTAL) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMonths"
         android:layout_width="0dp"
@@ -36,7 +35,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_month_chip"/>
 
-    <!-- EMPTY STATE -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layoutEmpty"
         android:layout_width="wrap_content"
@@ -74,7 +72,6 @@
             app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- JOURNAL LIST -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/itemRecyclerView"
         android:layout_width="0dp"
@@ -87,7 +84,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- ADD BUTTON -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabAddItem"
         android:layout_width="wrap_content"
