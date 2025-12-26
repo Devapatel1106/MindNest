@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <!-- Title -->
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/txtNoSleepTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sleep Log"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/_22ssp"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/_24sdp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Empty State -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutEmpty"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:layout_marginBottom="@dimen/_80sdp"
+        android:padding="@dimen/_20sdp"
+        app:layout_constraintTop_toBottomOf="@id/txtNoSleepTitle"
+        app:layout_constraintBottom_toTopOf="@id/fabAddSleep"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Description Text -->
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txtNoSleepDesc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Track your sleep to care for your body and mind.\nLogging sleep helps you notice patterns, improve rest quality, and stay energized throughout the day."
+            android:textSize="@dimen/_15ssp"
+            android:textColor="@color/lavender_primary"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginTop="@dimen/_8sdp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Big Image -->
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imgEmptySleep"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/_24sdp"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sleep"
+            app:layout_constraintTop_toBottomOf="@id/txtNoSleepDesc"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintDimensionRatio="1:1"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/sleepRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="@dimen/_16sdp"
+        android:visibility="gone"
+        tools:listitem="@layout/item_log_sleep"
+        app:layout_constraintTop_toBottomOf="@id/txtNoSleepTitle"
+        app:layout_constraintBottom_toTopOf="@id/fabAddSleep"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddSleep"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_24sdp"
+        android:src="@drawable/baseline_add_24"
+        app:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

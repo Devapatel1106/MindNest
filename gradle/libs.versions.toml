@@ -1,6 +1,6 @@
 [versions]
 agp = "8.7.3"
-kotlin = "1.9.24"
+kotlin = "2.1.0"
 coreKtx = "1.10.1"
 junit = "4.13.2"
 junitVersion = "1.3.0"
@@ -10,6 +10,7 @@ material = "1.13.0"
 activity = "1.6.1"
 constraintlayout = "2.2.1"
 navigationevent = "1.0.0"
+roomRuntimeAndroid = "2.8.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -22,6 +23,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-navigationevent = { group = "androidx.navigationevent", name = "navigationevent-android", version.ref = "navigationevent" }
+androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
