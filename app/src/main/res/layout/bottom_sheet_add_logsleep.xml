@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/bg_bottom_sheet">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Log Sleeping Hours"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/lavender_primary"/>
+
+    <!-- Date -->
+    <TextView
+        android:id="@+id/txtSleepDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Date"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:background="@drawable/bg_edit_text"
+        android:textColor="@android:color/black"
+        android:focusable="false"
+        android:clickable="true"/>
+
+    <!-- Sleep Start Time -->
+    <TextView
+        android:id="@+id/txtSleepStart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sleep Time"
+        android:layout_marginTop="12dp"
+        android:padding="12dp"
+        android:background="@drawable/bg_edit_text"
+        android:textColor="@android:color/black"
+        android:focusable="false"
+        android:clickable="true"/>
+
+    <!-- Wake Up Time -->
+    <TextView
+        android:id="@+id/txtSleepEnd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wake Up Time"
+        android:layout_marginTop="12dp"
+        android:padding="12dp"
+        android:background="@drawable/bg_edit_text"
+        android:textColor="@android:color/black"
+        android:focusable="false"
+        android:clickable="true"/>
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/btnSaveSleep"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Save Sleep Log"
+        android:layout_marginTop="20dp"
+        android:enabled="false"
+        android:backgroundTint="@color/lavender_primary"/>
+</LinearLayout>

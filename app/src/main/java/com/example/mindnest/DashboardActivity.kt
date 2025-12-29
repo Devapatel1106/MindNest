@@ -72,21 +72,32 @@ class DashboardActivity : AppCompatActivity() {
         binding.navigationView.setNavigationItemSelectedListener { item ->
 
             when (item.itemId) {
+
                 R.id.nav_tasks -> {
                     loadFragment(FragmentTask())
                     binding.toolbar.title = item.title
                     item.isChecked = true
                 }
+
                 R.id.nav_meditation -> {
                     loadFragment(FragmentMindfulness())
                     binding.toolbar.title = item.title
                     item.isChecked = true
                 }
+
                 R.id.nav_journal -> {
                     loadFragment(JournalMoodFragment())
                     binding.toolbar.title = item.title
                     item.isChecked = true
                 }
+
+                // ✅ ADD THIS BLOCK
+                R.id.nav_sleep -> {
+                    loadFragment(LogSleepFragment())
+                    binding.toolbar.title = item.title
+                    item.isChecked = true
+                }
+
                 R.id.nav_water -> {
                     loadFragment(WaterFragment())
                     binding.toolbar.title = item.title
@@ -99,10 +110,11 @@ class DashboardActivity : AppCompatActivity() {
                 }
             }
 
-            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            binding.drawerLayout.closeDrawers()
             true
         }
     }
+
 
     private fun clearFragment() {
         val fragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer)
