@@ -20,6 +20,7 @@
             android:id="@+id/txtDate"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/text_on_lavender"
             android:text="01\nMon"
             android:textColor="@android:color/white"
             android:textSize="@dimen/_22ssp"

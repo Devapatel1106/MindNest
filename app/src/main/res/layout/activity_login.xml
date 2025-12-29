@@ -1,81 +1,81 @@
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:fillViewport="true"
+    android:fitsSystemWindows="true"
     android:background="@color/white">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/_20sdp"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:padding="@dimen/_20sdp">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/loginIllustration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_35sdp"
+            android:layout_marginTop="@dimen/_24sdp"
+            android:src="@drawable/login"
             android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/login" />
+            android:scaleType="fitCenter" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/loginTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login"
             android:textSize="@dimen/_29ssp"
-            android:layout_marginTop="@dimen/_70sdp"
-            android:layout_gravity="left"/>
+            android:layout_marginTop="@dimen/_32sdp"
+            android:gravity="start" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/loginSubtitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/signin"
             android:textSize="@dimen/_13ssp"
-            android:layout_gravity="left"
-            android:layout_marginTop="@dimen/_5sdp" />
+            android:layout_marginTop="@dimen/_6sdp"
+            android:gravity="start" />
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_24sdp"
             android:background="@drawable/edit_text"
-            android:layout_marginTop="@dimen/_27sdp"
             android:hint="@string/email"
-            android:focusableInTouchMode="true"
             android:inputType="textEmailAddress"
-            android:textColorHint="@color/lavender_primary"
+            android:textSize="@dimen/_13ssp"
             android:textColor="@color/lavender_primary"
-            android:paddingLeft="@dimen/_17sdp"
+            android:textColorHint="@color/lavender_primary"
+            android:paddingStart="@dimen/_17sdp"
             android:paddingTop="@dimen/_12sdp"
             android:paddingBottom="@dimen/_12sdp"
-            android:textSize="@dimen/_13ssp"
-            android:drawablePadding="@dimen/_7sdp"
-            android:drawableStart="@drawable/mail_24px"/>
+            android:drawableStart="@drawable/mail_24px"
+            android:drawablePadding="@dimen/_7sdp" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/emailErrorTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_dark"
             android:textSize="@dimen/_9ssp"
-            android:paddingLeft="@dimen/_10sdp"
-            android:layout_gravity="left"
+            android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
-            android:paddingTop="@dimen/_1sdp"/>
+            android:paddingStart="@dimen/_10sdp"
+            android:paddingTop="@dimen/_2sdp" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_16sdp"
             app:endIconMode="password_toggle"
             app:endIconTint="@color/lavender_primary"
             app:hintEnabled="false"
-            android:layout_marginTop="@dimen/_17sdp"
             app:boxBackgroundMode="none">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -84,43 +84,41 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
                 android:inputType="textPassword"
-                android:paddingLeft="@dimen/_17sdp"
                 android:textSize="@dimen/_13ssp"
+                android:textColor="@color/lavender_primary"
+                android:textColorHint="@color/lavender_primary"
+                android:background="@drawable/edit_text"
+                android:paddingStart="@dimen/_17sdp"
                 android:paddingTop="@dimen/_12sdp"
                 android:paddingBottom="@dimen/_12sdp"
-                android:textColorHint="@color/lavender_primary"
-                android:textColor="@color/lavender_primary"
-                android:background="@drawable/edit_text"
-                android:layout_marginBottom="@dimen/_2sdp"
                 android:drawableStart="@drawable/key_vertical_24px"
                 android:drawablePadding="@dimen/_7sdp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/passwordErrorTxt"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_dark"
             android:textSize="@dimen/_9ssp"
-            android:layout_gravity="left"
-            android:paddingLeft="@dimen/_10sdp"
+            android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
-            android:paddingTop="@dimen/_1sdp"/>
+            android:paddingStart="@dimen/_10sdp"
+            android:paddingTop="@dimen/_2sdp" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/loginBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_20sdp"
             android:text="@string/login"
-            android:textAllCaps="false"
-            android:layout_marginTop="@dimen/_17sdp"/>
+            android:textAllCaps="false" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/createAccountTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/_14ssp"
-            android:layout_marginTop="@dimen/_17sdp"
+            android:layout_marginTop="@dimen/_16sdp"
             android:clickable="true"
             android:focusable="true" />
 

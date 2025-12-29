@@ -7,13 +7,14 @@
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/logoImage"
-        android:layout_width="@dimen/_146sdp"
-        android:layout_height="@dimen/_146sdp"
+        android:layout_width="@dimen/_120sdp"
+        android:layout_height="@dimen/_120sdp"
+        android:layout_marginTop="@dimen/_24sdp"
         android:src="@drawable/logo2"
-        android:layout_marginTop="@dimen/_26sdp"
+        android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/titleText"
@@ -21,9 +22,11 @@
         android:layout_height="wrap_content"
         android:text="@string/welcome"
         android:textSize="@dimen/_21ssp"
+        android:layout_marginTop="@dimen/_8sdp"
         app:layout_constraintTop_toBottomOf="@id/logoImage"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/subtitleText"
@@ -32,25 +35,24 @@
         android:text="@string/intro"
         android:textSize="@dimen/_14ssp"
         android:gravity="center"
+        android:layout_marginTop="@dimen/_6sdp"
         android:paddingStart="@dimen/_26sdp"
         android:paddingEnd="@dimen/_26sdp"
-        android:layout_marginTop="@dimen/_6sdp"
         app:layout_constraintTop_toBottomOf="@id/titleText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/illustrationImage"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:src="@drawable/home"
-        android:scaleType="centerCrop"
         android:adjustViewBounds="true"
-        android:layout_marginTop="@dimen/_75sdp"
+        android:scaleType="fitCenter"
+        android:layout_marginTop="@dimen/_16sdp"
         app:layout_constraintTop_toBottomOf="@id/subtitleText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/bottomLayout" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <LinearLayout
         android:id="@+id/bottomLayout"
@@ -58,11 +60,12 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center_horizontal"
-        android:background="@color/text_primary"
+        android:background="@color/text_on_lavender"
+        android:paddingTop="@dimen/_20sdp"
         android:paddingBottom="@dimen/_36sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/startBtn"
@@ -70,7 +73,7 @@
             android:layout_height="wrap_content"
             android:text="@string/start"
             android:textAllCaps="false"
-            android:layout_marginTop="@dimen/_26sdp"/>
+            android:layout_marginTop="@dimen/_16sdp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

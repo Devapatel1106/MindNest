@@ -8,10 +8,9 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarMindfulness"
         android:layout_width="0dp"
-        android:backgroundTint="@color/lavender_light"
+        android:background="?attr/colorPrimary"
+        android:elevation="@dimen/_4sdp"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:paddingTop="@dimen/_10sdp"
         android:paddingBottom="@dimen/_5sdp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,7 +30,6 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="0dp"
         app:layout_constraintTop_toBottomOf="@id/toolbarMindfulness"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,10 +38,10 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardTimer"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_20sdp"
-            android:background="@drawable/bg_card_bottom_rounded"
+            android:elevation="@dimen/_5sdp"
+            android:layout_margin="@dimen/_10sdp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -51,7 +49,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/_16sdp">
+                android:padding="@dimen/_40sdp">
 
                 <ProgressBar
                     android:id="@+id/circularProgress"

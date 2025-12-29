@@ -15,7 +15,7 @@
             android:shape="ring"
             android:thickness="@dimen/_25sdp"
             android:useLevel="true">
-            <solid android:color="@color/lavender_dark"/>
+            <solid android:color="@color/text_on_lavender"/>
             <corners android:radius="@dimen/_100sdp"/>
         </shape>
     </item>
