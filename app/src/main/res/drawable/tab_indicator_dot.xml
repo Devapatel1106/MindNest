@@ -14,7 +14,7 @@
             <size
                 android:width="@dimen/_8sdp"
                 android:height="@dimen/_8sdp"/>
-            <solid android:color="@color/lavender_light"/>
+            <solid android:color="#C4717D"/>
         </shape>
     </item>
 

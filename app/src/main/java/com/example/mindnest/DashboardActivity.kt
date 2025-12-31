@@ -92,6 +92,11 @@ class DashboardActivity : AppCompatActivity() {
                     binding.toolbar.title = item.title
                     item.isChecked = true
                 }
+                R.id.nav_sleep -> {
+                    loadFragment(LogSleepFragment())
+                    binding.toolbar.title = item.title
+                    item.isChecked = true
+                }
                 else -> {
                     clearFragment()
                     binding.toolbar.title = item.title
