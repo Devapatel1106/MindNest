@@ -15,6 +15,7 @@ import com.example.mindnest.databinding.FragmentMindfulnessBinding
 import com.example.mindnest.ui.journal.JournalMoodFragment
 import com.example.mindnest.ui.mindfulness.FragmentMindfulness
 import com.example.mindnest.ui.water.WaterFragment
+import com.example.mindnest.ui.workout.WorkoutTrackingFragment
 
 
 class DashboardActivity : AppCompatActivity() {
@@ -94,6 +95,11 @@ class DashboardActivity : AppCompatActivity() {
                 }
                 R.id.nav_sleep -> {
                     loadFragment(LogSleepFragment())
+                    binding.toolbar.title = item.title
+                    item.isChecked = true
+                }
+                R.id.nav_workout -> {
+                    loadFragment(WorkoutTrackingFragment())
                     binding.toolbar.title = item.title
                     item.isChecked = true
                 }

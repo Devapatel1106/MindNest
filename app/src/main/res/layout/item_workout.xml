@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_10sdp"
+    android:layout_marginBottom="@dimen/_14sdp"
+    app:cardCornerRadius="@dimen/_18sdp"
+    app:cardElevation="@dimen/_4sdp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_16sdp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txtWorkoutName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="@dimen/_16ssp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/txtWorkoutIntensity"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_chainStyle="spread"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txtWorkoutIntensity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintStart_toEndOf="@id/txtWorkoutName"
+            app:layout_constraintEnd_toStartOf="@id/txtWorkoutDuration"
+            app:layout_constraintTop_toTopOf="@id/txtWorkoutName"
+            app:layout_constraintBottom_toBottomOf="@id/txtWorkoutName"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/txtWorkoutDuration"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_14ssp"
+            app:layout_constraintStart_toEndOf="@id/txtWorkoutIntensity"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/txtWorkoutName"
+            app:layout_constraintBottom_toBottomOf="@id/txtWorkoutName"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

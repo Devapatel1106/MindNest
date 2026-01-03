@@ -61,4 +61,6 @@
     <string name="sleep_log">Sleep Log</string>
     <string name="sleep_info">Track your sleep to care for your body and mind. Logging sleep helps you notice patterns and improve rest.</string>
     <string name="add_sleep">Add Sleep Log</string>
+    <string name="add_workout">Add your workouts</string>
+    <string name="no_workout_desc">Log your daily workouts by selecting the type, duration, and intensity. Keeping track of your exercise helps you stay active, monitor progress, and maintain a healthy lifestyle.</string>
 </resources>
