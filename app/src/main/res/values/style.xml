@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <style name="ShapeAppearance.MindNest"
+        parent="ShapeAppearance.Material3.Corner.None" />
+
     <style name="CardTopRoundedOverlay">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">@dimen/_24sdp</item>
@@ -7,14 +11,18 @@
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
-    <style name="CardShape.TopSquareBottomRounded" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+
+    <style name="CardShape.TopSquareBottomRounded"
+        parent="ShapeAppearance.Material3.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">0dp</item>
         <item name="cornerSizeTopRight">0dp</item>
         <item name="cornerSizeBottomLeft">@dimen/_30sdp</item>
         <item name="cornerSizeBottomRight">@dimen/_30sdp</item>
     </style>
-    <style name="TabDotsStyle" parent="Widget.MaterialComponents.TabLayout">
+
+    <style name="TabDotsStyle"
+        parent="Widget.Material3.TabLayout">
         <item name="tabIndicatorHeight">0dp</item>
         <item name="tabRippleColor">@null</item>
         <item name="tabBackground">@drawable/tab_indicator_dot</item>
@@ -22,6 +30,43 @@
         <item name="tabPaddingEnd">6dp</item>
         <item name="tabPaddingTop">6dp</item>
         <item name="tabPaddingBottom">6dp</item>
+    </style>
+
+    <style name="Theme.MindNest.BottomSheet"
+        parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">
+            @style/Widget.MindNest.BottomSheet
+        </item>
+    </style>
+
+    <style name="Widget.MindNest.BottomSheet"
+        parent="Widget.Material3.BottomSheet.Modal">
+
+        <item name="shapeAppearanceOverlay">
+            @style/ShapeAppearance.MindNest.BottomSheet
+        </item>
+
+        <item name="android:background">
+            ?attr/colorSurface
+        </item>
+    </style>
+
+    <style name="ShapeAppearance.MindNest.BottomSheet"
+        parent="ShapeAppearance.MindNest">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopLeft">@dimen/_24sdp</item>
+        <item name="cornerSizeTopRight">@dimen/_24sdp</item>
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
+
+    <style name="WeekDay">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/text_primary</item>
     </style>
 
 </resources>

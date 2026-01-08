@@ -14,6 +14,7 @@ import com.example.mindnest.databinding.ActivityDashboardBinding
 import com.example.mindnest.databinding.FragmentMindfulnessBinding
 import com.example.mindnest.ui.journal.JournalMoodFragment
 import com.example.mindnest.ui.mindfulness.FragmentMindfulness
+import com.example.mindnest.ui.period.PeriodTrackerFragment
 import com.example.mindnest.ui.water.WaterFragment
 
 
@@ -91,18 +92,24 @@ class DashboardActivity : AppCompatActivity() {
                     item.isChecked = true
                 }
 
-                // ✅ ADD THIS BLOCK
+                R.id.nav_water -> {
+                    loadFragment(WaterFragment())
+                    binding.toolbar.title = item.title
+                    item.isChecked = true
+                }
+
+                R.id.nav_period -> {
+                    loadFragment(PeriodTrackerFragment())
+                    binding.toolbar.title = item.title
+                    item.isChecked = true
+                }
+
                 R.id.nav_sleep -> {
                     loadFragment(LogSleepFragment())
                     binding.toolbar.title = item.title
                     item.isChecked = true
                 }
 
-                R.id.nav_water -> {
-                    loadFragment(WaterFragment())
-                    binding.toolbar.title = item.title
-                    item.isChecked = true
-                }
                 else -> {
                     clearFragment()
                     binding.toolbar.title = item.title

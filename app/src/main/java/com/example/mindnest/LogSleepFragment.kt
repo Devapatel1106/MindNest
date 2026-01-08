@@ -1,7 +1,6 @@
 package com.example.mindnest
 
 import android.app.AlertDialog
-import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.graphics.Canvas
 import android.graphics.drawable.ColorDrawable
@@ -35,7 +34,8 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
 
         adapter = LogSleepAdapter(sleepList) { }
 
-        binding.sleepRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.sleepRecyclerView.layoutManager =
+            LinearLayoutManager(requireContext())
         binding.sleepRecyclerView.adapter = adapter
 
         setupSwipeToDelete()
@@ -53,55 +53,37 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
         }
     }
 
-    // 🔹 Convert 24h → 12h AM/PM
+    // 🔹 Convert 24h → 12h AM/PM (UI helper only)
     private fun to12HourFormat(hour: Int, minute: Int): String {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, hour)
         calendar.set(Calendar.MINUTE, minute)
-
-        val formatter = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        return formatter.format(calendar.time)
+        return SimpleDateFormat("hh:mm a", Locale.getDefault())
+            .format(calendar.time)
     }
 
+    // ✅ Bottom sheet: ONLY time input
     private fun showAddSleepBottomSheet() {
         val dialog = BottomSheetDialog(
             requireContext(),
             R.style.TransparentBottomSheetDialog
         )
 
-        val sheetBinding = BottomSheetAddLogsleepBinding.inflate(layoutInflater)
+        val sheetBinding =
+            BottomSheetAddLogsleepBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        var selectedDate: String? = null
         var startTime: String? = null
         var endTime: String? = null
 
         fun updateSaveButton() {
             sheetBinding.btnSaveSleep.isEnabled =
-                selectedDate != null && startTime != null && endTime != null
+                !startTime.isNullOrBlank() && !endTime.isNullOrBlank()
         }
 
-        // 📅 Date Picker
-        sheetBinding.txtSleepDate.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            DatePickerDialog(
-                requireContext(),
-                { _, y, m, d ->
-                    calendar.set(y, m, d)
-                    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                    selectedDate = sdf.format(calendar.time)
-                    sheetBinding.txtSleepDate.text = selectedDate
-                    updateSaveButton()
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-
-        // 🌙 Sleep Time (12-hour)
+        // 🌙 Sleep Time
         sheetBinding.txtSleepStart.setOnClickListener {
-            val calendar = Calendar.getInstance()
+            val cal = Calendar.getInstance()
             TimePickerDialog(
                 requireContext(),
                 { _, h, m ->
@@ -109,15 +91,15 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
                     sheetBinding.txtSleepStart.text = startTime
                     updateSaveButton()
                 },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                false // 👈 12-hour picker
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                false // 12-hour
             ).show()
         }
 
-        // ☀️ Wake Time (12-hour)
+        // ☀️ Wake Time
         sheetBinding.txtSleepEnd.setOnClickListener {
-            val calendar = Calendar.getInstance()
+            val cal = Calendar.getInstance()
             TimePickerDialog(
                 requireContext(),
                 { _, h, m ->
@@ -125,22 +107,21 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
                     sheetBinding.txtSleepEnd.text = endTime
                     updateSaveButton()
                 },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
                 false
             ).show()
         }
 
+        // ✅ Only pass times — backend handles date & duration
         sheetBinding.btnSaveSleep.setOnClickListener {
             sleepViewModel.addSleepLog(
-                LogSleep(
-                    date = selectedDate!!,
-                    sleepTime = startTime!!,
-                    wakeTime = endTime!!
-                )
+                sleepTime = startTime!!,
+                wakeTime = endTime!!
             )
             dialog.dismiss()
         }
+
 
         dialog.show()
     }
@@ -156,7 +137,10 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
                 target: RecyclerView.ViewHolder
             ) = false
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            override fun onSwiped(
+                viewHolder: RecyclerView.ViewHolder,
+                direction: Int
+            ) {
                 val position = viewHolder.adapterPosition
                 AlertDialog.Builder(requireContext())
                     .setTitle("Delete Sleep Log")
@@ -181,12 +165,20 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
                 isCurrentlyActive: Boolean
             ) {
                 val background = ColorDrawable(
-                    ContextCompat.getColor(requireContext(), R.color.lavender_light)
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.lavender_light
+                    )
                 )
                 val itemView = viewHolder.itemView
 
                 if (dX > 0) {
-                    background.setBounds(itemView.left, itemView.top, dX.toInt(), itemView.bottom)
+                    background.setBounds(
+                        itemView.left,
+                        itemView.top,
+                        dX.toInt(),
+                        itemView.bottom
+                    )
                 } else {
                     background.setBounds(
                         itemView.right + dX.toInt(),
@@ -197,11 +189,15 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
                 }
                 background.draw(c)
 
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+                super.onChildDraw(
+                    c, recyclerView, viewHolder,
+                    dX, dY, actionState, isCurrentlyActive
+                )
             }
         }
 
-        ItemTouchHelper(callback).attachToRecyclerView(binding.sleepRecyclerView)
+        ItemTouchHelper(callback)
+            .attachToRecyclerView(binding.sleepRecyclerView)
     }
 
     private fun updateUI() {
