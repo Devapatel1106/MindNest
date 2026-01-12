@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.MindNest" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/lavender_primary</item>
+    <style name="Theme.MindNest" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <item name="colorPrimary">@color/lavender_primary</item>
         <item name="colorPrimaryVariant">@color/lavender_dark</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/lavender_primary</item>

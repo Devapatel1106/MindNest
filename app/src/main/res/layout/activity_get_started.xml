@@ -9,7 +9,7 @@
         android:id="@+id/logoImage"
         android:layout_width="@dimen/_120sdp"
         android:layout_height="@dimen/_120sdp"
-        android:layout_marginTop="@dimen/_24sdp"
+        android:layout_marginTop="@dimen/_48sdp"
         android:src="@drawable/logo2"
         android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,11 +22,10 @@
         android:layout_height="wrap_content"
         android:text="@string/welcome"
         android:textSize="@dimen/_21ssp"
-        android:layout_marginTop="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_12sdp"
         app:layout_constraintTop_toBottomOf="@id/logoImage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/subtitleText"
@@ -35,21 +34,23 @@
         android:text="@string/intro"
         android:textSize="@dimen/_14ssp"
         android:gravity="center"
-        android:layout_marginTop="@dimen/_6sdp"
-        android:paddingStart="@dimen/_26sdp"
-        android:paddingEnd="@dimen/_26sdp"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:paddingStart="@dimen/_32sdp"
+        android:paddingEnd="@dimen/_32sdp"
         app:layout_constraintTop_toBottomOf="@id/titleText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/illustrationImage"
+        android:id="@+id/homeImage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_32sdp"
+        android:layout_marginEnd="@dimen/_32sdp"
         android:src="@drawable/home"
-        android:adjustViewBounds="true"
+        android:foregroundGravity="center"
         android:scaleType="fitCenter"
-        android:layout_marginTop="@dimen/_16sdp"
+        android:alpha="0.95"
         app:layout_constraintTop_toBottomOf="@id/subtitleText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -59,10 +60,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:background="@color/text_on_lavender"
-        android:paddingTop="@dimen/_20sdp"
-        android:paddingBottom="@dimen/_36sdp"
+        android:gravity="center"
+        android:paddingTop="@dimen/_24sdp"
+        android:paddingBottom="@dimen/_40sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -72,8 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/start"
-            android:textAllCaps="false"
-            android:layout_marginTop="@dimen/_16sdp"/>
+            android:textAllCaps="false"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
