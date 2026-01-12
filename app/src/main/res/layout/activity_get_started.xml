@@ -5,27 +5,30 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
+
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/logoImage"
-        android:layout_width="@dimen/_120sdp"
-        android:layout_height="@dimen/_120sdp"
-        android:layout_marginTop="@dimen/_48sdp"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="@dimen/_100sdp"
+        android:layout_marginTop="@dimen/_40sdp"
         android:src="@drawable/logo2"
         android:scaleType="fitCenter"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/welcome"
-        android:textSize="@dimen/_21ssp"
+        android:textSize="@dimen/_20ssp"
         android:layout_marginTop="@dimen/_12sdp"
         app:layout_constraintTop_toBottomOf="@id/logoImage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/subtitleText"
@@ -44,14 +47,16 @@
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/homeImage"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_32sdp"
-        android:layout_marginEnd="@dimen/_32sdp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/_24sdp"
+        android:layout_marginEnd="@dimen/_24sdp"
+        android:layout_marginTop="@dimen/_16sdp"
+        android:layout_marginBottom="@dimen/_16sdp"
         android:src="@drawable/home"
-        android:foregroundGravity="center"
         android:scaleType="fitCenter"
-        android:alpha="0.95"
+        android:adjustViewBounds="true"
         app:layout_constraintTop_toBottomOf="@id/subtitleText"
+        app:layout_constraintBottom_toTopOf="@id/bottomLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -62,7 +67,7 @@
         android:orientation="vertical"
         android:gravity="center"
         android:paddingTop="@dimen/_24sdp"
-        android:paddingBottom="@dimen/_40sdp"
+        android:paddingBottom="@dimen/_32sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">

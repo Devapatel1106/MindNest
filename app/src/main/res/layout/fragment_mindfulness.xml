@@ -1,121 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    android:padding="@dimen/_24sdp">
+    android:fillViewport="true"
+    android:background="@color/white">
 
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/mindfulness"
-        android:textSize="@dimen/_22ssp"
-        android:textStyle="bold"
-        android:layout_marginTop="@dimen/_24sdp"
-        android:textColor="@color/text_primary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvDescription"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/mindful_info"
-        android:textSize="@dimen/_14ssp"
-        android:gravity="center"
-        android:lineSpacingExtra="@dimen/_6sdp"
-        android:layout_marginTop="@dimen/_50sdp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        android:padding="@dimen/_20sdp">
 
 
-    <LinearLayout
-        android:id="@+id/timeContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="@dimen/_32sdp"
-        app:layout_constraintTop_toBottomOf="@id/tvDescription"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnMind5Min"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/_72sdp"
-            android:minHeight="@dimen/_72sdp"
-            android:background="@drawable/bg_circle_mind"
-            android:padding="@dimen/_12sdp"
-            android:text="5 min"
-            android:textSize="@dimen/_16ssp"
-            android:layout_marginTop="@dimen/_30sdp"
+            android:text="@string/mindfulness"
+            android:textSize="@dimen/_22ssp"
             android:textStyle="bold"
-            android:gravity="center"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+            android:textColor="@color/text_primary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnMind10Min"
-            android:layout_width="wrap_content"
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvDescription"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/_72sdp"
-            android:minHeight="@dimen/_72sdp"
-            android:layout_marginHorizontal="@dimen/_16sdp"
-            android:background="@drawable/bg_circle_mind"
-            android:padding="@dimen/_12sdp"
-            android:text="10 min"
-            android:textSize="@dimen/_16ssp"
-            android:layout_marginTop="@dimen/_30sdp"
-            android:textStyle="bold"
+            android:text="@string/mindful_info"
+            android:textSize="@dimen/_14ssp"
             android:gravity="center"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+            android:lineSpacingExtra="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/_30sdp"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnMind15Min"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/timeContainer"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/_72sdp"
-            android:minHeight="@dimen/_72sdp"
-            android:background="@drawable/bg_circle_mind"
-            android:padding="@dimen/_12sdp"
-            android:text="15 min"
-            android:layout_marginTop="@dimen/_30sdp"
-            android:textSize="@dimen/_16ssp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
+            android:layout_marginTop="@dimen/_60sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDescription">
 
 
-    </LinearLayout>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnMind5Min"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:text="5 min"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:background="@drawable/bg_circle_mind"
+
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:includeFontPadding="false"
+
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintWidth_percent="0.24"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnMind10Min"/>
 
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/imgLotus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_60sdp"
-        android:scaleX="0.8"
-        android:scaleY="0.8"
-        android:src="@drawable/mindfulness"
-        android:contentDescription="Mindfulness illustration"
-        app:layout_constraintTop_toBottomOf="@id/timeContainer"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnMind10Min"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_circle_mind"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+
+                android:text="10 min"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"
+
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/btnMind15Min"
+                app:layout_constraintStart_toEndOf="@id/btnMind5Min"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                app:layout_constraintWidth_percent="0.24" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnMind15Min"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:text="15 min"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:background="@drawable/bg_circle_mind"
+
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:includeFontPadding="false"
+
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintWidth_percent="0.24"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/btnMind10Min"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ImageView
+            android:id="@+id/imgLotus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_24sdp"
+            android:src="@drawable/mindfulness"
+            android:adjustViewBounds="true"
+            android:maxHeight="240dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/mindfulness"
+            app:layout_constraintTop_toBottomOf="@id/timeContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
