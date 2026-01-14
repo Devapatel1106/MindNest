@@ -8,49 +8,50 @@
     android:clipToPadding="false">
 
     <com.google.android.material.card.MaterialCardView
-        android:layout_width="@dimen/_100sdp"
-        android:layout_height="@dimen/_100sdp"
+        android:layout_width="@dimen/_70sdp"
+        android:layout_height="@dimen/_70sdp"
         android:layout_gravity="center"
         android:layout_marginHorizontal="@dimen/_4sdp"
         android:layout_marginVertical="@dimen/_4sdp"
         app:cardCornerRadius="@dimen/_14sdp"
         app:cardElevation="0dp"
-    app:strokeWidth="@dimen/_1sdp"
-    app:strokeColor="@color/lavender_light"
-    app:cardBackgroundColor="@color/white">
+        app:strokeWidth="@dimen/_1sdp"
+        app:strokeColor="@color/lavender_light"
+        app:cardBackgroundColor="@color/white">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="@dimen/_8sdp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="@dimen/_8sdp">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/_18ssp"
-            android:textStyle="bold"
-            android:textColor="@color/lavender_dark" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_17ssp"
+                android:textStyle="bold"
+                android:textColor="@color/lavender_dark" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvMonth"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/_10ssp"
-            android:textStyle="bold"
-            android:textColor="@color/lavender_dark"
-            android:layout_marginTop="@dimen/_2sdp" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_9ssp"
+                android:textStyle="bold"
+                android:textColor="@color/lavender_dark"
+                android:layout_marginTop="@dimen/_2sdp" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Expected"
-            android:textSize="@dimen/_9ssp"
-            android:textColor="@color/lavender_dark"
-            android:layout_marginTop="@dimen/_4sdp"/>
-    </LinearLayout>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Expected"
+                android:textSize="@dimen/_8ssp"
+                android:textColor="@color/lavender_dark"
+                android:layout_marginTop="@dimen/_4sdp"/>
+        </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
-    </FrameLayout>
+</FrameLayout>
