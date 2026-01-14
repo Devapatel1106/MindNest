@@ -48,7 +48,10 @@ class ViewPager : AppCompatActivity(), View.OnClickListener {
         binding.btnPrevious.setOnClickListener(this)
 
         binding.btnFinish.setOnClickListener {
-            startActivity(Intent(this, DashboardActivity::class.java))
+            val dashboardIntent = Intent(this, DashboardActivity::class.java)
+            intent.getStringExtra("USER_NAME")?.let { dashboardIntent.putExtra("USER_NAME", it) }
+            intent.getStringExtra("USER_EMAIL")?.let { dashboardIntent.putExtra("USER_EMAIL", it) }
+            startActivity(dashboardIntent)
             finish()
         }
 
@@ -76,7 +79,10 @@ class ViewPager : AppCompatActivity(), View.OnClickListener {
     override fun onClick(view: View) {
         when (view.id) {
             R.id.btnSkip -> {
-                startActivity(Intent(this, DashboardActivity::class.java))
+                val dashboardIntent = Intent(this, DashboardActivity::class.java)
+                intent.getStringExtra("USER_NAME")?.let { dashboardIntent.putExtra("USER_NAME", it) }
+                intent.getStringExtra("USER_EMAIL")?.let { dashboardIntent.putExtra("USER_EMAIL", it) }
+                startActivity(dashboardIntent)
                 finish()
             }
 
@@ -86,7 +92,10 @@ class ViewPager : AppCompatActivity(), View.OnClickListener {
                 if (current < last) {
                     binding.viewPager.currentItem = current + 1
                 } else {
-                    startActivity(Intent(this, DashboardActivity::class.java))
+                    val dashboardIntent = Intent(this, DashboardActivity::class.java)
+                    intent.getStringExtra("USER_NAME")?.let { dashboardIntent.putExtra("USER_NAME", it) }
+                    intent.getStringExtra("USER_EMAIL")?.let { dashboardIntent.putExtra("USER_EMAIL", it) }
+                    startActivity(dashboardIntent)
                     finish()
                 }
             }
