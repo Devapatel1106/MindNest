@@ -6,13 +6,18 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/_10sdp"
     android:layout_marginBottom="@dimen/_14sdp"
+    android:clickable="false"
+    android:focusable="false"
     app:cardCornerRadius="@dimen/_18sdp"
-    app:cardElevation="@dimen/_4sdp">
+    app:cardElevation="@dimen/_4sdp"
+    app:cardForegroundColor="@android:color/transparent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/_16sdp">
+        android:padding="@dimen/_16sdp"
+        android:clickable="false"
+        android:focusable="false">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtWorkoutName"

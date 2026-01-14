@@ -1,0 +1,257 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.mindnest.ui.periodtracker.PeriodTrackerViewModel" />
+    </data>
+
+    <LinearLayout
+        android:id="@+id/llCardContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingVertical="@dimen/_16sdp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvHeaderTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/period_tracker_title"
+            android:textSize="@dimen/_20ssp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingVertical="@dimen/_20sdp"
+            android:textColor="@color/lavender_light" />
+
+        <!-- Input Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginBottom="@dimen/_16sdp"
+            app:cardCornerRadius="@dimen/_20sdp"
+            app:cardElevation="@dimen/_8sdp">
+
+            <LinearLayout
+                android:id="@+id/llInputSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/_20sdp">
+
+                <!-- Cycle Duration -->
+                <LinearLayout
+                    android:id="@+id/llCycleDuration"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="@dimen/_8sdp">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivCycle"
+                        android:layout_width="@dimen/_20sdp"
+                        android:layout_height="@dimen/_20sdp"
+                        android:layout_marginEnd="@dimen/_12sdp"
+                        android:src="@drawable/cycle_24px"
+                        android:tint="@color/lavender_dark" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvCycleLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/cycle_duration_label"
+                        android:textSize="@dimen/_14ssp" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvCycleDays"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text='@{String.valueOf(viewModel.cycleLength) + " days"}'
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:background="@drawable/bg_chip"
+                        android:paddingHorizontal="@dimen/_14sdp"
+                        android:paddingVertical="@dimen/_6sdp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginVertical="@dimen/_12sdp"/>
+
+                <!-- Start Date -->
+                <LinearLayout
+                    android:id="@+id/llStartDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="@dimen/_8sdp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvStartDateLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/start_date_label"
+                        android:textSize="@dimen/_14ssp" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvStartDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_date"
+                        android:paddingEnd="@dimen/_8sdp" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivStartDate"
+                        android:layout_width="@dimen/_24sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:src="@drawable/baseline_calendar_month_24" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginVertical="@dimen/_12sdp"/>
+
+
+                <LinearLayout
+                    android:id="@+id/llEndDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingVertical="@dimen/_8sdp">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvEndDateLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/end_date_label"
+                        android:textSize="@dimen/_14ssp" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:id="@+id/tvEndDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_date"
+                        android:paddingEnd="@dimen/_8sdp" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/ivEndDate"
+                        android:layout_width="@dimen/_24sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:src="@drawable/baseline_calendar_month_24" />
+                </LinearLayout>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvFlow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_20sdp"
+                    android:text="@string/period_duration_text"
+                    android:textSize="@dimen/_14ssp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Result Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardResult"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginBottom="@dimen/_24sdp"
+            app:cardCornerRadius="@dimen/_20sdp"
+            app:cardElevation="@dimen/_8sdp">
+
+            <LinearLayout
+                android:id="@+id/llResultSection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:padding="@dimen/_20sdp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvNextPeriodLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/next_period_label"
+                    android:textSize="@dimen/_12ssp"
+                    android:gravity="center" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvNextPeriod"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dash"
+                    android:textSize="@dimen/_14ssp"
+                    android:textStyle="bold"
+                    android:textColor="@color/lavender_dark"
+                    android:gravity="center"
+                    android:paddingTop="@dimen/_6sdp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvOvulation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dash"
+                    android:textSize="@dimen/_12ssp"
+                    android:gravity="center"
+                    android:paddingTop="@dimen/_6sdp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvInsight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textSize="@dimen/_10ssp"
+                    android:textColor="@color/lavender_light"
+                    android:gravity="center"
+                    android:paddingTop="@dimen/_8sdp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tvPredictionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:text="Upcoming cycles"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_13ssp"
+                    android:gravity="center"
+                    android:paddingBottom="@dimen/_10sdp"
+                    android:textColor="@color/lavender_dark" />
+
+                <HorizontalScrollView
+                    android:id="@+id/hsUpcomingCycles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/_8sdp"
+                    android:paddingEnd="@dimen/_8sdp"
+                    android:paddingTop="@dimen/_12sdp"
+                    android:paddingBottom="@dimen/_12sdp"
+                    android:scrollbars="none"
+                    android:clipToPadding="false"
+                    android:clipChildren="false"
+                    android:overScrollMode="never">
+
+                    <LinearLayout
+                        android:id="@+id/llUpcomingCyclesContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:clipToPadding="false"
+                        android:clipChildren="false"/>
+                </HorizontalScrollView>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+</layout>

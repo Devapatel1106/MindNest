@@ -1,27 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.MindNest" parent="Theme.MaterialComponents.Light.NoActionBar">
-    <item name="colorPrimary">@color/lavender_primary</item>
+        <item name="colorPrimary">@color/lavender_primary</item>
         <item name="colorPrimaryVariant">@color/lavender_dark</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/lavender_primary</item>
         <item name="colorOnSecondary">@color/white</item>
+
         <item name="android:fontFamily">@font/glacial_indifference</item>
         <item name="android:textColor">@color/lavender_dark</item>
         <item name="android:textStyle">bold</item>
+
         <item name="textInputStyle">@style/MindInputStyle</item>
         <item name="cardViewStyle">@style/MindCardStyle</item>
         <item name="buttonStyle">@style/MindButtonStyle</item>
+
         <item name="android:textAppearance">@style/TextStrokeBold</item>
         <item name="android:statusBarColor">@color/lavender_light</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
     </style>
 
+
     <style name="MindInputStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
         <item name="boxBackgroundColor">@color/lavender_light</item>
         <item name="boxCornerRadiusTopStart">@dimen/_18sdp</item>
-        <item name="android:windowSoftInputMode">adjustResize</item>
         <item name="boxCornerRadiusTopEnd">@dimen/_18sdp</item>
         <item name="boxCornerRadiusBottomStart">@dimen/_18sdp</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/_18sdp</item>
@@ -29,12 +33,14 @@
         <item name="android:textColorHighlight">@color/lavender_primary</item>
     </style>
 
+
     <style name="MindCardStyle" parent="Widget.MaterialComponents.CardView">
         <item name="cardBackgroundColor">@color/white</item>
         <item name="cardCornerRadius">@dimen/_16sdp</item>
         <item name="cardElevation">@dimen/_4sdp</item>
         <item name="android:padding">@dimen/_16sdp</item>
     </style>
+
 
     <style name="MindButtonStyle" parent="Widget.MaterialComponents.Button">
         <item name="android:background">@drawable/button</item>
@@ -57,10 +63,37 @@
         <item name="android:shadowRadius">2</item>
     </style>
 
+
+    <style name="RowLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">@dimen/_13ssp</item>
+    </style>
+
+    <style name="RowValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/_13ssp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginEnd">@dimen/_8sdp</item>
+    </style>
+
+
+    <style name="Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/_1sdp</item>
+        <item name="android:background">#E0E0E0</item>
+        <item name="android:layout_marginTop">@dimen/_12sdp</item>
+        <item name="android:layout_marginBottom">@dimen/_12sdp</item>
+    </style>
+
+
     <style name="NavigationItemStyle">
         <item name="android:textSize">@dimen/_16ssp</item>
-
     </style>
+
+
     <style name="TransparentBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/TransparentBottomSheet</item>
     </style>
@@ -68,4 +101,5 @@
     <style name="TransparentBottomSheet" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@android:color/transparent</item>
     </style>
+
 </resources>

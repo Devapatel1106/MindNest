@@ -16,6 +16,8 @@ import com.example.mindnest.ui.journal.JournalMoodFragment
 import com.example.mindnest.ui.mindfulness.FragmentMindfulness
 import com.example.mindnest.ui.water.WaterFragment
 import com.example.mindnest.ui.workout.WorkoutTrackingFragment
+import com.example.mindnest.ui.periodtracker.PeriodTrackerFragment
+
 
 
 class DashboardActivity : AppCompatActivity() {
@@ -100,6 +102,11 @@ class DashboardActivity : AppCompatActivity() {
                 }
                 R.id.nav_workout -> {
                     loadFragment(WorkoutTrackingFragment())
+                    binding.toolbar.title = item.title
+                    item.isChecked = true
+                }
+                R.id.nav_period -> {
+                    loadFragment(PeriodTrackerFragment())
                     binding.toolbar.title = item.title
                     item.isChecked = true
                 }

@@ -63,4 +63,17 @@
     <string name="add_sleep">Add Sleep Log</string>
     <string name="add_workout">Add your workouts</string>
     <string name="no_workout_desc">Log your daily workouts by selecting the type, duration, and intensity. Keeping track of your exercise helps you stay active, monitor progress, and maintain a healthy lifestyle.</string>
+    <string name="period_tracker_title">Period Tracker</string>
+    <string name="cycle_duration_label">Cycle Duration (days)</string>
+    <string name="cycle_default_days">28</string>
+    <string name="start_date_label">Last Period Start Date</string>
+    <string name="end_date_label">Last Period End Date</string>
+    <string name="select_date">Select date</string>
+    <string name="flow_label">Period Flow</string>
+    <string name="next_period_label">Next Expected Period</string>
+    <string name="dash">—</string>
+    <string name="select_cycle_duration">Select Cycle Duration</string>
+    <string name="done">Done</string>
+    <string name="period_duration_text">Your period lasted for: %1$d days</string>
+    <string name="cycle_length_hint">Most people fall between 21–35 days</string>
 </resources>

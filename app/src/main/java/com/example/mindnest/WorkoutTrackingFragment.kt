@@ -48,6 +48,8 @@ class WorkoutTrackingFragment :
 
     private fun observeWorkouts() {
         viewModel.workouts.observe(viewLifecycleOwner) { list ->
+            workoutList.clear()
+            workoutList.addAll(list)
             adapter.updateList(list)
             updateUI()
         }

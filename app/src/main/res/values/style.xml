@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="CardTopRoundedOverlay">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">@dimen/_24sdp</item>
@@ -7,13 +8,16 @@
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
-    <style name="CardShape.TopSquareBottomRounded" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+
+    <style name="CardShape.TopSquareBottomRounded"
+        parent="ShapeAppearance.MaterialComponents.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSizeTopLeft">0dp</item>
         <item name="cornerSizeTopRight">0dp</item>
         <item name="cornerSizeBottomLeft">@dimen/_30sdp</item>
         <item name="cornerSizeBottomRight">@dimen/_30sdp</item>
     </style>
+
     <style name="TabDotsStyle" parent="Widget.MaterialComponents.TabLayout">
         <item name="tabIndicatorHeight">0dp</item>
         <item name="tabRippleColor">@null</item>
@@ -23,4 +27,5 @@
         <item name="tabPaddingTop">6dp</item>
         <item name="tabPaddingBottom">6dp</item>
     </style>
+
 </resources>
