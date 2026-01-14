@@ -139,9 +139,15 @@ class CreateAccountActivity : AppCompatActivity() {
 
             else -> {
                 Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, ViewPager::class.java))
+
+                val intent = Intent(this, ViewPager::class.java)
+                intent.putExtra("USER_NAME", name)
+                intent.putExtra("USER_EMAIL", email)
+
+                startActivity(intent)
                 finish()
             }
+
         }
     }
 }

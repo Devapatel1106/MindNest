@@ -2,7 +2,7 @@ package com.example.mindnest
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
+import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -11,14 +11,11 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.example.mindnest.databinding.ActivityDashboardBinding
-import com.example.mindnest.databinding.FragmentMindfulnessBinding
 import com.example.mindnest.ui.journal.JournalMoodFragment
 import com.example.mindnest.ui.mindfulness.FragmentMindfulness
+import com.example.mindnest.ui.periodtracker.PeriodTrackerFragment
 import com.example.mindnest.ui.water.WaterFragment
 import com.example.mindnest.ui.workout.WorkoutTrackingFragment
-import com.example.mindnest.ui.periodtracker.PeriodTrackerFragment
-
-
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -45,6 +42,7 @@ class DashboardActivity : AppCompatActivity() {
         toggle.syncState()
         toggle.drawerArrowDrawable.color = getColor(R.color.white)
 
+        setNavHeaderData()
         setupNavigationMenu()
         setupLogout()
 
@@ -71,6 +69,19 @@ class DashboardActivity : AppCompatActivity() {
         })
     }
 
+    private fun setNavHeaderData() {
+        val headerView = binding.navigationView.getHeaderView(0)
+
+        val txtUserName = headerView.findViewById<TextView>(R.id.txtUserName)
+        val txtUserEmail = headerView.findViewById<TextView>(R.id.txtUserEmail)
+
+        val name = intent.getStringExtra("USER_NAME")
+        val email = intent.getStringExtra("USER_EMAIL")
+
+        txtUserName.text = name ?: "User"
+        txtUserEmail.text = email ?: "user@email.com"
+    }
+
     private fun setupNavigationMenu() {
         binding.navigationView.setNavigationItemSelectedListener { item ->
 
@@ -78,48 +89,47 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.nav_tasks -> {
                     loadFragment(FragmentTask())
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
                 R.id.nav_meditation -> {
                     loadFragment(FragmentMindfulness())
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
                 R.id.nav_journal -> {
                     loadFragment(JournalMoodFragment())
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
                 R.id.nav_water -> {
                     loadFragment(WaterFragment())
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
                 R.id.nav_sleep -> {
                     loadFragment(LogSleepFragment())
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
                 R.id.nav_workout -> {
                     loadFragment(WorkoutTrackingFragment())
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
                 R.id.nav_period -> {
                     loadFragment(PeriodTrackerFragment())
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
                 else -> {
                     clearFragment()
                     binding.toolbar.title = item.title
-                    item.isChecked = true
                 }
             }
 
+            item.isChecked = true
             binding.drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
+    }
+
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
     }
 
     private fun clearFragment() {
@@ -129,12 +139,6 @@ class DashboardActivity : AppCompatActivity() {
                 .remove(it)
                 .commit()
         }
-    }
-
-    private fun loadFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment)
-            .commit()
     }
 
     private fun setupLogout() {
