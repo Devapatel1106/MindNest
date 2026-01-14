@@ -25,7 +25,7 @@
             android:paddingVertical="@dimen/_20sdp"
             android:textColor="@color/lavender_light" />
 
-        <!-- Input Card -->
+
         <androidx.cardview.widget.CardView
             android:id="@+id/cardInput"
             android:layout_width="match_parent"
@@ -42,7 +42,6 @@
                 android:orientation="vertical"
                 android:padding="@dimen/_20sdp">
 
-                <!-- Cycle Duration -->
                 <LinearLayout
                     android:id="@+id/llCycleDuration"
                     android:layout_width="match_parent"
@@ -84,7 +83,6 @@
                     android:layout_height="@dimen/_1sdp"
                     android:layout_marginVertical="@dimen/_12sdp"/>
 
-                <!-- Start Date -->
                 <LinearLayout
                     android:id="@+id/llStartDate"
                     android:layout_width="match_parent"
@@ -162,7 +160,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Result Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardResult"
             android:layout_width="match_parent"

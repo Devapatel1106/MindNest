@@ -44,7 +44,7 @@
     <string name="mindfulness">Mindfulness</string>
     <string name="mindful_info">Take a few minutes each day for mindful breathing and gentle stillness. Even small moments of mindfulness can help reset your mind and bring calm to your day.</string>
     <string name="period">Periods</string>
-    <string name="period_info">The Period Module allows users to track their menstrual cycle with customizable options for cycle dates, flow intensity, and symptoms. It helps users understand their cycle patterns, manage health better, and stay prepared by keeping all period-related records organized in one place.</string>
+    <string name="period_info">Track your menstrual cycle, log important dates, and get accurate predictions for your upcoming periods to stay informed and prepared.</string>
     <string name="log_water">Log Water</string>
     <string name="target">Target</string>
     <string name="remaining">Remaining\n0 ml</string>
