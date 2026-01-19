@@ -15,6 +15,8 @@ import com.example.mindnest.R
 import com.example.mindnest.databinding.BottomSheetAddWaterBinding
 import com.example.mindnest.databinding.DialogSetTargetBinding
 import com.example.mindnest.databinding.FragmentWaterBinding
+import com.example.mindnest.WaterViewModel
+import com.example.mindnest.utils.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class WaterFragment : Fragment(), View.OnClickListener {
@@ -22,7 +24,9 @@ class WaterFragment : Fragment(), View.OnClickListener {
     private var _binding: FragmentWaterBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: WaterViewModel by activityViewModels()
+    private val viewModel: WaterViewModel by activityViewModels {
+        ViewModelFactory(requireActivity().application)
+    }
 
     private val displayList = mutableListOf<WaterListItem>()
     private lateinit var adapter: WaterHistoryAdapter
@@ -40,6 +44,12 @@ class WaterFragment : Fragment(), View.OnClickListener {
         binding.fabAddTask.setOnClickListener(this)
         binding.btnSetTarget.setOnClickListener(this)
         observeData()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload data when fragment becomes visible (e.g., after login)
+        viewModel.reloadData()
     }
 
     private fun observeData() {

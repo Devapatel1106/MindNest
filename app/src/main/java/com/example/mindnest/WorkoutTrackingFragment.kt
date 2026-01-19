@@ -16,7 +16,8 @@ import com.example.mindnest.R
 import com.example.mindnest.databinding.BottomSheetAddWorkoutBinding
 import com.example.mindnest.databinding.FragmentWorkoutTrackingBinding
 import com.example.mindnest.model.Workout
-import com.example.mindnest.viewmodel.WorkoutViewModel
+import com.example.mindnest.utils.ViewModelFactory
+import com.example.mindnest.WorkoutViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class WorkoutTrackingFragment :
@@ -25,7 +26,9 @@ class WorkoutTrackingFragment :
     private var _binding: FragmentWorkoutTrackingBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: WorkoutViewModel by activityViewModels()
+    private val viewModel: WorkoutViewModel by activityViewModels {
+        ViewModelFactory(requireActivity().application)
+    }
     private val workoutList = mutableListOf<Workout>()
     private lateinit var adapter: WorkoutAdapter
 
@@ -79,7 +82,7 @@ class WorkoutTrackingFragment :
                 return@setOnClickListener
             }
 
-            viewModel.addWorkout(Workout(workoutName, durationMinutes, intensity))
+            viewModel.addWorkout(Workout(id = 0, name = workoutName, durationMinutes = durationMinutes, intensity = intensity))
             dialog.dismiss()
         }
 

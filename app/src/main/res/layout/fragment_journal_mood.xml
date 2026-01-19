@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="@string/Journal"
         android:textColor="@color/text_primary"
-        android:textSize="@dimen/_22ssp"
+        android:textSize="@dimen/_21ssp"
         android:textStyle="bold"
         android:layout_marginTop="@dimen/_24sdp"
         app:layout_constraintTop_toTopOf="parent"
@@ -40,10 +40,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_20sdp"
-        android:padding="@dimen/_20sdp"
         android:layout_marginBottom="@dimen/_80sdp"
+        android:padding="@dimen/_20sdp"
         app:layout_constraintTop_toBottomOf="@id/rvMonths"
-        app:layout_constraintBottom_toTopOf="@id/fabAddItem"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -52,27 +51,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/journal_info"
-            android:textSize="@dimen/_14ssp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
+            android:textSize="@dimen/_13ssp"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imgEmptyItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:maxHeight="@dimen/_300sdp"
             android:minHeight="@dimen/_160sdp"
+            android:maxHeight="@dimen/_300sdp"
             android:paddingTop="@dimen/_40sdp"
             android:scaleType="fitCenter"
             android:src="@drawable/journal"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txtNoItemDesc"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView

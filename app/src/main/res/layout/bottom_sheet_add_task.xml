@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_new_task"
-                android:textSize="@dimen/_18ssp"
+                android:textSize="@dimen/_17ssp"
                 android:textStyle="bold"
                 android:layout_gravity="left"
                 android:paddingBottom="@dimen/_5sdp"/>
@@ -53,7 +53,7 @@
                 android:textColor="@color/lavender_light"
                 android:padding="@dimen/_12sdp"
                 android:textColorHint="@color/lavender_light"
-                android:textSize="@dimen/_16ssp"
+                android:textSize="@dimen/_15ssp"
                 android:layout_marginBottom="@dimen/_40sdp"/>
 
         </LinearLayout>

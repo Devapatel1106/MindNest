@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Cycle length"
-            android:textSize="@dimen/_14ssp"
+            android:textSize="@dimen/_13ssp"
             android:textColor="@color/lavender_light"
             android:gravity="center" />
 
@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="28"
-                android:textSize="@dimen/_40ssp"
+                android:textSize="@dimen/_39ssp"
                 android:textStyle="bold"
                 android:textColor="@color/lavender_dark" />
 
@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" days"
-                android:textSize="@dimen/_16ssp"
+                android:textSize="@dimen/_15ssp"
                 android:textColor="@color/lavender_light"
                 android:layout_marginTop="@dimen/_12sdp" />
         </LinearLayout>
@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/cycle_length_hint"
-            android:textSize="@dimen/_12ssp"
+            android:textSize="@dimen/_11ssp"
             android:textColor="@color/lavender_light"
             android:gravity="center"
             android:layout_marginTop="@dimen/_8sdp" />
@@ -75,7 +75,7 @@
             android:text="@string/done"
             android:textAllCaps="false"
             android:textStyle="bold"
-            android:textSize="@dimen/_15ssp"
+            android:textSize="@dimen/_14ssp"
             android:textColor="@color/white"
             android:layout_marginTop="@dimen/_24sdp"
             android:paddingVertical="@dimen/_14sdp"

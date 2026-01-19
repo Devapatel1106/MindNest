@@ -26,7 +26,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Write Journal"
-                android:textSize="@dimen/_18ssp"
+                android:textSize="@dimen/_17ssp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary"
                 app:layout_constraintTop_toTopOf="parent"
@@ -53,7 +53,7 @@
                     android:focusable="false"
                     android:clickable="true"
                     android:textColor="@android:color/black"
-                    android:textSize="@dimen/_14ssp"
+                    android:textSize="@dimen/_13ssp"
                     android:padding="@dimen/_8sdp"/>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -66,7 +66,7 @@
                 android:gravity="top|start"
                 android:background="@color/lavender_light"
                 android:padding="@dimen/_12sdp"
-                android:textSize="@dimen/_14ssp"
+                android:textSize="@dimen/_13ssp"
                 android:inputType="textMultiLine"
                 android:textColorHint="@color/white"
                 android:textColor="@color/white"
@@ -81,7 +81,7 @@
                 android:layout_marginTop="@dimen/_16sdp"
                 android:text="Save"
                 android:textAllCaps="false"
-                android:textSize="@dimen/_14ssp"
+                android:textSize="@dimen/_13ssp"
                 app:layout_constraintTop_toBottomOf="@id/edtJournal"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>

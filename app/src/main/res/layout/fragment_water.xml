@@ -4,7 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/_16sdp">
+    android:padding="@dimen/_16sdp"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTitle"
@@ -12,19 +14,21 @@
         android:layout_height="wrap_content"
         android:text="@string/log_water"
         android:textColor="@color/text_primary"
-        android:textSize="@dimen/_22ssp"
+        android:textSize="@dimen/_21ssp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardProgress"
         android:layout_width="0dp"
         android:layout_height="@dimen/_260sdp"
         android:layout_marginTop="@dimen/_16sdp"
+        android:elevation="@dimen/_10sdp"
         app:cardCornerRadius="@dimen/_24sdp"
-        app:cardElevation="@dimen/_4sdp"
+        app:cardUseCompatPadding="true"
+        app:cardPreventCornerOverlap="false"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -32,7 +36,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
 
             <ProgressBar
                 android:id="@+id/progressWater"
@@ -52,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0%"
-                android:textSize="@dimen/_18ssp"
+                android:textSize="@dimen/_17ssp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="@id/progressWater"
                 app:layout_constraintBottom_toBottomOf="@id/progressWater"
@@ -64,13 +67,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/remaining"
-                android:textSize="@dimen/_14ssp"
-                android:textAlignment="center"
+                android:textSize="@dimen/_13ssp"
                 android:layout_marginStart="@dimen/_16sdp"
                 android:layout_marginBottom="@dimen/_16sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"/>
-
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -85,7 +86,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/target"
-                    android:textSize="@dimen/_14ssp"
+                    android:textSize="@dimen/_13ssp"
                     android:textStyle="bold"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
@@ -100,14 +101,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Set Target"
-                android:textSize="@dimen/_14ssp"
+                android:textSize="@dimen/_13ssp"
                 android:layout_marginEnd="@dimen/_16sdp"
                 android:layout_marginBottom="@dimen/_16sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWaterHistory"

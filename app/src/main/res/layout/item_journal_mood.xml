@@ -23,7 +23,7 @@
             android:background="@color/text_on_lavender"
             android:text="01\nMon"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/_22ssp"
+            android:textSize="@dimen/_21ssp"
             android:textStyle="bold"
             android:gravity="center"
             android:lineSpacingExtra="@dimen/_4sdp"/>
@@ -51,7 +51,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:text="Today I felt calm..."
-                android:textSize="@dimen/_14ssp"
+                android:textSize="@dimen/_13ssp"
                 android:textColor="@android:color/white"
                 android:maxLines="3"
                 android:ellipsize="end"
@@ -65,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="🙂"
-                android:textSize="@dimen/_18ssp"
+                android:textSize="@dimen/_17ssp"
                 android:textColor="@android:color/white"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>

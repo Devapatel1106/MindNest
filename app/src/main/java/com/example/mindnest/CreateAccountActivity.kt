@@ -10,11 +10,17 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.example.mindnest.data.entity.User
 import com.example.mindnest.databinding.ActivityCreateAccountBinding
+import com.example.mindnest.utils.PreferenceManager
+import kotlinx.coroutines.launch
 
 class CreateAccountActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreateAccountBinding
+    private val app by lazy { application as MindNestApplication }
+    private val preferenceManager by lazy { PreferenceManager(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,33 +87,19 @@ class CreateAccountActivity : AppCompatActivity() {
             ContextCompat.getDrawable(this, R.drawable.edit_text_error)
 
         val drawable = editText.compoundDrawablesRelative[0]?.mutate()
-        drawable?.setTint(
-            ContextCompat.getColor(this, android.R.color.holo_red_dark)
-        )
-        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            drawable, null, null, null
-        )
+        drawable?.setTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
+        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null)
 
         errorTextView.text = message
         errorTextView.visibility = View.VISIBLE
         editText.requestFocus()
     }
 
-    private fun clearError(
-        editText: AppCompatEditText,
-        errorTextView: TextView
-    ) {
-        editText.background =
-            ContextCompat.getDrawable(this, R.drawable.edit_text)
-
+    private fun clearError(editText: AppCompatEditText, errorTextView: TextView) {
+        editText.background = ContextCompat.getDrawable(this, R.drawable.edit_text)
         val drawable = editText.compoundDrawablesRelative[0]?.mutate()
-        drawable?.setTint(
-            ContextCompat.getColor(this, R.color.lavender_primary)
-        )
-        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            drawable, null, null, null
-        )
-
+        drawable?.setTint(ContextCompat.getColor(this, R.color.lavender_primary))
+        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null)
         errorTextView.visibility = View.GONE
     }
 
@@ -127,27 +119,44 @@ class CreateAccountActivity : AppCompatActivity() {
         when {
             name.isEmpty() ->
                 showError(binding.name, binding.nameErrorTxt, "Name is required")
-
             email.isEmpty() ->
                 showError(binding.email, binding.emailErrorTxt, "Please enter your Email Address")
-
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
                 showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
-
             password.isEmpty() ->
                 showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
-
             else -> {
-                Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    try {
+                        val existingUser = app.userRepository.getUserByEmail(email)
+                        if (existingUser != null) {
+                            Toast.makeText(this@CreateAccountActivity, "Email already registered", Toast.LENGTH_SHORT).show()
+                            return@launch
+                        }
 
-                val intent = Intent(this, ViewPager::class.java)
-                intent.putExtra("USER_NAME", name)
-                intent.putExtra("USER_EMAIL", email)
+                        val user = User(
+                            name = name,
+                            email = email,
+                            password = password
+                        )
+                        val userId = app.userRepository.register(user)
 
-                startActivity(intent)
-                finish()
+                        preferenceManager.saveUserId(userId)
+                        preferenceManager.saveUserName(name)
+                        preferenceManager.saveUserEmail(email)
+
+                        Toast.makeText(this@CreateAccountActivity, "Account created successfully", Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(this@CreateAccountActivity, ViewPager::class.java)
+                        intent.putExtra("USER_NAME", name)
+                        intent.putExtra("USER_EMAIL", email)
+                        startActivity(intent)
+                        finish()
+                    } catch (e: Exception) {
+                        Toast.makeText(this@CreateAccountActivity, "Error creating account: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-
         }
     }
 }

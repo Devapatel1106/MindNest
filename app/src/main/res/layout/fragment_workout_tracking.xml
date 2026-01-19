@@ -5,7 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:clipToPadding="false"
+    android:clipChildren="false">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/txtWorkoutTitle"
@@ -13,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="@string/add_workout"
         android:textColor="@color/text_primary"
-        android:textSize="@dimen/_22ssp"
+        android:textSize="@dimen/_20ssp"
         android:textStyle="bold"
         android:layout_marginTop="@dimen/_24sdp"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,8 +27,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/_20sdp"
-        android:padding="@dimen/_20sdp"
         android:layout_marginBottom="@dimen/_80sdp"
+        android:padding="@dimen/_20sdp"
         app:layout_constraintTop_toBottomOf="@id/txtWorkoutTitle"
         app:layout_constraintBottom_toTopOf="@id/fabAddWorkout"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,34 +39,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/no_workout_desc"
-            android:textSize="@dimen/_14ssp"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/imgWorkoutEmpty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:maxHeight="@dimen/_300sdp"
             android:minHeight="@dimen/_160sdp"
+            android:maxHeight="@dimen/_300sdp"
             android:scaleType="fitCenter"
             android:src="@drawable/workout"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/txtWorkoutEmptyDesc"
-            app:layout_constraintVertical_bias="0.62" />
-
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/workoutRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:padding="@dimen/_16sdp"
-        android:background="@android:color/white"
         android:visibility="gone"
         tools:listitem="@layout/item_workout"
         app:layout_constraintTop_toBottomOf="@id/txtWorkoutTitle"

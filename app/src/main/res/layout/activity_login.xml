@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/login"
-            android:textSize="@dimen/_29ssp"
+            android:textSize="@dimen/_28ssp"
             android:layout_marginTop="@dimen/_32sdp"
             android:gravity="start" />
 
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/signin"
-            android:textSize="@dimen/_13ssp"
+            android:textSize="@dimen/_12ssp"
             android:layout_marginTop="@dimen/_6sdp"
             android:gravity="start" />
 
@@ -50,7 +50,7 @@
             android:background="@drawable/edit_text"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:textSize="@dimen/_13ssp"
+            android:textSize="@dimen/_12ssp"
             android:textColor="@color/lavender_primary"
             android:textColorHint="@color/lavender_primary"
             android:paddingStart="@dimen/_17sdp"
@@ -63,7 +63,7 @@
             android:id="@+id/emailErrorTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/_9ssp"
+            android:textSize="@dimen/_8ssp"
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
             android:paddingStart="@dimen/_10sdp"
@@ -84,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
                 android:inputType="textPassword"
-                android:textSize="@dimen/_13ssp"
+                android:textSize="@dimen/_12ssp"
                 android:textColor="@color/lavender_primary"
                 android:textColorHint="@color/lavender_primary"
                 android:background="@drawable/edit_text"
@@ -99,7 +99,7 @@
             android:id="@+id/passwordErrorTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/_9ssp"
+            android:textSize="@dimen/_8ssp"
             android:textColor="@android:color/holo_red_dark"
             android:visibility="gone"
             android:paddingStart="@dimen/_10sdp"
@@ -117,7 +117,7 @@
             android:id="@+id/createAccountTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/_14ssp"
+            android:textSize="@dimen/_13ssp"
             android:layout_marginTop="@dimen/_16sdp"
             android:clickable="true"
             android:focusable="true" />

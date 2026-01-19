@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mindnest.databinding.BottomSheetAddTaskBinding
 import com.example.mindnest.databinding.FragmentTaskBinding
+import com.example.mindnest.utils.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class FragmentTask : Fragment(R.layout.fragment_task) {
@@ -24,7 +25,9 @@ class FragmentTask : Fragment(R.layout.fragment_task) {
     private lateinit var adapter: TaskAdapter
     private val taskList = mutableListOf<Task>()
 
-    private val taskViewModel: TaskViewModel by activityViewModels()
+    private val taskViewModel: TaskViewModel by activityViewModels {
+        ViewModelFactory(requireActivity().application)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/_16sdp"
                 android:text="@string/add_sleep"
-                android:textSize="@dimen/_14ssp"
+                android:textSize="@dimen/_13ssp"
                 android:textStyle="bold" />
 
             <LinearLayout
@@ -52,14 +52,14 @@
                     android:padding="@dimen/_10sdp"
                     android:inputType="number"
                     android:maxLength="2"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_11ssp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_8sdp"
                     android:text=":"
-                    android:textSize="@dimen/_20ssp" />
+                    android:textSize="@dimen/_19ssp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edtStartMinute"
@@ -72,7 +72,7 @@
                     android:hint="MM"
                     android:inputType="number"
                     android:maxLength="2"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_11ssp" />
 
                 <RadioGroup
                     android:id="@+id/rgStartAmPm"
@@ -114,14 +114,14 @@
                     android:hint="HH"
                     android:inputType="number"
                     android:maxLength="2"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_11ssp" />
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_8sdp"
                     android:text=":"
-                    android:textSize="@dimen/_20ssp" />
+                    android:textSize="@dimen/_19ssp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
                     android:id="@+id/edtEndMinute"
@@ -134,7 +134,7 @@
                     android:hint="MM"
                     android:inputType="number"
                     android:maxLength="2"
-                    android:textSize="@dimen/_12ssp" />
+                    android:textSize="@dimen/_11ssp" />
 
                 <RadioGroup
                     android:id="@+id/rgEndAmPm"

@@ -9,6 +9,7 @@
         android:id="@+id/periodScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,22 +26,22 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/period"
+                android:layout_marginBottom="@dimen/_16sdp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toTopOf="@id/periodTitleText"
-                app:layout_constraintDimensionRatio="25:25"
-                android:layout_marginBottom="@dimen/_16sdp"/>
+                app:layout_constraintDimensionRatio="25:25" />
 
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/periodTitleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_50sdp"
-                android:text="@string/period"
-                android:textSize="@dimen/_20ssp"
-                android:textStyle="bold"
                 android:padding="@dimen/_16sdp"
+                android:text="@string/period"
+                android:textSize="@dimen/_19ssp"
+                android:textStyle="bold"
                 android:gravity="start"
                 app:layout_constraintTop_toBottomOf="@id/periodIllustrationImage"
                 app:layout_constraintStart_toStartOf="parent"
@@ -50,18 +51,19 @@
                 android:id="@+id/periodSubtitleText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/period_info"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="@dimen/_16ssp"
+                android:layout_marginBottom="@dimen/_14sdp"
                 android:gravity="start"
-                android:textStyle="bold"
                 android:paddingStart="@dimen/_20sdp"
                 android:paddingEnd="@dimen/_20sdp"
-                app:layout_constraintTop_toBottomOf="@id/periodTitleText"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:text="@string/period_info"
+                android:textSize="@dimen/_15ssp"
+                android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="@dimen/_14sdp"/>
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/periodTitleText"
+                app:layout_constraintVertical_bias="0.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>

@@ -3,22 +3,27 @@ package com.example.mindnest
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.text.Spannable
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.util.Patterns
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.mindnest.databinding.ActivityLoginBinding
+import com.example.mindnest.utils.PreferenceManager
+import kotlinx.coroutines.launch
 
 class LogInActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
+    private val app by lazy { application as MindNestApplication }
+    private val preferenceManager by lazy { PreferenceManager(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +65,7 @@ class LogInActivity : AppCompatActivity() {
             clickableSpan,
             text.indexOf("Sign up"),
             text.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
         )
 
         binding.createAccountTxt.text = spannable
@@ -89,33 +94,19 @@ class LogInActivity : AppCompatActivity() {
             ContextCompat.getDrawable(this, R.drawable.edit_text_error)
 
         val drawable = editText.compoundDrawablesRelative[0]?.mutate()
-        drawable?.setTint(
-            ContextCompat.getColor(this, android.R.color.holo_red_dark)
-        )
-        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            drawable, null, null, null
-        )
+        drawable?.setTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
+        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null)
 
         errorTextView.text = message
         errorTextView.visibility = View.VISIBLE
         editText.requestFocus()
     }
 
-    private fun clearError(
-        editText: AppCompatEditText,
-        errorTextView: TextView
-    ) {
-        editText.background =
-            ContextCompat.getDrawable(this, R.drawable.edit_text)
-
+    private fun clearError(editText: AppCompatEditText, errorTextView: TextView) {
+        editText.background = ContextCompat.getDrawable(this, R.drawable.edit_text)
         val drawable = editText.compoundDrawablesRelative[0]?.mutate()
-        drawable?.setTint(
-            ContextCompat.getColor(this, R.color.lavender_primary)
-        )
-        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            drawable, null, null, null
-        )
-
+        drawable?.setTint(ContextCompat.getColor(this, R.color.lavender_primary))
+        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null)
         errorTextView.visibility = View.GONE
     }
 
@@ -133,16 +124,32 @@ class LogInActivity : AppCompatActivity() {
         when {
             email.isEmpty() ->
                 showError(binding.email, binding.emailErrorTxt, "Please enter your Email Address")
-
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
                 showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
-
             password.isEmpty() ->
                 showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
-
             else -> {
-                startActivity(Intent(this, DashboardActivity::class.java))
-                finish()
+                lifecycleScope.launch {
+                    try {
+                        val user = app.userRepository.login(email, password)
+                        if (user != null) {
+
+                            preferenceManager.saveUserId(user.id)
+                            preferenceManager.saveUserName(user.name)
+                            preferenceManager.saveUserEmail(user.email)
+
+                            val intent = Intent(this@LogInActivity, DashboardActivity::class.java)
+                            intent.putExtra("USER_NAME", user.name)
+                            intent.putExtra("USER_EMAIL", user.email)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            Toast.makeText(this@LogInActivity, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        Toast.makeText(this@LogInActivity, "Login error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }

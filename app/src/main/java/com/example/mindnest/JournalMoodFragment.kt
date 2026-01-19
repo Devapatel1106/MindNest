@@ -9,12 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mindnest.R
+import com.example.mindnest.JournalViewModel
 import com.example.mindnest.adapter.JournalAdapter
 import com.example.mindnest.adapter.MonthAdapter
 import com.example.mindnest.databinding.BottomSheetJournalBinding
 import com.example.mindnest.databinding.FragmentJournalMoodBinding
 import com.example.mindnest.model.JournalEntry
-import com.example.mindnest.model.JournalViewModel
+import com.example.mindnest.utils.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.text.SimpleDateFormat
 import java.util.*
@@ -29,7 +30,9 @@ class JournalMoodFragment : Fragment() {
     private val filteredJournals = mutableListOf<JournalEntry>()
     private var selectedMonth: String? = null
 
-    private val viewModel: JournalViewModel by activityViewModels()
+    private val viewModel: JournalViewModel by activityViewModels {
+        ViewModelFactory(requireActivity().application)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,6 +51,12 @@ class JournalMoodFragment : Fragment() {
         binding.fabAddItem.setOnClickListener {
             openBottomSheet()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload data when fragment becomes visible (e.g., after login)
+        viewModel.reloadJournals()
     }
 
     private fun observeJournals() {
@@ -157,7 +166,7 @@ class JournalMoodFragment : Fragment() {
                 editEntry.monthYear = monthYear
                 viewModel.updateJournal(editEntry)
             } else {
-                val entry = JournalEntry(day, weekday, text, monthYear, selectedMood)
+                val entry = JournalEntry(id = 0, day = day, weekday = weekday, text = text, monthYear = monthYear, mood = selectedMood)
                 viewModel.addJournal(entry)
             }
 

@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mindnest.databinding.BottomSheetAddLogsleepBinding
 import com.example.mindnest.databinding.FragmentLogSleepBinding
+import com.example.mindnest.utils.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
@@ -25,7 +26,9 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
 
     private val sleepList = mutableListOf<LogSleep>()
     private lateinit var adapter: LogSleepAdapter
-    private val sleepViewModel: LogSleepViewModel by activityViewModels()
+    private val sleepViewModel: LogSleepViewModel by activityViewModels {
+        ViewModelFactory(requireActivity().application)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -144,7 +147,7 @@ class LogSleepFragment : Fragment(R.layout.fragment_log_sleep) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) = false
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.bindingAdapterPosition
+                val position = viewHolder.adapterPosition
                 AlertDialog.Builder(requireContext())
                     .setTitle("Delete Sleep Log")
                     .setMessage("Are you sure you want to delete this sleep entry?")

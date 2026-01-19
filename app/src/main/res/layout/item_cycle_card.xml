@@ -30,7 +30,7 @@
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/_17ssp"
+                android:textSize="@dimen/_16ssp"
                 android:textStyle="bold"
                 android:textColor="@color/lavender_dark" />
 
@@ -38,7 +38,7 @@
                 android:id="@+id/tvMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/_9ssp"
+                android:textSize="@dimen/_8ssp"
                 android:textStyle="bold"
                 android:textColor="@color/lavender_dark"
                 android:layout_marginTop="@dimen/_2sdp" />
@@ -48,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Expected"
-                android:textSize="@dimen/_8ssp"
+                android:textSize="@dimen/_7ssp"
                 android:textColor="@color/lavender_dark"
                 android:layout_marginTop="@dimen/_4sdp"/>
         </LinearLayout>

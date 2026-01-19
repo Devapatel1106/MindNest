@@ -6,5 +6,5 @@
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/_12sdp"
     android:paddingBottom="@dimen/_4sdp"
-    android:textSize="@dimen/_14ssp"
+    android:textSize="@dimen/_13ssp"
     android:textStyle="bold"/>

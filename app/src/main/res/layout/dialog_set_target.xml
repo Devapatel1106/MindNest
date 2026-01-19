@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/set_target"
-            android:textSize="@dimen/_18ssp"
+            android:textSize="@dimen/_17ssp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"/>
 
