@@ -76,4 +76,26 @@
     <string name="done">Done</string>
     <string name="period_duration_text">Your period lasted for: %1$d days</string>
     <string name="cycle_length_hint">Most people fall between 21–35 days</string>
+    <string name="calorie">Calorie Count</string>
+    <string name="enter_your_details">Enter Your Details</string>
+    <string name="age">Age</string>
+    <string name="height">Height</string>
+    <string name="weight">Weight</string>
+    <string name="years">Years</string>
+    <string name="cm">cm</string>
+    <string name="kg">kg</string>
+    <string name="weight_value">Weight</string>
+    <string name="height_value">Height</string>
+    <string name="age_value">Age</string>
+    <string name="gender_label">Gender:</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="today_calories">Today’s Calories</string>
+    <string name="default_target_calories">2000</string>
+    <string name="add_food">Add Food</string>
+    <string name="reset">Reset</string>
+    <string name="calorie_title_1">Track Your Calories</string>
+    <string name="calorie_desc_1">Log your calories to understand your eating patterns and make informed decisions for a healthier lifestyle.</string>
+
+
 </resources>

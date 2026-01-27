@@ -4,6 +4,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 
+
 class MyViewPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
 
     private val fragments = listOf(
@@ -13,7 +14,8 @@ class MyViewPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(acti
         SleepTrackingFragment(),
         WaterIntakeFragment(),
         WorkoutFragment(),
-        PeriodFragment()
+        PeriodFragment(),
+        CalorieCountFragment()
     )
 
     override fun getItemCount(): Int = fragments.size

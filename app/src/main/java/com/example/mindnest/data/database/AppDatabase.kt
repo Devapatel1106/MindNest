@@ -16,7 +16,9 @@ import com.example.mindnest.data.entity.*
         SleepEntity::class,
         JournalEntity::class,
         PeriodEntity::class,
-        UserSettings::class
+        UserSettings::class,
+        FoodItemEntity::class,
+        UserInfoEntity::class
     ],
     version = 2,
     exportSchema = false
@@ -31,6 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun journalDao(): JournalDao
     abstract fun periodDao(): PeriodDao
     abstract fun userSettingsDao(): UserSettingsDao
+    abstract fun calorieDao(): CalorieDao
 
     companion object {
         @Volatile

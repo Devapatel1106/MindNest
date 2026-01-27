@@ -1,5 +1,6 @@
 package com.example.mindnest
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
@@ -10,13 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import com.example.mindnest.ui.CalorieFragment
 import com.example.mindnest.databinding.ActivityDashboardBinding
-import com.example.mindnest.utils.PreferenceManager
 import com.example.mindnest.ui.journal.JournalMoodFragment
 import com.example.mindnest.ui.mindfulness.FragmentMindfulness
 import com.example.mindnest.ui.periodtracker.PeriodTrackerFragment
 import com.example.mindnest.ui.water.WaterFragment
 import com.example.mindnest.ui.workout.WorkoutTrackingFragment
+import com.example.mindnest.utils.PreferenceManager
+
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -77,7 +80,7 @@ class DashboardActivity : AppCompatActivity() {
         val txtUserName = headerView.findViewById<TextView>(R.id.txtUserName)
         val txtUserEmail = headerView.findViewById<TextView>(R.id.txtUserEmail)
 
-        // Prefer intent extras (first launch), fallback to persisted session (re-login).
+
         val name = intent.getStringExtra("USER_NAME") ?: preferenceManager.getUserName()
         val email = intent.getStringExtra("USER_EMAIL") ?: preferenceManager.getUserEmail()
 
@@ -117,6 +120,10 @@ class DashboardActivity : AppCompatActivity() {
                     loadFragment(PeriodTrackerFragment())
                     binding.toolbar.title = item.title
                 }
+                R.id.nav_calorie -> {
+                    loadFragment(CalorieFragment())
+                    binding.toolbar.title = item.title
+                }
                 else -> {
                     clearFragment()
                     binding.toolbar.title = item.title
@@ -154,7 +161,6 @@ class DashboardActivity : AppCompatActivity() {
                 .setMessage("Are you sure you want to logout?")
                 .setCancelable(false)
                 .setPositiveButton("Yes") { _, _ ->
-                    // Clear only the active session; keep Room data so login restores it.
                     preferenceManager.clearUserData()
                     val intent = Intent(this, LogInActivity::class.java)
                     intent.flags =

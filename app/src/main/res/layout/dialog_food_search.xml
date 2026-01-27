@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/_12sdp">
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/etSearchFood"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search food"
+        android:inputType="text"
+        android:padding="@dimen/_10sdp"
+        android:textSize="@dimen/_12ssp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerFoodSearch"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_300sdp"
+        android:layout_marginTop="@dimen/_8sdp"/>
+</LinearLayout>

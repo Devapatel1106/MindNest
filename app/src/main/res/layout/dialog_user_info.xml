@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/_16sdp">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_your_details"
+        android:textSize="@dimen/_14ssp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <View
+        android:id="@+id/dividerTop"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_1sdp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/_12sdp"/>
+
+    <LinearLayout
+        android:id="@+id/layoutAge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/dividerTop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/layoutHeight"
+        app:layout_constraintWidth_percent="0.33"
+        android:layout_marginTop="@dimen/_16sdp">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/age"
+            android:textSize="@dimen/_10ssp"
+            android:layout_marginBottom="@dimen/_5sdp"/>
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etAge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/years"
+            android:inputType="number"
+            android:padding="@dimen/_10sdp"
+            android:background="@android:drawable/edit_text"
+            android:textSize="@dimen/_12ssp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutHeight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="@id/layoutAge"
+        app:layout_constraintStart_toEndOf="@id/layoutAge"
+        app:layout_constraintEnd_toStartOf="@id/layoutWeight"
+        app:layout_constraintWidth_percent="0.33">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/height"
+            android:layout_marginBottom="@dimen/_5sdp"
+            android:textSize="@dimen/_10ssp"/>
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etHeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/cm"
+            android:inputType="number"
+            android:padding="@dimen/_10sdp"
+            android:background="@android:drawable/edit_text"
+            android:textSize="@dimen/_12ssp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutWeight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="@id/layoutAge"
+        app:layout_constraintStart_toEndOf="@id/layoutHeight"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.33">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/weight"
+            android:layout_marginBottom="@dimen/_5sdp"
+            android:textSize="@dimen/_10ssp"/>
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/etWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/kg"
+            android:inputType="number"
+            android:padding="@dimen/_10sdp"
+            android:background="@android:drawable/edit_text"
+            android:textSize="@dimen/_12ssp"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/dividerGender"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_1sdp"
+        app:layout_constraintTop_toBottomOf="@id/layoutAge"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/_20sdp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
