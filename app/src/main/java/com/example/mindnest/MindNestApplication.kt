@@ -14,5 +14,6 @@ class MindNestApplication : Application() {
     val sleepRepository by lazy { SleepRepository(database.sleepDao()) }
     val journalRepository by lazy { JournalRepository(database.journalDao()) }
     val periodRepository by lazy { PeriodRepository(database.periodDao()) }
+    val calorieRepository by lazy { CalorieRepository(database.calorieDao()) }
     val userSettingsRepository by lazy { UserSettingsRepository(database.userSettingsDao()) }
 }
