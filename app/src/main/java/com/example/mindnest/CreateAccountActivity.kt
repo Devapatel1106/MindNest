@@ -33,7 +33,7 @@ class CreateAccountActivity : AppCompatActivity() {
         setLoginRedirectLink()
         handleKeyboardScroll()
 
-        // Add TextWatcher for Gender Input to show icon dynamically
+        // Gender icon update
         binding.edtGender.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -54,37 +54,24 @@ class CreateAccountActivity : AppCompatActivity() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        resetErrors()
-    }
+    override fun onResume() { super.onResume(); resetErrors() }
 
     private fun setLoginRedirectLink() {
         val text = "Already have an account? Log in"
         val spannable = android.text.SpannableString(text)
-
         val clickableSpan = object : android.text.style.ClickableSpan() {
             override fun onClick(widget: View) {
                 startActivity(Intent(this@CreateAccountActivity, LogInActivity::class.java))
                 finish()
             }
-
             override fun updateDrawState(ds: android.text.TextPaint) {
                 ds.isUnderlineText = true
                 ds.color = ContextCompat.getColor(this@CreateAccountActivity, R.color.lavender_primary)
             }
         }
-
-        spannable.setSpan(
-            clickableSpan,
-            text.indexOf("Log in"),
-            text.length,
-            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
+        spannable.setSpan(clickableSpan, text.indexOf("Log in"), text.length, android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
         binding.loginRedirectTxt.text = spannable
-        binding.loginRedirectTxt.movementMethod =
-            android.text.method.LinkMovementMethod.getInstance()
+        binding.loginRedirectTxt.movementMethod = android.text.method.LinkMovementMethod.getInstance()
     }
 
     private fun handleKeyboardScroll() {
@@ -93,25 +80,15 @@ class CreateAccountActivity : AppCompatActivity() {
             binding.root.getWindowVisibleDisplayFrame(rect)
             val screenHeight = binding.root.rootView.height
             val keypadHeight = screenHeight - rect.bottom
-
-            if (keypadHeight > screenHeight * 0.15) {
-                binding.rootScroll.scrollTo(0, binding.email.bottom)
-            }
+            if (keypadHeight > screenHeight * 0.15) binding.rootScroll.scrollTo(0, binding.email.bottom)
         }
     }
 
-    private fun showError(
-        editText: AppCompatEditText,
-        errorTextView: TextView,
-        message: String
-    ) {
-        editText.background =
-            ContextCompat.getDrawable(this, R.drawable.edit_text_error)
-
+    private fun showError(editText: AppCompatEditText, errorTextView: TextView, message: String) {
+        editText.background = ContextCompat.getDrawable(this, R.drawable.edit_text_error)
         val drawable = editText.compoundDrawablesRelative[0]?.mutate()
         drawable?.setTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
         editText.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null)
-
         errorTextView.text = message
         errorTextView.visibility = View.VISIBLE
         editText.requestFocus()
@@ -137,7 +114,6 @@ class CreateAccountActivity : AppCompatActivity() {
         val email = binding.email.text.toString().trim()
         val password = binding.edtPassword.text.toString().trim()
         val genderInput = binding.edtGender.text.toString().trim().lowercase()
-
         resetErrors()
 
         val selectedGender = when (genderInput) {
@@ -147,16 +123,11 @@ class CreateAccountActivity : AppCompatActivity() {
         }
 
         when {
-            name.isEmpty() ->
-                showError(binding.name, binding.nameErrorTxt, "Name is required")
-            email.isEmpty() ->
-                showError(binding.email, binding.emailErrorTxt, "Please enter your Email Address")
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
-                showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
-            password.isEmpty() ->
-                showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
-            selectedGender.isEmpty() ->
-                showError(binding.edtGender, binding.genderErrorTxt, "Please enter a valid gender (Male/Female)")
+            name.isEmpty() -> showError(binding.name, binding.nameErrorTxt, "Name is required")
+            email.isEmpty() -> showError(binding.email, binding.emailErrorTxt, "Please enter your Email Address")
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
+            password.isEmpty() -> showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
+            selectedGender.isEmpty() -> showError(binding.edtGender, binding.genderErrorTxt, "Please enter a valid gender (Male/Female)")
             else -> {
                 lifecycleScope.launch {
                     try {
@@ -166,12 +137,7 @@ class CreateAccountActivity : AppCompatActivity() {
                             return@launch
                         }
 
-                        val user = User(
-                            name = name,
-                            email = email,
-                            password = password,
-                            gender = selectedGender
-                        )
+                        val user = User(name = name, email = email, password = password, gender = selectedGender)
                         val userId = app.userRepository.register(user)
 
                         preferenceManager.saveUserId(userId)

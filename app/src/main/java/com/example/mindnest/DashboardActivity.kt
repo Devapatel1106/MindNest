@@ -76,16 +76,12 @@ class DashboardActivity : AppCompatActivity() {
         })
     }
 
-    // -------------------------
-    // NEW FUNCTION
-    // -------------------------
     private fun handlePeriodVisibility() {
         val gender = preferenceManager.getUserGender()?.lowercase()
-        if (gender != "female") {
-            binding.navigationView.menu.findItem(R.id.nav_period)?.isVisible = false
-        }
+        val periodItem = binding.navigationView.menu.findItem(R.id.nav_period)
+        periodItem?.isVisible = gender == "female"
     }
-    // -------------------------
+
 
     private fun setNavHeaderData() {
         val headerView = binding.navigationView.getHeaderView(0)

@@ -35,39 +35,25 @@ class LogInActivity : AppCompatActivity() {
         handleKeyboardScroll()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-                finishAffinity()
-            }
+            override fun handleOnBackPressed() { finishAffinity() }
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        resetErrors()
-    }
+    override fun onResume() { super.onResume(); resetErrors() }
 
     private fun setSignUpLink() {
         val text = "Don't have an account? Sign up"
         val spannable = SpannableString(text)
-
         val clickableSpan = object : ClickableSpan() {
             override fun onClick(widget: View) {
                 startActivity(Intent(this@LogInActivity, CreateAccountActivity::class.java))
             }
-
             override fun updateDrawState(ds: android.text.TextPaint) {
                 ds.isUnderlineText = true
                 ds.color = ContextCompat.getColor(this@LogInActivity, R.color.lavender_primary)
             }
         }
-
-        spannable.setSpan(
-            clickableSpan,
-            text.indexOf("Sign up"),
-            text.length,
-            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-
+        spannable.setSpan(clickableSpan, text.indexOf("Sign up"), text.length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
         binding.createAccountTxt.text = spannable
         binding.createAccountTxt.movementMethod = LinkMovementMethod.getInstance()
     }
@@ -78,25 +64,15 @@ class LogInActivity : AppCompatActivity() {
             binding.root.getWindowVisibleDisplayFrame(rect)
             val screenHeight = binding.root.rootView.height
             val keypadHeight = screenHeight - rect.bottom
-
-            if (keypadHeight > screenHeight * 0.15) {
-                binding.rootScroll.scrollTo(0, binding.email.bottom)
-            }
+            if (keypadHeight > screenHeight * 0.15) binding.rootScroll.scrollTo(0, binding.email.bottom)
         }
     }
 
-    private fun showError(
-        editText: AppCompatEditText,
-        errorTextView: TextView,
-        message: String
-    ) {
-        editText.background =
-            ContextCompat.getDrawable(this, R.drawable.edit_text_error)
-
+    private fun showError(editText: AppCompatEditText, errorTextView: TextView, message: String) {
+        editText.background = ContextCompat.getDrawable(this, R.drawable.edit_text_error)
         val drawable = editText.compoundDrawablesRelative[0]?.mutate()
         drawable?.setTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
         editText.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, null, null, null)
-
         errorTextView.text = message
         errorTextView.visibility = View.VISIBLE
         editText.requestFocus()
@@ -118,25 +94,22 @@ class LogInActivity : AppCompatActivity() {
     private fun handleLogin() {
         val email = binding.email.text.toString().trim()
         val password = binding.edtPassword.text.toString().trim()
-
         resetErrors()
 
         when {
-            email.isEmpty() ->
-                showError(binding.email, binding.emailErrorTxt, "Please enter your Email Address")
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
-                showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
-            password.isEmpty() ->
-                showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
+            email.isEmpty() -> showError(binding.email, binding.emailErrorTxt, "Please enter your Email Address")
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
+            password.isEmpty() -> showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
             else -> {
                 lifecycleScope.launch {
                     try {
                         val user = app.userRepository.login(email, password)
                         if (user != null) {
-
+                            
                             preferenceManager.saveUserId(user.id)
                             preferenceManager.saveUserName(user.name)
                             preferenceManager.saveUserEmail(user.email)
+                            preferenceManager.saveUserGender(user.gender)
 
                             val intent = Intent(this@LogInActivity, DashboardActivity::class.java)
                             intent.putExtra("USER_NAME", user.name)
