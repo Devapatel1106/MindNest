@@ -68,6 +68,34 @@
             android:layout_gravity="start"
             android:paddingLeft="@dimen/_10sdp"
             android:visibility="gone"/>
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/edtGender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_14sdp"
+            android:background="@drawable/edit_text"
+            android:hint="Gender"
+            android:inputType="text"
+            android:paddingTop="@dimen/_10sdp"
+            android:paddingBottom="@dimen/_10sdp"
+            android:paddingLeft="@dimen/_17sdp"
+            android:paddingRight="@dimen/_17sdp"
+            android:textSize="@dimen/_12ssp"
+            android:textColor="@color/lavender_primary"
+            android:textColorHint="@color/lavender_primary"
+            android:drawableEnd="@null"
+            android:drawablePadding="@dimen/_7sdp"
+            android:drawableStart="@drawable/demography_24px"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/genderErrorTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/_8ssp"
+            android:textColor="@android:color/holo_red_dark"
+            android:layout_gravity="start"
+            android:paddingLeft="@dimen/_10sdp"
+            android:visibility="gone"/>
 
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/email"

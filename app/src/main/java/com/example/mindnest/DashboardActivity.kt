@@ -1,6 +1,5 @@
 package com.example.mindnest
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
@@ -19,7 +18,6 @@ import com.example.mindnest.ui.periodtracker.PeriodTrackerFragment
 import com.example.mindnest.ui.water.WaterFragment
 import com.example.mindnest.ui.workout.WorkoutTrackingFragment
 import com.example.mindnest.utils.PreferenceManager
-
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -48,7 +46,11 @@ class DashboardActivity : AppCompatActivity() {
         toggle.drawerArrowDrawable.color = getColor(R.color.white)
 
         setNavHeaderData()
+        handlePeriodVisibility()
         setupNavigationMenu()
+
+
+
         setupLogout()
 
         if (savedInstanceState == null) {
@@ -74,12 +76,22 @@ class DashboardActivity : AppCompatActivity() {
         })
     }
 
+    // -------------------------
+    // NEW FUNCTION
+    // -------------------------
+    private fun handlePeriodVisibility() {
+        val gender = preferenceManager.getUserGender()?.lowercase()
+        if (gender != "female") {
+            binding.navigationView.menu.findItem(R.id.nav_period)?.isVisible = false
+        }
+    }
+    // -------------------------
+
     private fun setNavHeaderData() {
         val headerView = binding.navigationView.getHeaderView(0)
 
         val txtUserName = headerView.findViewById<TextView>(R.id.txtUserName)
         val txtUserEmail = headerView.findViewById<TextView>(R.id.txtUserEmail)
-
 
         val name = intent.getStringExtra("USER_NAME") ?: preferenceManager.getUserName()
         val email = intent.getStringExtra("USER_EMAIL") ?: preferenceManager.getUserEmail()

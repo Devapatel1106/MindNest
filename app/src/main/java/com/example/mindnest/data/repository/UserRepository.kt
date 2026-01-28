@@ -3,6 +3,7 @@ package com.example.mindnest.data.repository
 import com.example.mindnest.data.dao.UserDao
 import com.example.mindnest.data.entity.User
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class UserRepository(private val userDao: UserDao) {
 
@@ -25,5 +26,21 @@ class UserRepository(private val userDao: UserDao) {
 
     suspend fun getUserByEmail(email: String): User? {
         return userDao.getUserByEmail(email)
+    }
+
+    fun getUserGender(userId: Long): Flow<String?> {
+        return userDao.getUserById(userId).map { it?.gender }
+    }
+
+    fun getUsersByGender(gender: String): Flow<List<User>> {
+        return userDao.getUsersByGender(gender)
+    }
+
+    suspend fun updateUser(user: User) {
+        userDao.updateUser(user)
+    }
+
+    suspend fun deleteUser(user: User) {
+        userDao.deleteUser(user)
     }
 }

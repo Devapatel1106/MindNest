@@ -15,6 +15,8 @@ import com.example.mindnest.data.entity.User
 import com.example.mindnest.databinding.ActivityCreateAccountBinding
 import com.example.mindnest.utils.PreferenceManager
 import kotlinx.coroutines.launch
+import android.text.Editable
+import android.text.TextWatcher
 
 class CreateAccountActivity : AppCompatActivity() {
 
@@ -30,6 +32,26 @@ class CreateAccountActivity : AppCompatActivity() {
         binding.SignInBtn.setOnClickListener { handleSignUp() }
         setLoginRedirectLink()
         handleKeyboardScroll()
+
+        // Add TextWatcher for Gender Input to show icon dynamically
+        binding.edtGender.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val text = s.toString().trim().lowercase()
+                val iconRes = when (text) {
+                    "male", "boy" -> R.drawable.male_24px
+                    "female", "girl" -> R.drawable.female_24px
+                    else -> 0
+                }
+                binding.edtGender.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    ContextCompat.getDrawable(this@CreateAccountActivity, R.drawable.person_24px),
+                    null,
+                    if (iconRes != 0) ContextCompat.getDrawable(this@CreateAccountActivity, iconRes) else null,
+                    null
+                )
+            }
+        })
     }
 
     override fun onResume() {
@@ -107,14 +129,22 @@ class CreateAccountActivity : AppCompatActivity() {
         clearError(binding.name, binding.nameErrorTxt)
         clearError(binding.email, binding.emailErrorTxt)
         clearError(binding.edtPassword, binding.passwordErrorTxt)
+        clearError(binding.edtGender, binding.genderErrorTxt)
     }
 
     private fun handleSignUp() {
         val name = binding.name.text.toString().trim()
         val email = binding.email.text.toString().trim()
         val password = binding.edtPassword.text.toString().trim()
+        val genderInput = binding.edtGender.text.toString().trim().lowercase()
 
         resetErrors()
+
+        val selectedGender = when (genderInput) {
+            "male", "boy" -> "male"
+            "female", "girl" -> "female"
+            else -> ""
+        }
 
         when {
             name.isEmpty() ->
@@ -125,6 +155,8 @@ class CreateAccountActivity : AppCompatActivity() {
                 showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
             password.isEmpty() ->
                 showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
+            selectedGender.isEmpty() ->
+                showError(binding.edtGender, binding.genderErrorTxt, "Please enter a valid gender (Male/Female)")
             else -> {
                 lifecycleScope.launch {
                     try {
@@ -137,13 +169,15 @@ class CreateAccountActivity : AppCompatActivity() {
                         val user = User(
                             name = name,
                             email = email,
-                            password = password
+                            password = password,
+                            gender = selectedGender
                         )
                         val userId = app.userRepository.register(user)
 
                         preferenceManager.saveUserId(userId)
                         preferenceManager.saveUserName(name)
                         preferenceManager.saveUserEmail(email)
+                        preferenceManager.saveUserGender(selectedGender)
 
                         Toast.makeText(this@CreateAccountActivity, "Account created successfully", Toast.LENGTH_SHORT).show()
 

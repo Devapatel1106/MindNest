@@ -8,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.mindnest.databinding.ActivityViewPagerBinding
+import com.example.mindnest.utils.PreferenceManager
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -23,7 +24,10 @@ class ViewPager : AppCompatActivity(), View.OnClickListener {
         binding.btnSkip.paintFlags =
             binding.btnSkip.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
-        binding.viewPager.adapter = MyViewPagerAdapter(this)
+
+        val gender = PreferenceManager(this).getUserGender() ?: "male"
+        binding.viewPager.adapter = MyViewPagerAdapter(this, gender)
+
 
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, _ ->
             tab.customView = layoutInflater.inflate(R.layout.tab_dot, null)

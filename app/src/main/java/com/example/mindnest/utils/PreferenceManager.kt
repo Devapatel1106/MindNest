@@ -11,6 +11,7 @@ class PreferenceManager(context: Context) {
         private const val KEY_USER_ID = "user_id"
         private const val KEY_USER_NAME = "user_name"
         private const val KEY_USER_EMAIL = "user_email"
+        private const val KEY_USER_GENDER = "user_gender"
         private const val KEY_WATER_TARGET_PREFIX = "water_target_"
     }
 
@@ -36,6 +37,14 @@ class PreferenceManager(context: Context) {
 
     fun getUserEmail(): String? {
         return prefs.getString(KEY_USER_EMAIL, null)
+    }
+
+    fun saveUserGender(gender: String) {
+        prefs.edit().putString(KEY_USER_GENDER, gender).apply()
+    }
+
+    fun getUserGender(): String? {
+        return prefs.getString(KEY_USER_GENDER, null)
     }
 
     fun clearUserData() {

@@ -16,6 +16,9 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE id = :userId LIMIT 1")
     fun getUserById(userId: Long): Flow<User?>
 
+    @Query("SELECT * FROM users WHERE gender = :gender")
+    fun getUsersByGender(gender: String): Flow<List<User>>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertUser(user: User): Long
 
