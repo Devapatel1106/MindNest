@@ -10,18 +10,19 @@ import com.example.mindnest.utils.PreferenceManager
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-
 data class Task(
     val id: Long = 0,
     val title: String,
     val description: String = "",
-    val completed: Boolean = false
+    val completed: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis()
 )
 
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
+
     private val app = application as MindNestApplication
     private val preferenceManager = PreferenceManager(application)
-    
+
     private val _tasks = MutableLiveData<List<Task>>(emptyList())
     val tasks: LiveData<List<Task>> = _tasks
 
@@ -41,7 +42,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                             id = entity.id,
                             title = entity.title,
                             description = entity.description,
-                            completed = entity.completed
+                            completed = entity.completed,
+                            createdAt = entity.createdAt
                         )
                     }
                 }
@@ -51,53 +53,67 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addTask(task: Task) {
+    fun addTask(title: String, description: String = "") {
         val userId = preferenceManager.getUserId()
         if (userId <= 0) return
 
         viewModelScope.launch {
-            val entity = TaskEntity(
-                id = 0,
-                userId = userId,
-                title = task.title,
-                description = task.description,
-                completed = task.completed
+            app.taskRepository.insertTask(
+                TaskEntity(
+                    id = 0,
+                    userId = userId,
+                    title = title,
+                    description = description,
+                    completed = false,
+                    createdAt = System.currentTimeMillis()
+                )
             )
-            app.taskRepository.insertTask(entity)
         }
     }
 
-    fun removeTask(position: Int) {
-        val task = _tasks.value?.getOrNull(position) ?: return
+    fun deleteTask(task: Task) {
         val userId = preferenceManager.getUserId()
         if (userId <= 0 || task.id == 0L) return
 
         viewModelScope.launch {
-            val entity = TaskEntity(
-                id = task.id,
-                userId = userId,
-                title = task.title,
-                description = task.description,
-                completed = task.completed
-            )
-            app.taskRepository.deleteTask(entity)
+            app.taskRepository.deleteTaskById(task.id)
         }
     }
 
-    fun updateTask(position: Int, newTitle: String) {
-        val task = _tasks.value?.getOrNull(position) ?: return
+    fun updateTask(task: Task, newTitle: String) {
         val userId = preferenceManager.getUserId()
         if (userId <= 0 || task.id == 0L) return
 
         viewModelScope.launch {
-            val entity = TaskEntity(
-                id = task.id,
-                userId = userId,
-                title = newTitle,
-                description = task.description,
-                completed = task.completed
+            app.taskRepository.updateTask(
+                TaskEntity(
+                    id = task.id,
+                    userId = userId,
+                    title = newTitle,
+                    description = task.description,
+                    completed = task.completed,
+                    createdAt = task.createdAt
+                )
             )
-            app.taskRepository.updateTask(entity)
+        }
+    }
+
+
+    fun setTaskCompletion(task: Task, isCompleted: Boolean) {
+        val userId = preferenceManager.getUserId()
+        if (userId <= 0 || task.id == 0L) return
+
+        viewModelScope.launch {
+            app.taskRepository.updateTask(
+                TaskEntity(
+                    id = task.id,
+                    userId = userId,
+                    title = task.title,
+                    description = task.description,
+                    completed = isCompleted,
+                    createdAt = task.createdAt
+                )
+            )
         }
     }
 }

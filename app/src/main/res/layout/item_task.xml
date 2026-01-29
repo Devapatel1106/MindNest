@@ -15,6 +15,13 @@
         android:padding="@dimen/_16sdp"
         android:gravity="center_vertical">
 
+        <CheckBox
+            android:id="@+id/chkTaskDone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/lavender_dark"
+            android:layout_marginEnd="@dimen/_12sdp"/>
+
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/txtTaskTitle"
             android:layout_width="0dp"
@@ -35,5 +42,4 @@
             android:src="@drawable/edit_square_24px"
             app:tint="@color/lavender_dark"/>
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>
