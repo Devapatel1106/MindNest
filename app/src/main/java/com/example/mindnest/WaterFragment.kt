@@ -48,7 +48,7 @@ class WaterFragment : Fragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        // Reload data when fragment becomes visible (e.g., after login)
+
         viewModel.reloadData()
     }
 
@@ -159,22 +159,28 @@ class WaterFragment : Fragment(), View.OnClickListener {
 
     private fun rebuildList() {
         displayList.clear()
+
         viewModel.entries.value
             ?.groupBy { it.date }
             ?.toSortedMap(compareByDescending { it })
             ?.forEach { (date, entries) ->
+
                 displayList.add(
                     WaterListItem.DateHeader(
                         date,
                         viewModel.isTargetAchieved(date)
                     )
                 )
-                entries.forEach {
+
+
+                entries.asReversed().forEach {
                     displayList.add(WaterListItem.WaterLog(it))
                 }
             }
+
         adapter.notifyDataSetChanged()
     }
+
 
     private fun setupRecycler() {
         adapter = WaterHistoryAdapter(displayList)
