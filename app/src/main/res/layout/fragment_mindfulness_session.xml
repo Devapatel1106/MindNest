@@ -8,10 +8,9 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarMindfulness"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:elevation="@dimen/_4sdp"
-        android:layout_height="wrap_content"
-        android:paddingBottom="@dimen/_5sdp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -23,8 +22,7 @@
             android:src="@drawable/baseline_arrow_back_ios_new_24"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:tint="@color/white"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:padding="@dimen/_10sdp" />
+            android:padding="@dimen/_5sdp" />
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.constraintlayout.widget.ConstraintLayout

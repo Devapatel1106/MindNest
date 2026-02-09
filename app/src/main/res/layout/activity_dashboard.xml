@@ -19,7 +19,6 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             android:elevation="@dimen/_4sdp"
-            android:paddingTop="@dimen/_20sdp"
             app:titleTextColor="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"

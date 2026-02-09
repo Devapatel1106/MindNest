@@ -40,7 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/_20sdp"
-        android:layout_marginBottom="@dimen/_80sdp"
+        android:layout_marginBottom="@dimen/_50sdp"
         android:padding="@dimen/_20sdp"
         app:layout_constraintTop_toBottomOf="@id/rvMonths"
         app:layout_constraintStart_toStartOf="parent"
@@ -61,14 +61,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
-            android:minHeight="@dimen/_160sdp"
             android:maxHeight="@dimen/_300sdp"
-            android:paddingTop="@dimen/_40sdp"
+            android:minHeight="@dimen/_160sdp"
+            android:paddingTop="@dimen/_20sdp"
             android:scaleType="fitCenter"
             android:src="@drawable/journal"
-            app:layout_constraintTop_toBottomOf="@id/txtNoItemDesc"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toBottomOf="@id/txtNoItemDesc" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -53,7 +53,6 @@ class CalorieFragment : Fragment() {
             binding.tvAge.text = "Age: ${info.age}"
             binding.tvTargetCalories.text = info.targetCalories.toString()
 
-            // 🔥 sync gender UI
             updateGenderUI(info.gender)
         }
 
