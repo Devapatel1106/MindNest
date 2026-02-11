@@ -25,7 +25,8 @@ class CalorieFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: CalorieViewModel by activityViewModels {
-        androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
+        androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
+            .getInstance(requireActivity().application)
     }
 
     private lateinit var foodAdapter: FoodAdapter
@@ -44,7 +45,6 @@ class CalorieFragment : Fragment() {
         return binding.root
     }
 
-
     private fun setupObservers() {
 
         viewModel.userInfo.observe(viewLifecycleOwner) { info ->
@@ -53,20 +53,30 @@ class CalorieFragment : Fragment() {
             binding.tvAge.text = "Age: ${info.age}"
             binding.tvTargetCalories.text = info.targetCalories.toString()
 
-            updateGenderUI(info.gender)
+            // ✅ Gender Text + Icon
+            binding.tvGender.text = info.gender
+
+            if (info.gender == "Male") {
+                binding.ivGenderIcon.setImageResource(R.drawable.male_24px)
+            } else {
+                binding.ivGenderIcon.setImageResource(R.drawable.female_24px)
+            }
         }
 
         viewModel.consumedCalories.observe(viewLifecycleOwner) { consumed ->
             binding.tvConsumed.text = "Consumed: $consumed kcal"
 
             val target = viewModel.userInfo.value?.targetCalories ?: 2000
-            binding.calorieProgress.progress = ((consumed * 100) / target).coerceIn(0, 100)
+            binding.calorieProgress.progress =
+                ((consumed * 100) / target).coerceIn(0, 100)
         }
 
         viewModel.remainingCalories.observe(viewLifecycleOwner) { remaining ->
             binding.tvRemaining.text =
-                if (remaining >= 0) "Remaining: $remaining kcal"
-                else "Exceeded by ${-remaining} kcal"
+                if (remaining >= 0)
+                    "Remaining: $remaining kcal"
+                else
+                    "Exceeded by ${-remaining} kcal"
         }
 
         viewModel.suggestion.observe(viewLifecycleOwner) {
@@ -84,20 +94,23 @@ class CalorieFragment : Fragment() {
         binding.tvHeight.setOnClickListener { showUserInfoDialog() }
         binding.tvAge.setOnClickListener { showUserInfoDialog() }
 
-        binding.btnMale.setOnClickListener { updateGender("Male") }
-        binding.btnFemale.setOnClickListener { updateGender("Female") }
+        binding.btnPlusTarget.setOnClickListener {
+            viewModel.increaseTarget()
+        }
 
-        binding.btnPlusTarget.setOnClickListener { viewModel.increaseTarget() }
-        binding.btnMinusTarget.setOnClickListener { viewModel.decreaseTarget() }
+        binding.btnMinusTarget.setOnClickListener {
+            viewModel.decreaseTarget()
+        }
 
-        binding.btnAddFood.setOnClickListener { showFoodSearchPopup() }
+        binding.btnAddFood.setOnClickListener {
+            showFoodSearchPopup()
+        }
 
         binding.btnResetFood.setOnClickListener {
             viewModel.clearFoodList()
             Toast.makeText(requireContext(), "Calories reset", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     private fun showUserInfoDialog() {
 
@@ -129,37 +142,20 @@ class CalorieFragment : Fragment() {
                 }
 
                 val gender = current?.gender ?: "Male"
-                viewModel.updateUserInfo(weight, height, age, gender)
+
+                viewModel.updateUserInfo(
+                    weight,
+                    height,
+                    age,
+                    gender
+                )
             }
             .setNegativeButton("Cancel", null)
             .show()
     }
 
-
-    private fun updateGender(gender: String) {
-        val info = viewModel.userInfo.value ?: return
-        if (info.gender == gender) return
-
-        viewModel.updateUserInfo(
-            info.weight,
-            info.height,
-            info.age,
-            gender
-        )
-    }
-
-    private fun updateGenderUI(gender: String) {
-        if (gender == "Male") {
-            binding.btnMale.setBackgroundResource(R.drawable.bg_gender_selected)
-            binding.btnFemale.setBackgroundResource(R.drawable.bg_gender_unselected)
-        } else {
-            binding.btnFemale.setBackgroundResource(R.drawable.bg_gender_selected)
-            binding.btnMale.setBackgroundResource(R.drawable.bg_gender_unselected)
-        }
-    }
-
-
     private fun setupFoodRecycler() {
+
         foodAdapter = FoodAdapter { food ->
             viewModel.addFood(food)
             Toast.makeText(requireContext(), "${food.name} added", Toast.LENGTH_SHORT).show()
@@ -176,8 +172,11 @@ class CalorieFragment : Fragment() {
         val dialogView = LayoutInflater.from(requireContext())
             .inflate(R.layout.dialog_food_search, null)
 
-        val etSearch = dialogView.findViewById<AppCompatEditText>(R.id.etSearchFood)
-        val recycler = dialogView.findViewById<RecyclerView>(R.id.recyclerFoodSearch)
+        val etSearch =
+            dialogView.findViewById<AppCompatEditText>(R.id.etSearchFood)
+
+        val recycler =
+            dialogView.findViewById<RecyclerView>(R.id.recyclerFoodSearch)
 
         val fullFoodList = FoodDataSource.foodList.toList()
 
@@ -193,13 +192,14 @@ class CalorieFragment : Fragment() {
         etSearch.addTextChangedListener { text ->
             val query = text?.toString()?.trim()?.lowercase().orEmpty()
 
-            val filtered = if (query.isEmpty()) {
-                fullFoodList
-            } else {
-                fullFoodList.filter {
-                    it.name.lowercase().contains(query)
+            val filtered =
+                if (query.isEmpty()) {
+                    fullFoodList
+                } else {
+                    fullFoodList.filter {
+                        it.name.lowercase().contains(query)
+                    }
                 }
-            }
 
             dialogAdapter.submitList(filtered.toList())
         }

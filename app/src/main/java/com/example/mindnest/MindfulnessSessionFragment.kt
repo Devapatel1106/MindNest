@@ -66,7 +66,6 @@ class MindfulnessSessionFragment : Fragment() {
 
         viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
-                super.onDestroy(owner)
                 activity?.findViewById<View>(R.id.toolbar)?.isVisible = true
             }
         })
@@ -105,10 +104,14 @@ class MindfulnessSessionFragment : Fragment() {
         btnSave.setOnClickListener { saveSession() }
     }
 
+
     private fun initAudio() {
-        mediaPlayer = MediaPlayer.create(requireContext(), R.raw.arnor_chosic)
-        mediaPlayer?.isLooping = true
-        mediaPlayer?.setVolume(0.6f, 0.6f)
+        if (mediaPlayer == null) {
+            mediaPlayer = MediaPlayer.create(requireContext(), R.raw.arnor_chosic).apply {
+                isLooping = true
+                setVolume(0.6f, 0.6f)
+            }
+        }
     }
 
     private fun startTimer() {
@@ -116,6 +119,8 @@ class MindfulnessSessionFragment : Fragment() {
         isRunning = true
         sessionSaved = false
         sessionStartTime = System.currentTimeMillis()
+
+        initAudio()
         mediaPlayer?.start()
 
         countDownTimer = object : CountDownTimer(millisRemaining, 1000) {
@@ -180,14 +185,19 @@ class MindfulnessSessionFragment : Fragment() {
     }
 
     private fun updateProgress() {
-        val progress = ((totalMillis - millisRemaining).toFloat() / totalMillis * 100).roundToInt()
+        val progress =
+            ((totalMillis - millisRemaining).toFloat() / totalMillis * 100).roundToInt()
         binding.circularProgress.progress = progress
     }
 
+
     private fun stopAudio() {
-        mediaPlayer?.stop()
-        mediaPlayer?.release()
-        mediaPlayer = null
+        mediaPlayer?.let {
+            if (it.isPlaying) {
+                it.stop()
+                it.prepareAsync()
+            }
+        }
     }
 
     override fun onStop() {
@@ -203,7 +213,11 @@ class MindfulnessSessionFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         countDownTimer?.cancel()
-        stopAudio()
+
+
+        mediaPlayer?.release()
+        mediaPlayer = null
+
         _binding = null
         activity?.findViewById<View>(R.id.toolbar)?.isVisible = true
     }

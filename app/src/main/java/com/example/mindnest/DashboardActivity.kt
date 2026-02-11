@@ -8,6 +8,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.example.mindnest.ui.CalorieFragment
@@ -18,6 +19,7 @@ import com.example.mindnest.ui.periodtracker.PeriodTrackerFragment
 import com.example.mindnest.ui.water.WaterFragment
 import com.example.mindnest.ui.workout.WorkoutTrackingFragment
 import com.example.mindnest.utils.PreferenceManager
+import androidx.core.view.WindowCompat
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -27,6 +29,8 @@ class DashboardActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        window.statusBarColor = ContextCompat.getColor(this, R.color.lavender_primary)
 
         binding = ActivityDashboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -48,9 +52,6 @@ class DashboardActivity : AppCompatActivity() {
         setNavHeaderData()
         handlePeriodVisibility()
         setupNavigationMenu()
-
-
-
         setupLogout()
 
         if (savedInstanceState == null) {
@@ -81,7 +82,6 @@ class DashboardActivity : AppCompatActivity() {
         val periodItem = binding.navigationView.menu.findItem(R.id.nav_period)
         periodItem?.isVisible = gender == "female"
     }
-
 
     private fun setNavHeaderData() {
         val headerView = binding.navigationView.getHeaderView(0)

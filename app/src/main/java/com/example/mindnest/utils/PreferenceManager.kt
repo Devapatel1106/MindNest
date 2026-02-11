@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class PreferenceManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     companion object {
         private const val PREFS_NAME = "MindNestPrefs"

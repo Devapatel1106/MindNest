@@ -2,24 +2,27 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Theme.MindNest" parent="Theme.MaterialComponents.Light.NoActionBar">
+
         <item name="colorPrimary">@color/lavender_primary</item>
-        <item name="colorPrimaryVariant">@color/lavender_dark</item>
+        <item name="colorPrimaryVariant">@color/lavender_primary</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@color/lavender_primary</item>
         <item name="colorSecondary">@color/lavender_primary</item>
         <item name="colorOnSecondary">@color/white</item>
-
+        <item name="android:statusBarColor">@color/lavender_primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="elevationOverlayEnabled">false</item>
         <item name="android:fontFamily">@font/glacial_indifference</item>
         <item name="android:textColor">@color/lavender_dark</item>
         <item name="android:textStyle">bold</item>
-
+        <item name="android:textAppearance">@style/TextStrokeBold</item>
         <item name="textInputStyle">@style/MindInputStyle</item>
         <item name="cardViewStyle">@style/MindCardStyle</item>
         <item name="buttonStyle">@style/MindButtonStyle</item>
 
-        <item name="android:textAppearance">@style/TextStrokeBold</item>
-        <item name="android:statusBarColor">@color/lavender_light</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowSoftInputMode">adjustResize</item>
+
     </style>
 
 

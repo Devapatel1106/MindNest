@@ -3,22 +3,23 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawerLayout"
+    android:fitsSystemWindows="true"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
-    android:background="@android:color/white">
+    android:layout_height="match_parent">
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white">
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:elevation="@dimen/_4sdp"
+            android:fitsSystemWindows="true"
             app:titleTextColor="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,18 +33,21 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigationView"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/_24sdp"
         android:maxWidth="@dimen/_350sdp"
-        android:fitsSystemWindows="false"
         app:menu="@menu/menu_dashboard"
         app:headerLayout="@layout/nav_header"
-        app:insetForeground="@null"
         app:itemTextColor="@color/text_primary"
         app:itemIconTint="@color/text_primary"
         app:itemTextAppearance="@style/NavigationItemStyle">
@@ -54,10 +58,11 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="@dimen/_24sdp"
+            android:padding="@dimen/_14sdp"
             android:text="@string/logout"
             android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:padding="@dimen/_14sdp" />
+            android:textColor="@android:color/white" />
 
     </com.google.android.material.navigation.NavigationView>
+
 </androidx.drawerlayout.widget.DrawerLayout>

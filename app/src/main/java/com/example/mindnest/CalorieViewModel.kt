@@ -8,6 +8,7 @@ import com.example.mindnest.data.database.AppDatabase
 import com.example.mindnest.data.entity.FoodItemEntity
 import com.example.mindnest.data.entity.UserInfoEntity
 import com.example.mindnest.data.repository.CalorieRepository
+import com.example.mindnest.utils.PreferenceManager
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -15,7 +16,9 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
 
     private val repository: CalorieRepository
     private val today = LocalDate.now().toString()
-    private val USER_ID = "default_user"
+    private val preferenceManager = PreferenceManager(application)
+
+    private val USER_ID = preferenceManager.getUserId().toString()
 
     val userInfo = MutableLiveData<UserInfo>()
     val foodList = MutableLiveData<MutableList<FoodItem>>(mutableListOf())
@@ -29,19 +32,46 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
 
         viewModelScope.launch {
 
-            repository.getUser(USER_ID)?.let {
+            val savedUser = repository.getUser(USER_ID)
+
+            if (savedUser != null) {
                 userInfo.value = UserInfo(
-                    it.weight,
-                    it.height,
-                    it.age,
-                    it.gender,
-                    it.targetCalories
+                    savedUser.weight,
+                    savedUser.height,
+                    savedUser.age,
+                    savedUser.gender,
+                    savedUser.targetCalories
+                )
+            } else {
+
+                val savedGender = preferenceManager.getUserGender() ?: "Male"
+
+                val defaultUser = UserInfo(
+                    weight = 60,
+                    height = 170,
+                    age = 20,
+                    gender = savedGender,
+                    targetCalories = 2000
+                )
+
+                userInfo.value = defaultUser
+
+                repository.saveUser(
+                    UserInfoEntity(
+                        userId = USER_ID,
+                        weight = 60,
+                        height = 170,
+                        age = 20,
+                        gender = savedGender,
+                        targetCalories = 2000
+                    )
                 )
             }
 
             repository.resetOldFood(USER_ID, today)
 
             val foodEntities = repository.getTodayFood(USER_ID, today)
+
             foodList.value = foodEntities.map {
                 FoodItem(it.name, it.category, it.calories, it.quantity)
             }.toMutableList()
@@ -52,6 +82,7 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
 
     fun addFood(food: FoodItem) {
         viewModelScope.launch {
+
             val entity = FoodItemEntity(
                 userId = USER_ID,
                 name = food.name,
@@ -73,6 +104,7 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
 
     fun removeFood(food: FoodItem) {
         viewModelScope.launch {
+
             val entity = FoodItemEntity(
                 userId = USER_ID,
                 name = food.name,
@@ -93,6 +125,7 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun clearFoodList() {
+
         foodList.value = mutableListOf()
         consumedCalories.value = 0
 
@@ -101,11 +134,13 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
         suggestion.value = "You can eat this much today!"
 
         viewModelScope.launch {
+            // ✅ Correct function (no error now)
             repository.clearAllFood(USER_ID)
         }
     }
 
     fun updateUserInfo(weight: Int, height: Int, age: Int, gender: String) {
+
         val target = userInfo.value?.targetCalories ?: 2000
 
         userInfo.value = UserInfo(weight, height, age, gender, target)
@@ -171,6 +206,7 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun recalcCalories() {
+
         val list = foodList.value ?: emptyList()
         val consumed = list.sumOf { it.calories * it.quantity }
 
