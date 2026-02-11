@@ -27,6 +27,15 @@ class LogInActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        if (preferenceManager.getUserId() != -1L) {
+
+            startActivity(Intent(this, DashboardActivity::class.java))
+            finish()
+            return
+        }
+
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -105,7 +114,7 @@ class LogInActivity : AppCompatActivity() {
                     try {
                         val user = app.userRepository.login(email, password)
                         if (user != null) {
-                            
+
                             preferenceManager.saveUserId(user.id)
                             preferenceManager.saveUserName(user.name)
                             preferenceManager.saveUserEmail(user.email)

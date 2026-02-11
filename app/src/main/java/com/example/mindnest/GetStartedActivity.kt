@@ -6,13 +6,25 @@ import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mindnest.databinding.ActivityGetStartedBinding
+import com.example.mindnest.utils.PreferenceManager
 
 class GetStartedActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var binding: ActivityGetStartedBinding
+    private val preferenceManager by lazy { PreferenceManager(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        if (preferenceManager.getUserId() != -1L) {
+            val intent = Intent(this, DashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+
         binding = ActivityGetStartedBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
