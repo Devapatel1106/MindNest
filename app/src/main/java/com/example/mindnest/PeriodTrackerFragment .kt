@@ -71,13 +71,13 @@ class PeriodTrackerFragment : Fragment() {
                         val start = p.startDate?.let { s -> LocalDate.parse(s, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
                         val end = p.endDate?.let { s -> LocalDate.parse(s, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
 
-                        start?.let { 
+                        start?.let {
                             lastStartDate = it
-                            viewModel.setStartDate(it) 
+                            viewModel.setStartDate(it)
                         }
-                        end?.let { 
+                        end?.let {
                             lastEndDate = it
-                            viewModel.setEndDate(it) 
+                            viewModel.setEndDate(it)
                         }
                         lastCycleLength = p.cycleLength
                         viewModel.setCycleLength(p.cycleLength)

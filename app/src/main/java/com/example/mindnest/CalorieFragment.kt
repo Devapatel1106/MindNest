@@ -53,8 +53,9 @@ class CalorieFragment : Fragment() {
             binding.tvAge.text = "Age: ${info.age}"
             binding.tvTargetCalories.text = info.targetCalories.toString()
 
-            // ✅ Gender Text + Icon
-            binding.tvGender.text = info.gender
+
+            binding.tvGender.text =
+                if (info.gender == "Male") "M" else "F"
 
             if (info.gender == "Male") {
                 binding.ivGenderIcon.setImageResource(R.drawable.male_24px)

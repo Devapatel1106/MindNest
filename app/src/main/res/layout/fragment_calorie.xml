@@ -121,7 +121,10 @@
                             android:id="@+id/tvGender"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/_12ssp"/>
+                            android:textSize="@dimen/_12ssp"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:singleLine="true"/>
                     </LinearLayout>
 
                 </LinearLayout>
