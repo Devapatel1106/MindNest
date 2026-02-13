@@ -1,5 +1,6 @@
 package com.example.mindnest.ui.mindfulness
 
+import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -40,6 +41,8 @@ class MindfulnessSessionFragment : Fragment() {
     private val adapter = PastSessionAdapter()
     private val viewModel: PastSessionViewModel by activityViewModels()
 
+    private var userId: Int = -1
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -52,9 +55,15 @@ class MindfulnessSessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Get logged in user id
+        userId = requireActivity()
+            .getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            .getInt("user_id", -1)
+
         activity?.findViewById<View>(R.id.toolbar)?.isVisible = false
 
         binding.btnBack.setOnClickListener { navigateBack() }
+
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
@@ -79,10 +88,14 @@ class MindfulnessSessionFragment : Fragment() {
         updateTimerText(millisRemaining)
         initAudio()
 
-        viewModel.loadSessions(requireContext())
+        // Load only this user's sessions
+        viewModel.loadSessions(requireContext(), userId)
+
         viewModel.pastSessions.observe(viewLifecycleOwner) { list ->
             adapter.submitList(list.toList())
-            if (list.isNotEmpty()) binding.rvPastSessions.scrollToPosition(0)
+            if (list.isNotEmpty()) {
+                binding.rvPastSessions.scrollToPosition(0)
+            }
         }
     }
 
@@ -103,7 +116,6 @@ class MindfulnessSessionFragment : Fragment() {
         btnPause.setOnClickListener { pauseTimer() }
         btnSave.setOnClickListener { saveSession() }
     }
-
 
     private fun initAudio() {
         if (mediaPlayer == null) {
@@ -155,6 +167,7 @@ class MindfulnessSessionFragment : Fragment() {
     }
 
     private fun autoSaveSession() {
+
         if (sessionSaved || millisRemaining == totalMillis) return
         sessionSaved = true
 
@@ -171,11 +184,7 @@ class MindfulnessSessionFragment : Fragment() {
             startMillis = sessionStartTime
         )
 
-        viewModel.addSession(newSession, requireContext())
-
-        binding.rvPastSessions.post {
-            binding.rvPastSessions.scrollToPosition(0)
-        }
+        viewModel.addSession(newSession, userId, requireContext())
     }
 
     private fun updateTimerText(millis: Long) {
@@ -189,7 +198,6 @@ class MindfulnessSessionFragment : Fragment() {
             ((totalMillis - millisRemaining).toFloat() / totalMillis * 100).roundToInt()
         binding.circularProgress.progress = progress
     }
-
 
     private fun stopAudio() {
         mediaPlayer?.let {
@@ -213,11 +221,8 @@ class MindfulnessSessionFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         countDownTimer?.cancel()
-
-
         mediaPlayer?.release()
         mediaPlayer = null
-
         _binding = null
         activity?.findViewById<View>(R.id.toolbar)?.isVisible = true
     }

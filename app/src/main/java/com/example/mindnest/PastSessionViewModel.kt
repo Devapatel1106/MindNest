@@ -15,29 +15,37 @@ class PastSessionViewModel : ViewModel() {
     private val PREFS_NAME = "mindful_sessions"
     private val KEY_SESSIONS = "sessions"
 
-
-    fun addSession(session: PastSession, context: Context? = null) {
-        val list = _pastSessions.value ?: mutableListOf()
-        list.add(0, session)
-        _pastSessions.value = list
-        context?.let { saveSessions(it) }
-    }
-
-    fun saveSessions(context: Context) {
+    fun addSession(session: PastSession, userId: Int, context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val gson = Gson()
-        val json = gson.toJson(_pastSessions.value)
-        prefs.edit().putString(KEY_SESSIONS, json).apply()
+
+        val json = prefs.getString("${KEY_SESSIONS}_$userId", null)
+        val type = object : TypeToken<MutableList<PastSession>>() {}.type
+
+        val list: MutableList<PastSession> =
+            if (!json.isNullOrEmpty()) gson.fromJson(json, type)
+            else mutableListOf()
+
+
+        list.add(0, session)
+
+
+        prefs.edit().putString("${KEY_SESSIONS}_$userId", gson.toJson(list)).apply()
+
+
+        _pastSessions.value = list
     }
 
-    fun loadSessions(context: Context) {
+    fun loadSessions(context: Context, userId: Int) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val json = prefs.getString(KEY_SESSIONS, null)
+        val json = prefs.getString("${KEY_SESSIONS}_$userId", null)
+
         if (!json.isNullOrEmpty()) {
             val gson = Gson()
             val type = object : TypeToken<MutableList<PastSession>>() {}.type
-            val list: MutableList<PastSession> = gson.fromJson(json, type)
-            _pastSessions.value = list
+            _pastSessions.value = gson.fromJson(json, type)
+        } else {
+            _pastSessions.value = mutableListOf()
         }
     }
 }
