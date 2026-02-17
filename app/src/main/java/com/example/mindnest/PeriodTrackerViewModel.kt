@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+data class PeriodCycle(val startDate: LocalDate, val endDate: LocalDate)
+
 class PeriodTrackerViewModel : ViewModel() {
 
     private val _cycleLength = MutableLiveData(28)
@@ -66,6 +68,26 @@ class PeriodTrackerViewModel : ViewModel() {
         return result
     }
 
-
     fun getCycleLengthText(): String = "${_cycleLength.value ?: 28} days"
+
+    fun getCurrentCycle(): PeriodCycle? {
+        val start = _startDate.value
+        val end = _endDate.value
+        if (start != null && end != null) {
+            val today = LocalDate.now()
+            if (!today.isBefore(start) && !today.isAfter(end)) {
+                return PeriodCycle(start, end)
+            }
+        }
+        return null
+    }
+
+    fun getLastCycle(): PeriodCycle? {
+        val start = _startDate.value
+        val end = _endDate.value
+        if (start != null && end != null) {
+            return PeriodCycle(start, end)
+        }
+        return null
+    }
 }
