@@ -22,6 +22,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Calendar
+import com.example.mindnest.ui.chat.ChatDialogFragment   // ✅ chatbot import
 
 class OverviewFragment : Fragment() {
 
@@ -62,6 +63,12 @@ class OverviewFragment : Fragment() {
         overviewViewModel.refreshAll()
 
         scheduleMidnightRefresh()
+
+        // ✅ CHATBOT CLICK LISTENER ADDED
+        binding.fabChatbot.setOnClickListener {
+            val dialog = ChatDialogFragment()
+            dialog.show(parentFragmentManager, "ChatDialog")
+        }
     }
 
     private fun scheduleMidnightRefresh() {
@@ -343,6 +350,4 @@ class OverviewFragment : Fragment() {
         midnightRunnable?.let { handler.removeCallbacks(it) }
         _binding = null
     }
-
-
 }

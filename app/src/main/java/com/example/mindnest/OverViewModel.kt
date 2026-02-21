@@ -93,7 +93,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
                 val today = todayDateString()
 
-                val targetMl = settings?.waterTargetMl ?: 0
+                val targetMl = settings?.waterTargetMl ?: 2000
                 val todayMl = entries.filter { it.date == today }.sumOf { it.amountMl }
 
                 if (targetMl <= 0) return@combine "Set target"
@@ -367,17 +367,19 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
 
 
+
     private suspend fun computeEmotionalScore(userId: Long, today: String): Int {
+        val entry = app.journalRepository.getJournalEntryByDate(userId, today).first() ?: return 0
 
-        val entry =
-            app.journalRepository.getJournalEntryByDate(userId, today).first()
-                ?: return 0
-
-        return 80
+        return when (entry.mood?.lowercase()) {
+            "happy" -> 80
+            "neutral" -> 50
+            "sad" -> 20
+            else -> 40
+        }
     }
 
     private suspend fun computeSleepScore(userId: Long, today: String): Int {
-
         val logs =
             app.sleepRepository.getSleepLogsByUser(userId).first()
                 .filter { it.date == today }
@@ -394,15 +396,14 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         val hours = (end - start) / 60.0
 
         return when {
-            hours >= 7 -> 100
-            hours >= 6 -> 80
-            hours >= 5 -> 60
+            hours >= 8 -> 100
+            hours >= 7 -> 80
+            hours >= 6 -> 60
             else -> 40
         }
     }
 
     private fun computeMeditationScore(userId: Long, today: String): Int {
-
         val prefs =
             getApplication<Application>()
                 .getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
@@ -418,24 +419,38 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         val todaySessions =
             list.filter { it.date == today }
 
-        return if (todaySessions.isEmpty()) 0 else 80
+        return when {
+            todaySessions.size >= 3 -> 100
+            todaySessions.size == 2 -> 70
+            todaySessions.size == 1 -> 40
+            else -> 0
+        }
     }
 
     private suspend fun computeWaterScore(userId: Long, today: String): Int {
-
         val entries =
             app.waterRepository.getWaterEntriesByUser(userId).first()
+
+        val settings = app.userSettingsRepository.getUserSettings(userId).first()
+        val targetMl = settings?.waterTargetMl ?: 2000
 
         val todayMl =
             entries.filter { it.date == today }.sumOf { it.amountMl }
 
         if (todayMl == 0) return 0
 
-        return 80
+        val ratio = todayMl.toDouble() / targetMl
+
+        return when {
+            ratio >= 1.2 -> 100
+            ratio >= 1.0 -> 80
+            ratio >= 0.75 -> 60
+            ratio >= 0.5 -> 40
+            else -> 0
+        }
     }
 
     private suspend fun computeTaskScore(userId: Long, today: String): Int {
-
         val tasks =
             app.taskRepository.getTasksByUser(userId).first()
                 .filter { it.date == today }
@@ -451,13 +466,17 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private suspend fun computePhysicalScore(userId: Long): Int {
-
         val workouts =
             app.workoutRepository.getWorkoutsByUser(userId).first()
 
-        return if (workouts.isEmpty()) 0 else 80
-    }
+        val todayWorkouts = workouts.filter { it.date in todayMillisRange().first..todayMillisRange().second }
 
+        return when {
+            todayWorkouts.size >= 2 -> 100
+            todayWorkouts.size == 1 -> 60
+            else -> 0
+        }
+    }
 
 
     private fun interpretScore(score: Int): String =

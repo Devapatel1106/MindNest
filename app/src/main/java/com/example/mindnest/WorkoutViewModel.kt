@@ -34,7 +34,8 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
                             id = entity.id,
                             name = entity.name,
                             durationMinutes = entity.durationMinutes,
-                            intensity = entity.intensity
+                            intensity = entity.intensity,
+                            date = entity.date
                         )
                     }
                 }
@@ -72,7 +73,7 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
                 name = workout.name,
                 durationMinutes = workout.durationMinutes,
                 intensity = workout.intensity,
-                date = System.currentTimeMillis()
+                date = workout.date
             )
             app.workoutRepository.deleteWorkout(entity)
         }

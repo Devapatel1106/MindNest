@@ -32,7 +32,6 @@ class WorkoutTrackingFragment :
         ViewModelFactory(requireActivity().application)
     }
 
-    // Display list for adapter (WorkoutListItem = DateHeader or WorkoutItem)
     private val displayList = mutableListOf<WorkoutListItem>()
     private lateinit var adapter: WorkoutAdapter
 
@@ -55,12 +54,10 @@ class WorkoutTrackingFragment :
 
     private fun observeWorkouts() {
         viewModel.workouts.observe(viewLifecycleOwner) { list ->
-            // Sort by newest date first
             val sortedList = list.sortedByDescending { it.date }
 
             displayList.clear()
 
-            // Group workouts by date without time
             val grouped = sortedList.groupBy { it.date.toDateWithoutTime() }
 
             grouped.forEach { (date, workoutsForDate) ->

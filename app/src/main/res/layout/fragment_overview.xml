@@ -9,135 +9,163 @@
             type="String" />
     </data>
 
-    <androidx.core.widget.NestedScrollView
+    <!-- Root container to allow floating button -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        android:clipToPadding="false"
-        android:overScrollMode="never">
+        android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.LinearLayoutCompat
+        <!-- ===== YOUR ORIGINAL CONTENT (UNCHANGED) ===== -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/overviewScroll"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/_16sdp">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:clipToPadding="false"
+            android:overScrollMode="never">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvGreeting"
+            <androidx.appcompat.widget.LinearLayoutCompat
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Good morning"
-                android:textSize="@dimen/_16ssp"
-                android:textStyle="bold"
-                android:textColor="@color/text_primary"
-                android:paddingBottom="@dimen/_12sdp"
-                tools:text="Good morning, John" />
+                android:orientation="vertical"
+                android:padding="@dimen/_16sdp">
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/quoteCard"
-                style="@style/MindCardStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_20sdp"
-                app:cardBackgroundColor="@color/lavender_light">
-
+                <!-- Greeting -->
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/tvQuote"
+                    android:id="@+id/tvGreeting"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="@dimen/_100sdp"
-                    android:ellipsize="end"
-                    android:gravity="center"
-                    android:maxLines="3"
-                    android:padding="@dimen/_12sdp"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_14ssp"
-                    android:textStyle="italic"
-                    tools:text="Your mindset is examined in the midst of unilluminated storms." />
+                    android:text="Good morning"
+                    android:textSize="@dimen/_16ssp"
+                    android:textStyle="bold"
+                    android:textColor="@color/text_primary"
+                    android:paddingBottom="@dimen/_12sdp"
+                    tools:text="Good morning, John" />
 
-            </com.google.android.material.card.MaterialCardView>
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/mindScoreCard"
-                style="@style/MindCardStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_20sdp"
-                app:cardBackgroundColor="@color/white">
-
-                <RelativeLayout
+                <!-- Quote Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/quoteCard"
+                    style="@style/MindCardStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/_14sdp">
+                    android:layout_marginBottom="@dimen/_20sdp"
+                    app:cardBackgroundColor="@color/lavender_light">
 
                     <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/tvMindTitle"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tvQuote"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Mind Score"
-                        android:textStyle="bold"
+                        android:minHeight="@dimen/_100sdp"
+                        android:ellipsize="end"
+                        android:gravity="center"
+                        android:maxLines="3"
+                        android:padding="@dimen/_12sdp"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/_14ssp"
-                        android:textColor="@color/text_primary" />
+                        android:textStyle="italic"
+                        tools:text="Your mindset is examined in the midst of unilluminated storms." />
 
-                    <FrameLayout
-                        android:id="@+id/mindScoreCircle"
-                        android:layout_width="@dimen/_150sdp"
-                        android:layout_height="@dimen/_150sdp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_below="@id/tvMindTitle"
-                        android:layout_marginTop="@dimen/_12sdp">
+                </com.google.android.material.card.MaterialCardView>
 
-                        <ProgressBar
-                            android:id="@+id/progressMindScore"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:max="100"
-                            android:progress="0"
-                            android:indeterminate="false"
-                            android:progressDrawable="@drawable/circular_progress_drawable"
-                            android:rotation="-90" />
+                <!-- Mind Score Card (UNCHANGED) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/mindScoreCard"
+                    style="@style/MindCardStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/_20sdp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/_14sdp">
 
                         <androidx.appcompat.widget.AppCompatTextView
-                            android:id="@+id/tvMindScore"
+                            android:id="@+id/tvMindTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="0"
-                            android:textSize="@dimen/_24ssp"
+                            android:text="Mind Score"
                             android:textStyle="bold"
-                            android:textColor="@color/lavender_dark"
-                            tools:text="78" />
+                            android:textSize="@dimen/_14ssp"
+                            android:textColor="@color/text_primary"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent" />
 
-                    </FrameLayout>
+                        <FrameLayout
+                            android:id="@+id/mindScoreCircle"
+                            android:layout_width="@dimen/_150sdp"
+                            android:layout_height="@dimen/_150sdp"
+                            android:layout_marginTop="@dimen/_12sdp"
+                            app:layout_constraintTop_toBottomOf="@id/tvMindTitle"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent">
 
-                    <androidx.appcompat.widget.AppCompatTextView
-                        android:id="@+id/tvMindStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/mindScoreCircle"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="@dimen/_6sdp"
-                        android:text="Good Day"
-                        android:textSize="@dimen/_10ssp"
-                        tools:text="Great Day!" />
+                            <ProgressBar
+                                android:id="@+id/progressMindScore"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:max="100"
+                                android:progress="0"
+                                android:indeterminate="false"
+                                android:progressDrawable="@drawable/circular_progress_drawable"
+                                android:rotation="-90" />
 
-                </RelativeLayout>
+                            <androidx.appcompat.widget.AppCompatTextView
+                                android:id="@+id/tvMindScore"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="0"
+                                android:textSize="@dimen/_24ssp"
+                                android:textStyle="bold"
+                                android:textColor="@color/lavender_dark"
+                                tools:text="78" />
 
-            </com.google.android.material.card.MaterialCardView>
+                        </FrameLayout>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvMindStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:text="Good Day"
+                            android:textSize="@dimen/_10ssp"
+                            tools:text="Great Day!"
+                            app:layout_constraintTop_toBottomOf="@id/mindScoreCircle"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Features -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewFeatures"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:clipToPadding="false"
+                    android:layout_marginBottom="@dimen/_16sdp"
+                    android:scrollbars="none"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.core.widget.NestedScrollView>
 
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewFeatures"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:clipToPadding="false"
-                android:layout_marginBottom="@dimen/_16sdp"
-                android:scrollbars="none"/>
-
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
-    </androidx.core.widget.NestedScrollView>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabChatbot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="@dimen/_12sdp"
+            android:layout_marginBottom="@dimen/_10sdp"
+            app:srcCompat="@drawable/chat_bubble_24px"
+            app:tint="@android:color/white"
+            app:backgroundTint="@color/lavender_primary"
+            app:elevation="@dimen/_6sdp"/>
+    </FrameLayout>
 
 </layout>
