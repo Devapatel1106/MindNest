@@ -17,17 +17,24 @@ import com.example.mindnest.utils.PreferenceManager
 import kotlinx.coroutines.launch
 import android.text.Editable
 import android.text.TextWatcher
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class CreateAccountActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCreateAccountBinding
     private val app by lazy { application as MindNestApplication }
     private val preferenceManager by lazy { PreferenceManager(this) }
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCreateAccountBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        firebaseAuth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
 
         binding.SignInBtn.setOnClickListener { handleSignUp() }
         setLoginRedirectLink()
@@ -194,30 +201,67 @@ class CreateAccountActivity : AppCompatActivity() {
                             return@launch
                         }
 
-                        val user = User(
-                            name = name,
-                            email = email,
-                            password = password,
-                            gender = selectedGender
-                        )
+                        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                            .addOnSuccessListener { authResult ->
+                                val firebaseUser = authResult.user
 
-                        val userId = app.userRepository.register(user)
+                                val userMap = hashMapOf(
+                                    "name" to name,
+                                    "email" to email,
+                                    "gender" to selectedGender,
+                                    "uid" to firebaseUser?.uid
+                                )
 
-                        preferenceManager.saveUserId(userId)
-                        preferenceManager.saveUserName(name)
-                        preferenceManager.saveUserEmail(email)
-                        preferenceManager.saveUserGender(selectedGender)
+                                firebaseUser?.let {
+                                    firestore.collection("users")
+                                        .document(it.uid)
+                                        .set(userMap)
+                                        .addOnSuccessListener {
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Toast.makeText(
+                                                this@CreateAccountActivity,
+                                                "Firestore Error: ${e.message}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                }
 
-                        Toast.makeText(
-                            this@CreateAccountActivity,
-                            "Account created successfully",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                                val user = User(
+                                    name = name,
+                                    email = email,
+                                    password = password,
+                                    gender = selectedGender
+                                )
 
-                        startActivity(
-                            Intent(this@CreateAccountActivity, ViewPager::class.java)
-                        )
-                        finish()
+                                lifecycleScope.launch {
+                                    val userId = app.userRepository.register(user)
+
+                                    preferenceManager.saveUserId(userId)
+                                    preferenceManager.saveUserName(name)
+                                    preferenceManager.saveUserEmail(email)
+                                    preferenceManager.saveUserGender(selectedGender)
+
+                                    Toast.makeText(
+                                        this@CreateAccountActivity,
+                                        "Account created successfully",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    startActivity(
+                                        Intent(this@CreateAccountActivity, ViewPager::class.java)
+                                    )
+                                    finish()
+                                }
+
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this@CreateAccountActivity,
+                                    "Firebase SignUp Error: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
 
                     } catch (e: Exception) {
                         Toast.makeText(

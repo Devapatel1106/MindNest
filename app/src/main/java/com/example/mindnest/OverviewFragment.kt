@@ -64,7 +64,6 @@ class OverviewFragment : Fragment() {
 
         scheduleMidnightRefresh()
 
-        // ✅ CHATBOT CLICK LISTENER ADDED
         binding.fabChatbot.setOnClickListener {
             val dialog = ChatDialogFragment()
             dialog.show(parentFragmentManager, "ChatDialog")
@@ -104,8 +103,9 @@ class OverviewFragment : Fragment() {
         val hourOfDay = calendar.get(java.util.Calendar.HOUR_OF_DAY)
 
         val greeting = when {
-            hourOfDay < 12 -> "Good morning"
-            hourOfDay < 17 -> "Good afternoon"
+            hourOfDay in 0..4 -> "It's time to sleep"
+            hourOfDay in 5..11 -> "Good morning"
+            hourOfDay in 12..16 -> "Good afternoon"
             else -> "Good evening"
         }
 

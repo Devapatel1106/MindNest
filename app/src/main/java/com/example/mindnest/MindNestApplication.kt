@@ -3,6 +3,8 @@ package com.example.mindnest
 import android.app.Application
 import com.example.mindnest.data.database.AppDatabase
 import com.example.mindnest.data.repository.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MindNestApplication : Application() {
     val database by lazy { AppDatabase.getDatabase(this) }
@@ -17,4 +19,6 @@ class MindNestApplication : Application() {
     val calorieRepository by lazy { CalorieRepository(database.calorieDao()) }
     val userSettingsRepository by lazy { UserSettingsRepository(database.userSettingsDao()) }
     val mindScoreRepository by lazy { MindScoreRepository(database.mindScoreDao()) }
+    val firebaseAuth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
+    val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 }

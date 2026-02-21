@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.mindnest.databinding.ActivityLoginBinding
 import com.example.mindnest.utils.PreferenceManager
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class LogInActivity : AppCompatActivity() {
@@ -24,13 +25,12 @@ class LogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private val app by lazy { application as MindNestApplication }
     private val preferenceManager by lazy { PreferenceManager(this) }
+    private val firebaseAuth by lazy { FirebaseAuth.getInstance() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
         if (preferenceManager.getUserId() != -1L) {
-
             startActivity(Intent(this, DashboardActivity::class.java))
             finish()
             return
@@ -110,28 +110,32 @@ class LogInActivity : AppCompatActivity() {
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
             password.isEmpty() -> showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
             else -> {
-                lifecycleScope.launch {
-                    try {
-                        val user = app.userRepository.login(email, password)
-                        if (user != null) {
 
-                            preferenceManager.saveUserId(user.id)
-                            preferenceManager.saveUserName(user.name)
-                            preferenceManager.saveUserEmail(user.email)
-                            preferenceManager.saveUserGender(user.gender)
+                firebaseAuth.signInWithEmailAndPassword(email, password)
+                    .addOnSuccessListener { authResult ->
+                        val firebaseUser = authResult.user
+                        if (firebaseUser != null) {
 
-                            val intent = Intent(this@LogInActivity, DashboardActivity::class.java)
-                            intent.putExtra("USER_NAME", user.name)
-                            intent.putExtra("USER_EMAIL", user.email)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            Toast.makeText(this@LogInActivity, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                            lifecycleScope.launch {
+                                val user = app.userRepository.getUserByEmail(email)
+                                if (user != null) {
+                                    preferenceManager.saveUserId(user.id)
+                                    preferenceManager.saveUserName(user.name)
+                                    preferenceManager.saveUserEmail(user.email)
+                                    preferenceManager.saveUserGender(user.gender)
+                                }
+
+                                val intent = Intent(this@LogInActivity, DashboardActivity::class.java)
+                                intent.putExtra("USER_NAME", user?.name ?: "")
+                                intent.putExtra("USER_EMAIL", user?.email ?: "")
+                                startActivity(intent)
+                                finish()
+                            }
                         }
-                    } catch (e: Exception) {
-                        Toast.makeText(this@LogInActivity, "Login error: ${e.message}", Toast.LENGTH_SHORT).show()
                     }
-                }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(this@LogInActivity, "Invalid email or password", Toast.LENGTH_SHORT).show()
+                    }
             }
         }
     }
