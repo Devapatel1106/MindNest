@@ -162,7 +162,7 @@
             android:layout_gravity="bottom|end"
             android:layout_marginEnd="@dimen/_12sdp"
             android:layout_marginBottom="@dimen/_10sdp"
-            app:srcCompat="@drawable/chat_bubble_24px"
+            app:srcCompat="@drawable/mode_comment_24px"
             app:tint="@android:color/white"
             app:backgroundTint="@color/lavender_primary"
             app:elevation="@dimen/_6sdp"/>
