@@ -47,9 +47,9 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
                 val savedGender = preferenceManager.getUserGender() ?: "Male"
 
                 val defaultUser = UserInfo(
-                    weight = 60,
-                    height = 170,
-                    age = 20,
+                    weight = 0,
+                    height = 0,
+                    age = 0,
                     gender = savedGender,
                     targetCalories = 2000
                 )

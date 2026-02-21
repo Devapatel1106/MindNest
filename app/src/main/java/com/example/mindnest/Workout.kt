@@ -4,5 +4,6 @@ data class Workout(
     val id: Long = 0,
     val name: String,
     val durationMinutes: Int,
-    val intensity: String
+    val intensity: String,
+    val date: Long = System.currentTimeMillis()
 )

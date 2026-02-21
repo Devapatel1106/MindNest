@@ -6,7 +6,7 @@ import com.example.mindnest.data.repository.*
 
 class MindNestApplication : Application() {
     val database by lazy { AppDatabase.getDatabase(this) }
-    
+
     val userRepository by lazy { UserRepository(database.userDao()) }
     val taskRepository by lazy { TaskRepository(database.taskDao()) }
     val workoutRepository by lazy { WorkoutRepository(database.workoutDao()) }
@@ -16,4 +16,5 @@ class MindNestApplication : Application() {
     val periodRepository by lazy { PeriodRepository(database.periodDao()) }
     val calorieRepository by lazy { CalorieRepository(database.calorieDao()) }
     val userSettingsRepository by lazy { UserSettingsRepository(database.userSettingsDao()) }
+    val mindScoreRepository by lazy { MindScoreRepository(database.mindScoreDao()) }
 }

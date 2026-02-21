@@ -7,10 +7,25 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mindnest.R
 import com.example.mindnest.model.Workout
+import java.text.SimpleDateFormat
+import java.util.*
 
-class WorkoutAdapter(
-    private val list: MutableList<Workout>
-) : RecyclerView.Adapter<WorkoutAdapter.WorkoutVH>() {
+sealed class WorkoutListItem {
+    data class DateHeader(val date: Long) : WorkoutListItem()
+    data class WorkoutItem(val workout: Workout) : WorkoutListItem()
+}
+
+class WorkoutAdapter(private val list: MutableList<WorkoutListItem>) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    companion object {
+        private const val TYPE_DATE = 0
+        private const val TYPE_WORKOUT = 1
+    }
+
+    inner class DateVH(view: View) : RecyclerView.ViewHolder(view) {
+        val dateText: TextView = view.findViewById(R.id.tvDateHeader)
+    }
 
     inner class WorkoutVH(view: View) : RecyclerView.ViewHolder(view) {
         val name: TextView = view.findViewById(R.id.txtWorkoutName)
@@ -18,35 +33,53 @@ class WorkoutAdapter(
         val duration: TextView = view.findViewById(R.id.txtWorkoutDuration)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkoutVH {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_workout, parent, false)
-        return WorkoutVH(view)
+    override fun getItemViewType(position: Int) = when (list[position]) {
+        is WorkoutListItem.DateHeader -> TYPE_DATE
+        is WorkoutListItem.WorkoutItem -> TYPE_WORKOUT
     }
 
-    override fun onBindViewHolder(holder: WorkoutVH, position: Int) {
-        val workout = list[position]
-        holder.name.text = workout.name
-        holder.intensity.text = if (workout.intensity.isNotEmpty()) workout.intensity else "-"
-
-        val hours = workout.durationMinutes / 60
-        val minutes = workout.durationMinutes % 60
-        holder.duration.text = when {
-            hours > 0 && minutes > 0 -> "${hours} hr ${minutes} min"
-            hours > 0 -> "${hours} hr"
-            else -> "${minutes} min"
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == TYPE_DATE) {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_date_header, parent, false)
+            DateVH(view)
+        } else {
+            val view = LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_workout, parent, false)
+            WorkoutVH(view)
         }
     }
 
-    override fun getItemCount(): Int = list.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (val item = list[position]) {
+            is WorkoutListItem.DateHeader -> {
+                val vh = holder as DateVH
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                vh.dateText.text = sdf.format(Date(item.date))
+            }
+            is WorkoutListItem.WorkoutItem -> {
+                val vh = holder as WorkoutVH
+                val workout = item.workout
+                vh.name.text = workout.name
+                vh.intensity.text = if (workout.intensity.isNotEmpty()) workout.intensity else "-"
+                val hours = workout.durationMinutes / 60
+                val minutes = workout.durationMinutes % 60
+                vh.duration.text = when {
+                    hours > 0 && minutes > 0 -> "${hours} hr ${minutes} min"
+                    hours > 0 -> "${hours} hr"
+                    else -> "${minutes} min"
+                }
+            }
+        }
+    }
 
-    // Update list safely
-    fun updateList(newList: List<Workout>) {
+    override fun getItemCount() = list.size
+
+    fun updateList(newList: List<WorkoutListItem>) {
         list.clear()
         list.addAll(newList)
         notifyDataSetChanged()
     }
 
-    // Helper to get workout at position safely
-    fun getWorkoutAt(position: Int): Workout? = list.getOrNull(position)
+    fun getItemAt(position: Int): WorkoutListItem? = list.getOrNull(position)
 }

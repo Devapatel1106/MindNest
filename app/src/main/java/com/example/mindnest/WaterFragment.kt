@@ -130,7 +130,18 @@ class WaterFragment : Fragment(), View.OnClickListener {
             binding.tvTargetValue.text = getString(R.string.set_target)
             binding.tvRemaining.visibility = View.GONE
             binding.tvProgressPercent.text = "0%"
-            binding.progressWater.progress = 0
+
+            ObjectAnimator.ofInt(
+                binding.progressWater,
+                "progress",
+                binding.progressWater.progress,
+                0
+            ).apply {
+                duration = 500
+                interpolator = AccelerateDecelerateInterpolator()
+                start()
+            }
+
             return
         }
 
@@ -145,17 +156,21 @@ class WaterFragment : Fragment(), View.OnClickListener {
         binding.tvRemaining.text = getString(R.string.remaining_ml, remaining)
         binding.tvProgressPercent.text = "$progress%"
 
-        ObjectAnimator.ofInt(
-            binding.progressWater,
-            "progress",
-            binding.progressWater.progress,
-            progress
-        ).apply {
-            duration = 700
-            interpolator = AccelerateDecelerateInterpolator()
-            start()
+
+        if (binding.progressWater.progress != progress) {
+            ObjectAnimator.ofInt(
+                binding.progressWater,
+                "progress",
+                binding.progressWater.progress,
+                progress
+            ).apply {
+                duration = 800
+                interpolator = AccelerateDecelerateInterpolator()
+                start()
+            }
         }
     }
+
 
     private fun rebuildList() {
         displayList.clear()

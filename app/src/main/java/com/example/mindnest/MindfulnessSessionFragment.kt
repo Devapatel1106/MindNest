@@ -20,6 +20,7 @@ import com.example.mindnest.PastSessionAdapter
 import com.example.mindnest.PastSessionViewModel
 import com.example.mindnest.R
 import com.example.mindnest.databinding.FragmentMindfulnessSessionBinding
+import com.example.mindnest.utils.PreferenceManager
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -42,6 +43,7 @@ class MindfulnessSessionFragment : Fragment() {
     private val viewModel: PastSessionViewModel by activityViewModels()
 
     private var userId: Int = -1
+    private lateinit var preferenceManager: PreferenceManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,10 +57,17 @@ class MindfulnessSessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Get logged in user id
-        userId = requireActivity()
-            .getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-            .getInt("user_id", -1)
+        // Get logged in user id from PreferenceManager (consistent with rest of app)
+        preferenceManager = PreferenceManager(requireContext())
+        val userIdLong = preferenceManager.getUserId()
+        userId = if (userIdLong > 0) userIdLong.toInt() else -1
+
+        // Fallback: try user_prefs if PreferenceManager doesn't have userId
+        if (userId == -1) {
+            userId = requireActivity()
+                .getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                .getInt("user_id", -1)
+        }
 
         activity?.findViewById<View>(R.id.toolbar)?.isVisible = false
 

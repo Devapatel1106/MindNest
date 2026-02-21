@@ -31,7 +31,7 @@ class WaterHistoryAdapter(
             is WaterListItem.DateHeader -> {
                 val h = holder as DateVH
                 h.binding.tvDateHeader.text =
-                    if (item.achieved) "${item.date}  •  Target Achieved 🎉"
+                    if (item.achieved) "${item.date}  •  Hydration goal met"
                     else item.date
             }
             is WaterListItem.WaterLog -> {

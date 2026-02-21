@@ -7,8 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.mindnest.data.entity.TaskEntity
 import com.example.mindnest.utils.PreferenceManager
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 data class Task(
     val id: Long = 0,
@@ -58,6 +62,7 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         if (userId <= 0) return
 
         viewModelScope.launch {
+            val today = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
             app.taskRepository.insertTask(
                 TaskEntity(
                     id = 0,
@@ -65,7 +70,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     title = title,
                     description = description,
                     completed = false,
-                    createdAt = System.currentTimeMillis()
+                    createdAt = System.currentTimeMillis(),
+                    date = today
                 )
             )
         }
@@ -85,6 +91,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         if (userId <= 0 || task.id == 0L) return
 
         viewModelScope.launch {
+            val allTasks = app.taskRepository.getTasksByUser(userId).first()
+            val existingTask = allTasks.find { it.id == task.id }
             app.taskRepository.updateTask(
                 TaskEntity(
                     id = task.id,
@@ -92,7 +100,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     title = newTitle,
                     description = task.description,
                     completed = task.completed,
-                    createdAt = task.createdAt
+                    createdAt = task.createdAt,
+                    date = existingTask?.date ?: SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
                 )
             )
         }
@@ -104,6 +113,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         if (userId <= 0 || task.id == 0L) return
 
         viewModelScope.launch {
+            val allTasks = app.taskRepository.getTasksByUser(userId).first()
+            val existingTask = allTasks.find { it.id == task.id }
             app.taskRepository.updateTask(
                 TaskEntity(
                     id = task.id,
@@ -111,7 +122,8 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
                     title = task.title,
                     description = task.description,
                     completed = isCompleted,
-                    createdAt = task.createdAt
+                    createdAt = task.createdAt,
+                    date = existingTask?.date ?: SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
                 )
             )
         }

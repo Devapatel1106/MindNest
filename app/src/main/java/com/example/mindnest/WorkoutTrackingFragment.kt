@@ -19,6 +19,8 @@ import com.example.mindnest.model.Workout
 import com.example.mindnest.utils.ViewModelFactory
 import com.example.mindnest.WorkoutViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import java.text.SimpleDateFormat
+import java.util.*
 
 class WorkoutTrackingFragment :
     Fragment(R.layout.fragment_workout_tracking) {
@@ -29,7 +31,9 @@ class WorkoutTrackingFragment :
     private val viewModel: WorkoutViewModel by activityViewModels {
         ViewModelFactory(requireActivity().application)
     }
-    private val workoutList = mutableListOf<Workout>()
+
+    // Display list for adapter (WorkoutListItem = DateHeader or WorkoutItem)
+    private val displayList = mutableListOf<WorkoutListItem>()
     private lateinit var adapter: WorkoutAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -37,7 +41,7 @@ class WorkoutTrackingFragment :
 
         _binding = FragmentWorkoutTrackingBinding.bind(view)
 
-        adapter = WorkoutAdapter(workoutList)
+        adapter = WorkoutAdapter(displayList)
         binding.workoutRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.workoutRecyclerView.adapter = adapter
 
@@ -51,9 +55,20 @@ class WorkoutTrackingFragment :
 
     private fun observeWorkouts() {
         viewModel.workouts.observe(viewLifecycleOwner) { list ->
-            workoutList.clear()
-            workoutList.addAll(list)
-            adapter.updateList(list)
+            // Sort by newest date first
+            val sortedList = list.sortedByDescending { it.date }
+
+            displayList.clear()
+
+            // Group workouts by date without time
+            val grouped = sortedList.groupBy { it.date.toDateWithoutTime() }
+
+            grouped.forEach { (date, workoutsForDate) ->
+                displayList.add(WorkoutListItem.DateHeader(date))
+                workoutsForDate.forEach { displayList.add(WorkoutListItem.WorkoutItem(it)) }
+            }
+
+            adapter.notifyDataSetChanged()
             updateUI()
         }
     }
@@ -82,7 +97,15 @@ class WorkoutTrackingFragment :
                 return@setOnClickListener
             }
 
-            viewModel.addWorkout(Workout(id = 0, name = workoutName, durationMinutes = durationMinutes, intensity = intensity))
+            viewModel.addWorkout(
+                Workout(
+                    id = 0,
+                    name = workoutName,
+                    durationMinutes = durationMinutes,
+                    intensity = intensity,
+                    date = System.currentTimeMillis()
+                )
+            )
             dialog.dismiss()
         }
 
@@ -90,13 +113,9 @@ class WorkoutTrackingFragment :
     }
 
     private fun updateUI() {
-        if (workoutList.isEmpty()) {
-            binding.layoutWorkoutEmpty.visibility = View.VISIBLE
-            binding.workoutRecyclerView.visibility = View.GONE
-        } else {
-            binding.layoutWorkoutEmpty.visibility = View.GONE
-            binding.workoutRecyclerView.visibility = View.VISIBLE
-        }
+        val hasWorkouts = displayList.any { it is WorkoutListItem.WorkoutItem }
+        binding.layoutWorkoutEmpty.visibility = if (hasWorkouts) View.GONE else View.VISIBLE
+        binding.workoutRecyclerView.visibility = if (hasWorkouts) View.VISIBLE else View.GONE
     }
 
     private fun setupSwipeToDelete() {
@@ -114,61 +133,60 @@ class WorkoutTrackingFragment :
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.adapterPosition
-                val workoutToDelete = adapter.getWorkoutAt(position) ?: return
+                val item = adapter.getItemAt(position) ?: return
 
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Delete workout?")
-                    .setMessage("Are you sure you want to delete this workout?")
-                    .setPositiveButton("Yes") { _, _ ->
-                        viewModel.deleteWorkout(workoutToDelete)
-                    }
-                    .setNegativeButton("No") { dialog, _ ->
-                        dialog.dismiss()
-                        adapter.notifyItemChanged(position)
-                    }
-                    .show()
+                if (item is WorkoutListItem.WorkoutItem) {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Delete workout?")
+                        .setMessage("Are you sure you want to delete this workout?")
+                        .setPositiveButton("Yes") { _, _ ->
+                            viewModel.deleteWorkout(item.workout)
+                        }
+                        .setNegativeButton("No") { dialog, _ ->
+                            dialog.dismiss()
+                            adapter.notifyItemChanged(position)
+                        }
+                        .show()
+                } else {
+                    adapter.notifyItemChanged(position)
+                }
             }
 
             override fun onChildDraw(
                 c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
                 dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
             ) {
-                val itemView = viewHolder.itemView
-
                 if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                    // Draw background
+                    val itemView = viewHolder.itemView
                     val background = ColorDrawable(backgroundColor)
-                    if (dX > 0) {
-                        background.setBounds(itemView.left, itemView.top, itemView.left + dX.toInt(), itemView.bottom)
-                    } else {
-                        background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
-                    }
+                    if (dX > 0) background.setBounds(itemView.left, itemView.top, itemView.left + dX.toInt(), itemView.bottom)
+                    else background.setBounds(itemView.right + dX.toInt(), itemView.top, itemView.right, itemView.bottom)
                     background.draw(c)
 
-                    // Draw delete icon
                     deleteIcon?.let {
                         val iconMargin = (itemView.height - intrinsicHeight) / 2
                         val top = itemView.top + iconMargin
                         val bottom = top + intrinsicHeight
-
-                        if (dX > 0) {
-                            val left = itemView.left + iconMargin
-                            val right = left + intrinsicWidth
-                            it.setBounds(left, top, right, bottom)
-                        } else if (dX < 0) {
-                            val right = itemView.right - iconMargin
-                            val left = right - intrinsicWidth
-                            it.setBounds(left, top, right, bottom)
-                        }
+                        val left = if (dX > 0) itemView.left + iconMargin else itemView.right - iconMargin - intrinsicWidth
+                        val right = left + intrinsicWidth
+                        it.setBounds(left, top, right, bottom)
                         it.draw(c)
                     }
                 }
-
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
         }
 
         ItemTouchHelper(callback).attachToRecyclerView(binding.workoutRecyclerView)
+    }
+
+    private fun Long.toDateWithoutTime(): Long {
+        val cal = Calendar.getInstance().apply { timeInMillis = this@toDateWithoutTime }
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
     }
 
     override fun onDestroyView() {

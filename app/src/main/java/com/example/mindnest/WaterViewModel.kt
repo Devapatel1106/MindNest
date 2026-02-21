@@ -40,7 +40,7 @@ class WaterViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         viewModelScope.launch {
-            // Load both entries and target, then combine them
+
             app.waterRepository.getWaterEntriesByUser(userId)
                 .collect { entities ->
                     val target = _dailyTarget.value ?: 0
@@ -68,7 +68,6 @@ class WaterViewModel(application: Application) : AndroidViewModel(application) {
                 .collect { settings ->
                     val target = settings?.waterTargetMl ?: 0
                     _dailyTarget.value = target
-                    // Update entries with the new target
                     updateEntriesWithTarget(target)
                 }
         }
@@ -104,7 +103,6 @@ class WaterViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             app.userSettingsRepository.saveWaterTarget(userId, target)
-            // The target will be updated via Flow in loadDailyTarget()
         }
     }
 
