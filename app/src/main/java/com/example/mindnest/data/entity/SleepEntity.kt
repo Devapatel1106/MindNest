@@ -12,6 +12,6 @@ data class SleepEntity(
     val startMinute: Int,
     val endHour: Int,
     val endMinute: Int,
-    val date: String, // Format: "dd/MM/yy"
+    val date: String,
     val createdAt: Long = System.currentTimeMillis()
 )

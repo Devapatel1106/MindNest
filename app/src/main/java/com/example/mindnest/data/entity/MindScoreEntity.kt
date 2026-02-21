@@ -9,6 +9,6 @@ import androidx.room.PrimaryKey
 )
 data class MindScoreEntity(
     val userId: Long,
-    val date: String, // format "yyyy-MM-dd"
+    val date: String,
     val score: Int
 )
