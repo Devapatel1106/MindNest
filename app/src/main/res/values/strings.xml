@@ -96,6 +96,13 @@
     <string name="reset">Reset</string>
     <string name="calorie_title_1">Track Your Calories</string>
     <string name="calorie_desc_1">Log your calories to understand your eating patterns and make informed decisions for a healthier lifestyle.</string>
-
+    <string name="create_account_title">Create your account</string>
+    <string name="enter_details_subtitle">Enter your details below</string>
+    <string name="name_hint">Name</string>
+    <string name="gender_hint">Gender</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="signup_button">Sign Up</string>
+    <string name="login_redirect_text">Already have an account? Login</string>
 
 </resources>

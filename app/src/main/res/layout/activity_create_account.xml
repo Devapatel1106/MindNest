@@ -28,7 +28,7 @@
             android:id="@+id/loginTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/create"
+            android:text="@string/create_account_title"
             android:textSize="@dimen/_24ssp"
             android:layout_marginTop="@dimen/_32sdp"
             android:layout_gravity="start"/>
@@ -37,7 +37,7 @@
             android:id="@+id/loginSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/enter"
+            android:text="@string/enter_details_subtitle"
             android:textSize="@dimen/_12ssp"
             android:layout_marginTop="@dimen/_4sdp"
             android:layout_gravity="start"/>
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_20sdp"
             android:background="@drawable/edit_text"
-            android:hint="@string/name"
+            android:hint="@string/name_hint"
             android:inputType="text"
             android:paddingTop="@dimen/_10sdp"
             android:paddingBottom="@dimen/_10sdp"
@@ -68,13 +68,14 @@
             android:layout_gravity="start"
             android:paddingLeft="@dimen/_10sdp"
             android:visibility="gone"/>
+
         <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/edtGender"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_14sdp"
             android:background="@drawable/edit_text"
-            android:hint="Gender"
+            android:hint="@string/gender_hint"
             android:inputType="text"
             android:paddingTop="@dimen/_10sdp"
             android:paddingBottom="@dimen/_10sdp"
@@ -103,7 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_14sdp"
             android:background="@drawable/edit_text"
-            android:hint="@string/email"
+            android:hint="@string/email_hint"
             android:inputType="textEmailAddress"
             android:paddingTop="@dimen/_10sdp"
             android:paddingBottom="@dimen/_10sdp"
@@ -138,7 +139,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_text"
-                android:hint="@string/password"
+                android:hint="@string/password_hint"
                 android:inputType="textPassword"
                 android:paddingTop="@dimen/_10sdp"
                 android:paddingBottom="@dimen/_10sdp"
@@ -164,21 +165,18 @@
             android:id="@+id/SignInBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/signup"
+            android:text="@string/signup_button"
             android:textAllCaps="false"
             android:layout_marginTop="@dimen/_18sdp"/>
-
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/loginRedirectTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/_13ssp"
+            android:text="@string/login_redirect_text"
+            android:textSize="@dimen/_12ssp"
             android:layout_marginTop="@dimen/_12sdp"
             android:clickable="true"
             android:focusable="true"/>
-
-
     </LinearLayout>
-
 </ScrollView>
