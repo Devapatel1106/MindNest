@@ -12,10 +12,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mindnest.R
+import com.example.mindnest.WaterViewModel
 import com.example.mindnest.databinding.BottomSheetAddWaterBinding
 import com.example.mindnest.databinding.DialogSetTargetBinding
 import com.example.mindnest.databinding.FragmentWaterBinding
-import com.example.mindnest.WaterViewModel
+import com.example.mindnest.ui.OverviewViewModel
 import com.example.mindnest.utils.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -27,6 +28,8 @@ class WaterFragment : Fragment(), View.OnClickListener {
     private val viewModel: WaterViewModel by activityViewModels {
         ViewModelFactory(requireActivity().application)
     }
+
+    private val overviewViewModel: OverviewViewModel by activityViewModels()
 
     private val displayList = mutableListOf<WaterListItem>()
     private lateinit var adapter: WaterHistoryAdapter
@@ -48,7 +51,6 @@ class WaterFragment : Fragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-
         viewModel.reloadData()
     }
 
@@ -85,9 +87,16 @@ class WaterFragment : Fragment(), View.OnClickListener {
                 b.etWaterAmount.error = getString(R.string.invalid_amount)
                 return@setOnClickListener
             }
-            viewModel.addWater(amount)
+
+            // Add water with callback after insertion
+            viewModel.addWater(amount) {
+                // This runs after water is successfully inserted
+                overviewViewModel.notifyWaterChanged()
+            }
+
             dialog.dismiss()
         }
+
         dialog.show()
     }
 
@@ -120,7 +129,6 @@ class WaterFragment : Fragment(), View.OnClickListener {
 
         dialog.show()
     }
-
 
     private fun updateUI() {
         val target = viewModel.dailyTarget.value ?: 0
@@ -156,7 +164,6 @@ class WaterFragment : Fragment(), View.OnClickListener {
         binding.tvRemaining.text = getString(R.string.remaining_ml, remaining)
         binding.tvProgressPercent.text = "$progress%"
 
-
         if (binding.progressWater.progress != progress) {
             ObjectAnimator.ofInt(
                 binding.progressWater,
@@ -170,7 +177,6 @@ class WaterFragment : Fragment(), View.OnClickListener {
             }
         }
     }
-
 
     private fun rebuildList() {
         displayList.clear()
@@ -187,7 +193,6 @@ class WaterFragment : Fragment(), View.OnClickListener {
                     )
                 )
 
-
                 entries.asReversed().forEach {
                     displayList.add(WaterListItem.WaterLog(it))
                 }
@@ -195,7 +200,6 @@ class WaterFragment : Fragment(), View.OnClickListener {
 
         adapter.notifyDataSetChanged()
     }
-
 
     private fun setupRecycler() {
         adapter = WaterHistoryAdapter(displayList)

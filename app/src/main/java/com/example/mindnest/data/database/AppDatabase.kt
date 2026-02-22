@@ -29,7 +29,6 @@ import com.example.mindnest.data.entity.*
 )
 abstract class AppDatabase : RoomDatabase() {
 
-
     abstract fun userDao(): UserDao
     abstract fun taskDao(): TaskDao
     abstract fun workoutDao(): WorkoutDao
@@ -42,21 +41,25 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun mindScoreDao(): MindScoreDao
     abstract fun chatDao(): ChatDao
 
-
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
+
+
         private val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(database: SupportSQLiteDatabase) {
+
+                database.execSQL("ALTER TABLE task ADD COLUMN dueDate TEXT DEFAULT '' NOT NULL")
+
             }
         }
+
 
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
 
-                database.execSQL("DROP TABLE IF EXISTS mind_score")
                 database.execSQL("""
-                    CREATE TABLE mind_score (
+                    CREATE TABLE IF NOT EXISTS mind_score (
                         userId INTEGER NOT NULL,
                         date TEXT NOT NULL,
                         score INTEGER NOT NULL,
@@ -88,7 +91,6 @@ abstract class AppDatabase : RoomDatabase() {
                     "mindnest_database"
                 )
                     .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
-                    .fallbackToDestructiveMigrationOnDowngrade()
                     .build()
                 INSTANCE = instance
                 instance

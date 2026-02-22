@@ -6,13 +6,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.mindnest.data.entity.WaterEntity
+import com.example.mindnest.ui.OverviewViewModel
 import com.example.mindnest.utils.PreferenceManager
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 class WaterViewModel(application: Application) : AndroidViewModel(application) {
+
     private val app = application as MindNestApplication
     private val preferenceManager = PreferenceManager(application)
 
@@ -40,7 +42,6 @@ class WaterViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         viewModelScope.launch {
-
             app.waterRepository.getWaterEntriesByUser(userId)
                 .collect { entities ->
                     val target = _dailyTarget.value ?: 0
@@ -81,7 +82,7 @@ class WaterViewModel(application: Application) : AndroidViewModel(application) {
         _entries.value = updatedEntries.toMutableList()
     }
 
-    fun addWater(amount: Int) {
+    fun addWater(amount: Int, onInserted: (() -> Unit)? = null) {
         val userId = preferenceManager.getUserId()
         if (userId <= 0) return
 
@@ -94,6 +95,7 @@ class WaterViewModel(application: Application) : AndroidViewModel(application) {
                 date = today
             )
             app.waterRepository.insertWaterEntry(entity)
+            onInserted?.invoke()
         }
     }
 

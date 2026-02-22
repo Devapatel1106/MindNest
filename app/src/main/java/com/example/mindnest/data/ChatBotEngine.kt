@@ -1,33 +1,31 @@
 package com.example.mindnest.data
 
 import android.content.Context
-import java.util.*
-import kotlin.math.min
 import kotlin.random.Random
-import kotlin.math.abs
+import java.util.*
 
 data class ChatBotContext(
     val userName: String,
-    val mindScore: Int,
-    val mindScoreStatus: String,
-    val taskSummary: String,
-    val waterSummary: String,
-    val sleepSummary: String,
-    val workoutSummary: String,
-    val journalSummary: String,
-    val periodSummary: String,
-    val calorieSummary: String,
-    val meditationSummary: String,
+    val mindScore: Int = 0,
+    val taskSummary: String = "",
+    val waterSummary: String = "",
+    val sleepSummary: String = "",
+    val workoutSummary: String = "",
+    val journalSummary: String = "",
+    val periodSummary: String = "",
+    val calorieSummary: String = "",
+    val meditationSummary: String = "",
     val pastWeekWater: List<Int> = emptyList(),
     val pastWeekSleep: List<Double> = emptyList()
 ) {
-    fun hasWaterData() = waterSummary.isNotEmpty() && waterSummary != "Set target" && waterSummary != "Loading…"
-    fun hasSleepData() = sleepSummary.isNotEmpty() && sleepSummary != "No logs today" && sleepSummary != "Loading…"
-    fun hasWorkoutData() = workoutSummary.isNotEmpty() && workoutSummary != "No workout" && workoutSummary != "Loading…"
-    fun hasMoodData() = journalSummary.isNotEmpty() && journalSummary != "Log today's mood" && journalSummary != "Loading…"
-    fun hasTaskData() = taskSummary.isNotEmpty() && taskSummary != "No tasks" && taskSummary != "Loading…"
-    fun hasMeditationData() = meditationSummary.isNotEmpty() && meditationSummary != "0 sessions" && meditationSummary != "Loading…"
-    fun hasCalorieData() = calorieSummary.isNotEmpty() && calorieSummary != "Loading…"
+    // Simplified checks
+    fun hasWaterData() = waterSummary.isNotBlank()
+    fun hasSleepData() = sleepSummary.isNotBlank()
+    fun hasWorkoutData() = workoutSummary.isNotBlank()
+    fun hasMoodData() = journalSummary.isNotBlank()
+    fun hasTaskData() = taskSummary.isNotBlank()
+    fun hasMeditationData() = meditationSummary.isNotBlank()
+    fun hasCalorieData() = calorieSummary.isNotBlank()
     fun hasValidMindScore() = mindScore in 1..100
 }
 
@@ -45,7 +43,7 @@ object ChatBotEngine {
         "greeting" to listOf("hi","hello","hey","hiya","howdy"),
         "mindScore" to listOf("mindscore","mind score","score","wellness score","how am i doing"),
         "water" to listOf("water","hydration","drink","glasses","intake","hydrate"),
-        "sleep" to listOf("sleep","slept","tired","rest","insomnia","nap"),
+        "sleep" to listOf("sleep","slept","tired","rest","nap"),
         "workout" to listOf("workout","exercise","fitness","gym","run","walk","activity"),
         "mood" to listOf("mood","journal","feeling","emotion","how i feel"),
         "period" to listOf("period","cycle","pms","menstrual"),
@@ -54,9 +52,9 @@ object ChatBotEngine {
         "tasks" to listOf("task","tasks","todo","to-do","done","productivity"),
         "stress" to listOf("stress","stressed","anxiety","anxious","overwhelmed","panic","worried"),
         "motivation" to listOf("motivat","encourage","quote","inspire"),
-        "summary" to listOf("summary","overview","insight","how am i","today","my day"),
+        "summary" to listOf("summary","overview","insight","today","my day"),
         "help" to listOf("help","what can you","what do you do","capabilities"),
-        "suggestion" to listOf("suggest","recommend","what should","what can i do","tip","advice")
+        "suggestion" to listOf("suggest","recommend","tip","advice")
     )
 
     private val sentenceReplies = mapOf(
@@ -89,6 +87,7 @@ object ChatBotEngine {
 
         memory.conversationHistory.add("User: $message")
 
+        // Sentence based exact replies
         getSentenceBasedReply(msg)?.let { reply ->
             memory.conversationHistory.add("Bot: $reply")
             return reply
@@ -97,7 +96,7 @@ object ChatBotEngine {
         val intents = getIntent(msg)
         val proactive = getProactiveSuggestions(ctx, memory)
 
-        if (intents.isEmpty()) return proactive.ifEmpty { replyFallback(ctx, memory) }
+        if (intents.isEmpty()) return proactive.ifEmpty { replyFallback(ctx) }
 
         val replies = intents.map { intent ->
             memory.lastIntent = intent
@@ -126,12 +125,12 @@ object ChatBotEngine {
         return finalReply
     }
 
-
+    // Intent detection
     private fun getIntent(msg: String): List<String> {
         val matchedIntents = mutableListOf<String>()
         for ((intent, keywords) in intentKeywords) {
             for (kw in keywords) {
-                if (similarity(msg, kw) > 0.7) {
+                if (msg.contains(kw, ignoreCase = true)) {
                     matchedIntents.add(intent)
                     break
                 }
@@ -140,17 +139,9 @@ object ChatBotEngine {
         return matchedIntents
     }
 
-    private fun similarity(a: String, b: String): Double {
-        val maxLen = maxOf(a.length, b.length)
-        if (maxLen == 0) return 1.0
-        val diff = a.zip(b).count { it.first != it.second } + abs(a.length - b.length)
-        return 1.0 - diff.toDouble() / maxLen
-    }
-
     private fun getSentenceBasedReply(msg: String): String? {
         return sentenceReplies[msg]
     }
-
 
     private fun getProactiveSuggestions(ctx: ChatBotContext, memory: ChatMemory): String {
         val suggestions = mutableListOf<String>()
@@ -171,52 +162,35 @@ object ChatBotEngine {
         }
     }
 
-    private fun replyGreeting(ctx: ChatBotContext) = "Hi ${ctx.userName.ifBlank { "there" }} 👋 ${buildQuickInsight(ctx) ?: ""} How can I help you today?"
+    private fun replyGreeting(ctx: ChatBotContext) = "Hi ${ctx.userName.ifBlank { "there" }} 👋 ${dynamicTone(ctx)} How can I help you today?"
 
-    private fun buildQuickInsight(ctx: ChatBotContext): String? {
-        if (!ctx.hasValidMindScore()) return null
-        return when {
-            ctx.mindScore >= 70 -> "Your MindScore is looking great today."
-            ctx.mindScore >= 40 -> "A few small habits could nudge your score up."
-            else -> "Let's focus on one or two small wins today."
-        }
-    }
-
-    private fun replyMindScore(ctx: ChatBotContext): String {
-        if (!ctx.hasValidMindScore()) return "I don’t have enough data yet to show your MindScore. Log water, sleep, mood, or meditation today."
-
-        val statusLine = ctx.mindScoreStatus.takeIf { it.isNotBlank() }?.let { "\n\n$it" } ?: ""
-        val suggestion = when {
-            ctx.mindScore >= 70 -> " Keep doing what you’re doing."
-            ctx.mindScore >= 50 -> " Try adding a small habit: short walk, water, or 2 minutes breathing."
-            else -> " Suggestion: log water and sleep if you haven’t, or try a short meditation."
-        }
-        return "Your MindScore today is ${ctx.mindScore}/100.$statusLine$suggestion"
-    }
+    private fun replyMindScore(ctx: ChatBotContext) = if (ctx.hasValidMindScore()) {
+        "Your MindScore today is ${ctx.mindScore}/100. ${dynamicTone(ctx)}"
+    } else "I don’t have enough data yet to show your MindScore. Log water, sleep, mood, or meditation today."
 
     private fun replyWater(ctx: ChatBotContext) = if (ctx.hasWaterData()) "Your hydration today: ${ctx.waterSummary}. Staying hydrated supports focus and mood."
-    else "You haven’t logged water yet today. Log your first glass to improve your MindScore."
+    else "You haven’t logged water today. Add a glass to improve your MindScore."
 
-    private fun replySleep(ctx: ChatBotContext) = if (ctx.hasSleepData()) "Your sleep: ${ctx.sleepSummary}. Quality rest helps mood and focus."
-    else "No sleep logged today. Log bedtime & wake time for insights."
+    private fun replySleep(ctx: ChatBotContext) = if (ctx.hasSleepData()) "Your sleep today: ${ctx.sleepSummary}. Quality rest helps mood and focus."
+    else "You haven’t logged sleep today. Record bedtime & wake time for insights."
 
     private fun replyWorkout(ctx: ChatBotContext) = if (ctx.hasWorkoutData()) "Activity today: ${ctx.workoutSummary}. Movement boosts mental wellness."
-    else "No workout logged yet. Even 10 mins of walking helps."
+    else "You haven’t logged workout today. Even 10 mins of walking helps."
 
-    private fun replyMood(ctx: ChatBotContext) = if (ctx.hasMoodData()) "Your mood today: ${ctx.journalSummary}. Noting how you feel helps track emotions."
-    else "You haven’t logged mood today. Quick check-ins improve awareness."
+    private fun replyMood(ctx: ChatBotContext) = if (ctx.hasMoodData()) "Your mood today: ${ctx.journalSummary}. Tracking emotions helps self-awareness."
+    else "You haven’t logged your mood today. Quick check-ins improve awareness."
 
-    private fun replyPeriod(ctx: ChatBotContext) = if (ctx.periodSummary.isNotEmpty()) "Period tracking: ${ctx.periodSummary}."
+    private fun replyPeriod(ctx: ChatBotContext) = if (ctx.periodSummary.isNotBlank()) "Period tracking: ${ctx.periodSummary}."
     else "Period tracking isn’t set up yet. Log your cycle for insights."
 
     private fun replyCalories(ctx: ChatBotContext) = if (ctx.hasCalorieData()) "Calories today: ${ctx.calorieSummary}."
-    else "No calorie data yet. Logging meals helps see patterns."
+    else "You haven’t logged calories yet. Recording meals helps track nutrition."
 
     private fun replyMeditation(ctx: ChatBotContext) = if (ctx.hasMeditationData()) "Mindfulness today: ${ctx.meditationSummary}."
-    else "No meditation sessions logged today. Try 2 mins of breathing."
+    else "No meditation sessions logged. Try 2 mins of breathing."
 
     private fun replyTasks(ctx: ChatBotContext) = if (ctx.hasTaskData()) "Tasks today: ${ctx.taskSummary}."
-    else "No tasks logged today. Add 1–2 to track progress."
+    else "No tasks logged today. Add 1–2 tasks to track progress."
 
     private fun replyStress(ctx: ChatBotContext) = "Stress is real 💙. Try 4-4-6 breathing. Meditation helps too."
 
@@ -242,7 +216,7 @@ object ChatBotEngine {
         if (ctx.hasMeditationData()) parts.add("Meditation: ${ctx.meditationSummary}")
         if (ctx.hasCalorieData()) parts.add("Calories: ${ctx.calorieSummary}")
 
-        return if (parts.isEmpty()) "You don’t have much logged yet today."
+        return if (parts.isEmpty()) "You haven’t logged much yet today."
         else "Here’s your day snapshot:\n\n${parts.joinToString("\n") { "• $it" }}"
     }
 
@@ -267,7 +241,5 @@ object ChatBotEngine {
         • Stress / Anxiety, Motivation
     """.trimIndent()
 
-    private fun replyFallback(ctx: ChatBotContext, memory: ChatMemory) = buildQuickInsight(ctx)?.let {
-        "$it You can ask me for summary, suggestions, or about MindScore, sleep, water, mood, or stress."
-    } ?: "I'm not sure I understood. Try asking for summary, suggestions, or MindScore, sleep, water, mood, or stress."
+    private fun replyFallback(ctx: ChatBotContext) = "I'm not sure I understood. You can ask for summary, suggestions, or about MindScore, sleep, water, mood, or stress."
 }
