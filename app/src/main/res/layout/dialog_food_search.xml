@@ -10,7 +10,7 @@
         android:id="@+id/etSearchFood"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search food"
+        android:hint="@string/search_food"
         android:inputType="text"
         android:padding="@dimen/_10sdp"
         android:textSize="@dimen/_12ssp"/>

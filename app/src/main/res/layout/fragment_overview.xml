@@ -31,7 +31,7 @@
                     android:id="@+id/tvGreeting"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Good morning"
+                    android:text="@string/good_morning"
                     android:textSize="@dimen/_16ssp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"
@@ -79,7 +79,7 @@
                             android:id="@+id/tvMindTitle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Mind Score"
+                            android:text="@string/mind_score"
                             android:textStyle="bold"
                             android:textSize="@dimen/_14ssp"
                             android:textColor="@color/text_primary"
@@ -124,7 +124,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_6sdp"
-                            android:text="Good Day"
+                            android:text="@string/good_day"
                             android:textSize="@dimen/_10ssp"
                             tools:text="Great Day!"
                             app:layout_constraintTop_toBottomOf="@id/mindScoreCircle"
@@ -134,7 +134,6 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </com.google.android.material.card.MaterialCardView>
-
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerViewFeatures"
@@ -148,7 +147,6 @@
             </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.core.widget.NestedScrollView>
-
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabChatbot"

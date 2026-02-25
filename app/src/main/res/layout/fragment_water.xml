@@ -57,12 +57,11 @@
                 app:layout_constraintHeight_max="@dimen/_180sdp"
                 app:layout_constraintDimensionRatio="1:1"/>
 
-
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvProgressPercent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0%"
+                android:text="@string/zero_percent"
                 android:textSize="@dimen/_17ssp"
                 android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="@id/progressWater"
@@ -108,7 +107,7 @@
                 android:id="@+id/tvTargetValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Set Target"
+                android:text="@string/set_target"
                 android:textSize="@dimen/_13ssp"
                 android:layout_marginEnd="@dimen/_16sdp"
                 android:layout_marginBottom="@dimen/_16sdp"

@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Mind Score History"
+        android:text="@string/mind_score_history"
         android:textSize="@dimen/_16ssp"
         android:textStyle="bold"
         android:textColor="@color/text_primary"
@@ -27,7 +27,7 @@
         android:id="@+id/btnCloseGraph"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Close"
+        android:text="@string/close"
         android:textColor="@color/lavender_primary"
         android:gravity="center"
         android:textSize="@dimen/_14ssp"

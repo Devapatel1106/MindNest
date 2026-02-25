@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_time_box"
                     android:gravity="center"
-                    android:hint="HH"
+                    android:hint="@string/hint_hours"
                     android:padding="@dimen/_10sdp"
                     android:inputType="number"
                     android:maxLength="2"
@@ -58,7 +58,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_8sdp"
-                    android:text=":"
+                    android:text="@string/colon"
                     android:textSize="@dimen/_19ssp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
@@ -69,7 +69,7 @@
                     android:background="@drawable/bg_time_box"
                     android:gravity="center"
                     android:padding="@dimen/_10sdp"
-                    android:hint="MM"
+                    android:hint="@string/hint_minutes"
                     android:inputType="number"
                     android:maxLength="2"
                     android:textSize="@dimen/_11ssp" />
@@ -86,13 +86,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="AM" />
+                        android:text="@string/am" />
 
                     <RadioButton
                         android:id="@+id/rbStartPm"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="PM" />
+                        android:text="@string/pm" />
                 </RadioGroup>
             </LinearLayout>
 
@@ -111,7 +111,7 @@
                     android:background="@drawable/bg_time_box"
                     android:gravity="center"
                     android:padding="@dimen/_10sdp"
-                    android:hint="HH"
+                    android:hint="@string/hint_hours"
                     android:inputType="number"
                     android:maxLength="2"
                     android:textSize="@dimen/_11ssp" />
@@ -120,7 +120,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_8sdp"
-                    android:text=":"
+                    android:text="@string/colon"
                     android:textSize="@dimen/_19ssp" />
 
                 <androidx.appcompat.widget.AppCompatEditText
@@ -131,7 +131,7 @@
                     android:background="@drawable/bg_time_box"
                     android:gravity="center"
                     android:padding="@dimen/_10sdp"
-                    android:hint="MM"
+                    android:hint="@string/hint_minutes"
                     android:inputType="number"
                     android:maxLength="2"
                     android:textSize="@dimen/_11ssp" />
@@ -148,13 +148,13 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"
-                        android:text="AM" />
+                        android:text="@string/am" />
 
                     <RadioButton
                         android:id="@+id/rbEndPm"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="PM" />
+                        android:text="@string/pm" />
                 </RadioGroup>
             </LinearLayout>
 

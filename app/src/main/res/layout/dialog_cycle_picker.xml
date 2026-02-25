@@ -19,11 +19,10 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Cycle length"
+            android:text="@string/cycle_length_title"
             android:textSize="@dimen/_13ssp"
             android:textColor="@color/lavender_light"
             android:gravity="center" />
-
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,17 +43,16 @@
             <androidx.appcompat.widget.AppCompatTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=" days"
+                android:text="@string/cycle_days"
                 android:textSize="@dimen/_15ssp"
                 android:textColor="@color/lavender_light"
                 android:layout_marginTop="@dimen/_12sdp" />
         </LinearLayout>
 
-
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/cycle_length_hint"
+            android:text="@string/cycle_length_Hint"
             android:textSize="@dimen/_11ssp"
             android:textColor="@color/lavender_light"
             android:gravity="center"

@@ -16,7 +16,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="MindNest Assistant"
+            android:text="@string/mindnest_assistant"
             android:textSize="@dimen/_14ssp"
             android:textStyle="bold"/>
 
@@ -47,7 +47,7 @@
             android:layout_weight="1"
             android:layout_height="@dimen/_40sdp"
             android:background="@drawable/bg_chat_input"
-            android:hint="Type a message..."
+            android:hint="@string/type_message"
             android:textSize="@dimen/_13ssp"
             android:paddingStart="@dimen/_14sdp"
             android:paddingEnd="@dimen/_14sdp"
@@ -61,10 +61,9 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_marginStart="@dimen/_10sdp"
             android:background="@drawable/bg_chat_send"
-            android:text="Send"
+            android:text="@string/send"
             android:textSize="@dimen/_12ssp"
             android:backgroundTint="@null"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
-
 
 </androidx.appcompat.widget.LinearLayoutCompat>

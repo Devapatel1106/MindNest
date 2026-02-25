@@ -59,6 +59,7 @@
                     android:padding="@dimen/_15sdp"
                     android:clipChildren="false"
                     android:clipToPadding="false">
+
                     <LinearLayout
                         android:id="@+id/llCycleDuration"
                         android:layout_width="match_parent"
@@ -87,7 +88,7 @@
                             android:id="@+id/tvCycleDays"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text='@{String.valueOf(viewModel.cycleLength) + " days"}'
+                            android:text='@{String.valueOf(viewModel.cycleLength) + " " + @string/days_label}'
                             android:textColor="@color/white"
                             android:textStyle="bold"
                             android:textSize="@dimen/_12ssp"
@@ -100,7 +101,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_1sdp"
                         android:layout_marginVertical="@dimen/_12sdp"/>
-
 
                     <LinearLayout
                         android:id="@+id/llStartDate"
@@ -138,7 +138,6 @@
                         android:layout_height="@dimen/_1sdp"
                         android:layout_marginVertical="@dimen/_12sdp"/>
 
-                    <!-- End Date -->
                     <LinearLayout
                         android:id="@+id/llEndDate"
                         android:layout_width="match_parent"
@@ -180,7 +179,6 @@
                         android:textStyle="bold" />
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
-
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardResult"
@@ -239,7 +237,7 @@
                         android:id="@+id/tvInsight"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="—"
+                        android:text="@string/dash"
                         android:textSize="@dimen/_8ssp"
                         android:textColor="@color/lavender_light"
                         android:gravity="center"
@@ -250,7 +248,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_5sdp"
-                        android:text="Upcoming cycles"
+                        android:text="@string/upcoming_cycles_title"
                         android:textStyle="bold"
                         android:textSize="@dimen/_11ssp"
                         android:gravity="center"

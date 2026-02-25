@@ -54,7 +54,7 @@
                 android:id="@+id/tvLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Expected"
+                android:text="@string/expected_label"
                 android:textSize="@dimen/_8ssp"
                 android:textColor="@color/lavender_dark"
                 android:layout_marginTop="@dimen/_3sdp"
