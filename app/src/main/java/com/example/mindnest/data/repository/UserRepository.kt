@@ -26,13 +26,16 @@ class UserRepository(private val userDao: UserDao) {
         }
 
         firestore.collection("users")
-            .document(id.toString())
+            .document(user.uid)
             .set(
                 mapOf(
                     "id" to id,
+                    "uid" to user.uid,
                     "name" to user.name,
                     "email" to user.email,
-                    "gender" to user.gender
+                    "password" to user.password,
+                    "gender" to user.gender,
+                    "createdAt" to user.createdAt
                 )
             )
             .await()
@@ -40,20 +43,52 @@ class UserRepository(private val userDao: UserDao) {
         return id
     }
 
-    fun getUserById(userId: Long): Flow<User?> {
-        return userDao.getUserById(userId)
+
+    suspend fun syncUserFromFirebase(uid: String): User? {
+
+        val snapshot = firestore.collection("users")
+            .document(uid)
+            .get()
+            .await()
+
+        if (!snapshot.exists()) return null
+
+        val email = snapshot.getString("email") ?: return null
+        val name = snapshot.getString("name") ?: "User"
+        val password = snapshot.getString("password") ?: ""
+        val gender = snapshot.getString("gender") ?: ""
+        val createdAt = snapshot.getLong("createdAt") ?: System.currentTimeMillis()
+
+        val localUser = userDao.getUserByEmail(email)
+
+        return if (localUser != null) {
+            localUser
+        } else {
+
+            val newUser = User(
+                uid = uid,
+                name = name,
+                email = email,
+                password = password,
+                gender = gender,
+                createdAt = createdAt
+            )
+
+            val id = userDao.insertUser(newUser)
+            newUser.copy(id = id)
+        }
     }
 
     suspend fun getUserByEmail(email: String): User? {
         return userDao.getUserByEmail(email)
     }
 
-    fun getUserGender(userId: Long): Flow<String?> {
-        return userDao.getUserById(userId).map { it?.gender }
+    fun getUserById(userId: Long): Flow<User?> {
+        return userDao.getUserById(userId)
     }
 
-    fun getUsersByGender(gender: String): Flow<List<User>> {
-        return userDao.getUsersByGender(gender)
+    fun getUserGender(userId: Long): Flow<String?> {
+        return userDao.getUserById(userId).map { it?.gender }
     }
 
     suspend fun updateUser(user: User) {
@@ -61,8 +96,18 @@ class UserRepository(private val userDao: UserDao) {
         userDao.updateUser(user)
 
         firestore.collection("users")
-            .document(user.id.toString())
-            .set(user)
+            .document(user.uid)
+            .set(
+                mapOf(
+                    "id" to user.id,
+                    "uid" to user.uid,
+                    "name" to user.name,
+                    "email" to user.email,
+                    "password" to user.password,
+                    "gender" to user.gender,
+                    "createdAt" to user.createdAt
+                )
+            )
             .await()
     }
 
@@ -71,7 +116,7 @@ class UserRepository(private val userDao: UserDao) {
         userDao.deleteUser(user)
 
         firestore.collection("users")
-            .document(user.id.toString())
+            .document(user.uid)
             .delete()
             .await()
     }

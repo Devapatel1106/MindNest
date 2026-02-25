@@ -56,24 +56,37 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
 
     init {
-        startObservingModules()
-        refreshMeditation()
-        refreshCalories()
-        refreshMindScore()
+        viewModelScope.launch {
+            initUserId()
+            startRealtimeSync()
+            startObservingModules()
+            refreshMeditation()
+            refreshCalories()
+            refreshMindScore()
+        }
     }
 
+    private suspend fun initUserId() {
+        if (preferenceManager.getUserId() > 0) return
+        val email = preferenceManager.getUserEmail()
+        if (!email.isNullOrEmpty()) {
+            val user = app.userRepository.getUserByEmail(email)
+            if (user != null) {
+                preferenceManager.saveUserId(user.id)
+                preferenceManager.saveUserName(user.name)
+                preferenceManager.saveUserEmail(user.email)
+                preferenceManager.saveUserGender(user.gender)
+            }
+        }
+    }
 
     private fun startObservingModules() {
-
         val userId = preferenceManager.getUserId()
         if (userId <= 0) return
 
         viewModelScope.launch {
-
             app.taskRepository.getTasksByUser(userId).collect { list ->
-
                 val today = todayDateString()
-
                 val todayTasks = list.filter { it.date == today }
                 val completed = todayTasks.count { it.completed }
 
@@ -85,79 +98,65 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         }
 
         viewModelScope.launch {
-
             combine(
                 app.waterRepository.getWaterEntriesByUser(userId),
                 app.userSettingsRepository.getUserSettings(userId)
             ) { entries, settings ->
-
                 val today = todayDateString()
-
                 val targetMl = settings?.waterTargetMl ?: 2000
                 val todayMl = entries.filter { it.date == today }.sumOf { it.amountMl }
-
                 if (targetMl <= 0) return@combine "Set target"
-
                 "$todayMl / $targetMl ml"
-
-            }.collect {
-                _waterSummary.value = it
-            }
+            }.collect { _waterSummary.value = it }
         }
 
         viewModelScope.launch {
-
             app.journalRepository
                 .getJournalEntryByDate(userId, todayDateString())
                 .collect { entry ->
-
                     _journalSummary.value =
-                        if (entry == null) {
-                            "Log today's mood"
-                        } else {
-                            val moodText = entry.mood?.replaceFirstChar { it.uppercase() } ?: "Mood"
-                            "$moodText mood logged"
-                        }
+                        if (entry == null) "Log today's mood"
+                        else "${entry.mood?.replaceFirstChar { it.uppercase() } ?: "Mood"} mood logged"
                 }
         }
 
-
+        viewModelScope.launch { app.periodRepository.getPeriodTracking(userId).collect { _periodSummary.value = formatPeriodSummary(it) } }
         viewModelScope.launch {
-
-            app.periodRepository.getPeriodTracking(userId).collect {
-                _periodSummary.value = formatPeriodSummary(it)
-            }
-        }
-
-        viewModelScope.launch {
-
             app.sleepRepository.getSleepLogsByUser(userId).collect { list ->
 
                 val today = todayDateString()
-
                 val todayLogs = list.filter { it.date == today }
 
-                _sleepSummary.value =
-                    if (todayLogs.isEmpty()) "No logs today"
-                    else formatSleepDuration(todayLogs.last())
+                if (todayLogs.isEmpty()) {
+                    _sleepSummary.value = "No logs today"
+                    return@collect
+                }
+
+                var totalMinutes = 0
+
+                todayLogs.forEach { entity ->
+                    var start = entity.startHour * 60 + entity.startMinute
+                    var end = entity.endHour * 60 + entity.endMinute
+
+                    if (end <= start) end += 24 * 60
+
+                    totalMinutes += (end - start)
+                }
+
+                val hours = totalMinutes / 60
+                val minutes = totalMinutes % 60
+
+                _sleepSummary.value = "${hours}h ${minutes}m"
             }
         }
-
-        viewModelScope.launch {
-
-            app.workoutRepository.getWorkoutsByUser(userId).collect { list ->
-
-                val (start, end) = todayMillisRange()
-
-                val todayWorkouts =
-                    list.filter { it.date in start..end }
-
-                _workoutSummary.value =
-                    if (todayWorkouts.isEmpty()) "No workout"
-                    else "${todayWorkouts.size} workouts"
-            }
-        }
+        viewModelScope.launch { app.workoutRepository.getWorkoutsByUser(userId).collect { list ->
+            val (start, end) = todayMillisRange()
+            val todayWorkouts = list.filter { it.date in start..end }
+            _workoutSummary.value = if (todayWorkouts.isEmpty()) "No workout" else "${todayWorkouts.size} workouts"
+        }}
     }
+
+
 
 
 
@@ -193,26 +192,22 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun loadMeditationSummary(): String {
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
 
-        val prefs =
-            getApplication<Application>()
-                .getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
+        val firebaseUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            ?: return "0 sessions"
+
+        val json = prefs.getString("sessions_$firebaseUid", null) ?: return "0 sessions"
+
+        val type = object : com.google.gson.reflect.TypeToken<MutableList<PastSession>>() {}.type
+        val list: MutableList<PastSession> = com.google.gson.Gson().fromJson(json, type) ?: mutableListOf()
 
         val today = todayDateString()
-        val userId = preferenceManager.getUserId().toInt()
-
-        val json = prefs.getString("sessions_$userId", null) ?: return "0 sessions"
-
-        val type = object : TypeToken<MutableList<PastSession>>() {}.type
-
-        val list: MutableList<PastSession> =
-            Gson().fromJson(json, type) ?: return "0 sessions"
-
         val count = list.count { it.date == today }
 
         return "$count sessions"
     }
-
 
 
     private fun refreshCalories() {
@@ -222,7 +217,9 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             val userId = preferenceManager.getUserId().toString()
             val today = LocalDate.now().toString()
 
-            val list = app.calorieRepository.getTodayFood(userId, today)
+            val list = app.calorieRepository
+                .getTodayFood(userId, today)
+                .first()
 
             val total = list.sumOf { it.calories * it.quantity }
 
@@ -277,15 +274,21 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
             _mindScore.postValue(finalScore)
             _mindScoreStatus.postValue(interpretScore(finalScore))
-
             val todayDbFormat = convertToDbDateFormat(today)
-            app.mindScoreRepository.insertScore(
-                MindScoreEntity(
-                    userId = userId,
-                    date = todayDbFormat,
-                    score = finalScore
+
+            val existing =
+                app.mindScoreRepository.getScoreByDate(userId, todayDbFormat)
+
+            if (existing != finalScore) {
+                app.mindScoreRepository.insertScore(
+                    MindScoreEntity(
+                        userId = userId,
+                        date = todayDbFormat,
+                        score = finalScore
+                    )
                 )
-            )
+            }
+
         }
     }
 
@@ -354,14 +357,11 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
         if (app.workoutRepository.getWorkoutsByUser(userId).first().any { it.date in start..end }) return true
 
-        val food =
-            app.calorieRepository.getTodayFood(
-                userId.toString(),
-                LocalDate.now().toString()
-            )
+        val food = app.calorieRepository
+            .getTodayFood(userId.toString(), LocalDate.now().toString())
+            .first()
 
         if (food.isNotEmpty()) return true
-
         return false
     }
 
@@ -588,5 +588,14 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             "Not tracked"
         }
     }
+    private fun startRealtimeSync() {
 
+        val userId = preferenceManager.getUserId()
+        if (userId <= 0) return
+
+        app.taskRepository.startRealtimeSync(userId)
+        app.waterRepository.startRealtimeSync(userId)
+        app.workoutRepository.startRealtimeSync(userId)
+        app.mindScoreRepository.startRealtimeSync(userId)
+    }
 }

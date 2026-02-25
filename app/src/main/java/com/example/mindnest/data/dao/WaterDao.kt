@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WaterDao {
+
     @Query("SELECT * FROM water_entries WHERE userId = :userId ORDER BY createdAt DESC")
     fun getWaterEntriesByUser(userId: Long): Flow<List<WaterEntity>>
 

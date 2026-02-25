@@ -25,6 +25,7 @@ class CreateAccountActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreateAccountBinding
     private val app by lazy { application as MindNestApplication }
     private val preferenceManager by lazy { PreferenceManager(this) }
+
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var firestore: FirebaseFirestore
 
@@ -37,6 +38,7 @@ class CreateAccountActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
 
         binding.SignInBtn.setOnClickListener { handleSignUp() }
+
         setLoginRedirectLink()
         handleKeyboardScroll()
 
@@ -46,9 +48,10 @@ class CreateAccountActivity : AppCompatActivity() {
 
             override fun afterTextChanged(s: Editable?) {
                 val text = s.toString().trim().lowercase()
-                val iconRes = when (text) {
-                    "male", "boy" -> R.drawable.male_24px
-                    "female", "girl" -> R.drawable.female_24px
+
+                val iconRes = when {
+                    text.contains("male") || text == "m" -> R.drawable.male_24px
+                    text.contains("female") || text == "f" -> R.drawable.female_24px
                     else -> 0
                 }
 
@@ -64,37 +67,147 @@ class CreateAccountActivity : AppCompatActivity() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        resetErrors()
-    }
+    private fun handleSignUp() {
 
-    private fun setLoginRedirectLink() {
-        val text = "Already have an account? Log in"
-        val spannable = android.text.SpannableString(text)
+        val name = binding.name.text.toString().trim()
+        val email = binding.email.text.toString().trim()
+        val password = binding.edtPassword.text.toString().trim()
+        val genderInput = binding.edtGender.text.toString().trim().lowercase()
 
-        val clickableSpan = object : android.text.style.ClickableSpan() {
-            override fun onClick(widget: View) {
-                startActivity(Intent(this@CreateAccountActivity, LogInActivity::class.java))
-                finish()
+
+        val selectedGender = when {
+            genderInput.trim().lowercase().let {
+                it == "m" ||
+                        it.contains("male") ||
+                        it.contains("boy")
+            } -> "Male"
+
+            genderInput.trim().lowercase().let {
+                it == "f" ||
+                        it.contains("female") ||
+                        it.contains("girl")
+            } -> "Female"
+
+            else -> ""
+        }
+
+        when {
+            name.isEmpty() -> {
+                showError(binding.name, binding.nameErrorTxt, "Name required")
+                return
             }
 
-            override fun updateDrawState(ds: android.text.TextPaint) {
-                ds.isUnderlineText = true
-                ds.color = ContextCompat.getColor(this@CreateAccountActivity, R.color.lavender_primary)
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                showError(binding.email, binding.emailErrorTxt, "Valid email required")
+                return
+            }
+
+            password.isEmpty() -> {
+                showError(binding.edtPassword, binding.passwordErrorTxt, "Password required")
+                return
+            }
+
+            selectedGender.isEmpty() -> {
+                showError(binding.edtGender, binding.genderErrorTxt, "Enter Male or Female")
+                return
             }
         }
 
-        spannable.setSpan(
-            clickableSpan,
-            text.indexOf("Log in"),
-            text.length,
-            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
+        binding.SignInBtn.isEnabled = false
 
-        binding.loginRedirectTxt.text = spannable
-        binding.loginRedirectTxt.movementMethod =
-            android.text.method.LinkMovementMethod.getInstance()
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+            .addOnSuccessListener { authResult ->
+
+                val firebaseUser = authResult.user
+                val uid = firebaseUser?.uid ?: ""
+
+                if (uid.isEmpty()) {
+                    Toast.makeText(this, "UID error", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+
+                val userMap = hashMapOf(
+                    "uid" to uid,
+                    "name" to name,
+                    "email" to email,
+                    "gender" to selectedGender,
+                    "createdAt" to System.currentTimeMillis()
+                )
+
+                firestore.collection("users")
+                    .document(uid)
+                    .set(userMap)
+                    .addOnSuccessListener {
+
+                        lifecycleScope.launch {
+
+                            try {
+
+                                val user = User(
+                                    uid = uid,
+                                    name = name,
+                                    email = email,
+                                    password = password,
+                                    gender = selectedGender
+                                )
+
+                                val userId = app.userRepository.register(user)
+
+                                preferenceManager.saveUserId(userId)
+                                preferenceManager.saveUserName(name)
+                                preferenceManager.saveUserEmail(email)
+                                preferenceManager.saveUserGender(selectedGender)
+
+                                Toast.makeText(
+                                    this@CreateAccountActivity,
+                                    "Account Created",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                startActivity(
+                                    Intent(this@CreateAccountActivity, ViewPager::class.java)
+                                )
+                                finish()
+
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    this@CreateAccountActivity,
+                                    "Local DB Error ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                    .addOnFailureListener {
+                        binding.SignInBtn.isEnabled = true
+                        Toast.makeText(this, "Firestore Error", Toast.LENGTH_SHORT).show()
+                    }
+            }
+            .addOnFailureListener {
+                binding.SignInBtn.isEnabled = true
+                Toast.makeText(this, "Signup Failed", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun showError(
+        editText: AppCompatEditText,
+        errorTextView: TextView,
+        message: String
+    ) {
+        editText.background =
+            ContextCompat.getDrawable(this, R.drawable.edit_text_error)
+
+        errorTextView.text = message
+        errorTextView.visibility = View.VISIBLE
+        editText.requestFocus()
+    }
+
+    private fun setLoginRedirectLink() {
+        binding.loginRedirectTxt.setOnClickListener {
+            startActivity(Intent(this, LogInActivity::class.java))
+            finish()
+        }
     }
 
     private fun handleKeyboardScroll() {
@@ -106,171 +219,6 @@ class CreateAccountActivity : AppCompatActivity() {
 
             if (keypadHeight > screenHeight * 0.15) {
                 binding.rootScroll.scrollTo(0, binding.email.bottom)
-            }
-        }
-    }
-
-    private fun showError(
-        editText: AppCompatEditText,
-        errorTextView: TextView,
-        message: String
-    ) {
-        editText.background =
-            ContextCompat.getDrawable(this, R.drawable.edit_text_error)
-
-        val drawable = editText.compoundDrawablesRelative[0]?.mutate()
-        drawable?.setTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
-
-        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            drawable, null, null, null
-        )
-
-        errorTextView.text = message
-        errorTextView.visibility = View.VISIBLE
-        editText.requestFocus()
-    }
-
-    private fun clearError(
-        editText: AppCompatEditText,
-        errorTextView: TextView
-    ) {
-        editText.background =
-            ContextCompat.getDrawable(this, R.drawable.edit_text)
-
-        val drawable = editText.compoundDrawablesRelative[0]?.mutate()
-        drawable?.setTint(
-            ContextCompat.getColor(this, R.color.lavender_primary)
-        )
-
-        editText.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            drawable, null, null, null
-        )
-
-        errorTextView.visibility = View.GONE
-    }
-
-    private fun resetErrors() {
-        clearError(binding.name, binding.nameErrorTxt)
-        clearError(binding.email, binding.emailErrorTxt)
-        clearError(binding.edtPassword, binding.passwordErrorTxt)
-        clearError(binding.edtGender, binding.genderErrorTxt)
-    }
-
-    private fun handleSignUp() {
-
-        val name = binding.name.text.toString().trim()
-        val email = binding.email.text.toString().trim()
-        val password = binding.edtPassword.text.toString().trim()
-        val genderInput = binding.edtGender.text.toString().trim().lowercase()
-
-        resetErrors()
-
-        val selectedGender = when (genderInput) {
-            "male", "boy" -> "Male"
-            "female", "girl" -> "Female"
-            else -> ""
-        }
-
-        when {
-            name.isEmpty() ->
-                showError(binding.name, binding.nameErrorTxt, "Name is required")
-
-            email.isEmpty() ->
-                showError(binding.email, binding.emailErrorTxt, "Please enter your Email Address")
-
-            !Patterns.EMAIL_ADDRESS.matcher(email).matches() ->
-                showError(binding.email, binding.emailErrorTxt, "Enter a valid email")
-
-            password.isEmpty() ->
-                showError(binding.edtPassword, binding.passwordErrorTxt, "Password is required")
-
-            selectedGender.isEmpty() ->
-                showError(binding.edtGender, binding.genderErrorTxt, "Please enter Male or Female")
-
-            else -> {
-                lifecycleScope.launch {
-                    try {
-                        val existingUser = app.userRepository.getUserByEmail(email)
-
-                        if (existingUser != null) {
-                            Toast.makeText(
-                                this@CreateAccountActivity,
-                                "Email already registered",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@launch
-                        }
-
-                        firebaseAuth.createUserWithEmailAndPassword(email, password)
-                            .addOnSuccessListener { authResult ->
-                                val firebaseUser = authResult.user
-
-                                val userMap = hashMapOf(
-                                    "name" to name,
-                                    "email" to email,
-                                    "gender" to selectedGender,
-                                    "uid" to firebaseUser?.uid
-                                )
-
-                                firebaseUser?.let {
-                                    firestore.collection("users")
-                                        .document(it.uid)
-                                        .set(userMap)
-                                        .addOnSuccessListener {
-                                        }
-                                        .addOnFailureListener { e ->
-                                            Toast.makeText(
-                                                this@CreateAccountActivity,
-                                                "Firestore Error: ${e.message}",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                }
-
-                                val user = User(
-                                    name = name,
-                                    email = email,
-                                    password = password,
-                                    gender = selectedGender
-                                )
-
-                                lifecycleScope.launch {
-                                    val userId = app.userRepository.register(user)
-
-                                    preferenceManager.saveUserId(userId)
-                                    preferenceManager.saveUserName(name)
-                                    preferenceManager.saveUserEmail(email)
-                                    preferenceManager.saveUserGender(selectedGender)
-
-                                    Toast.makeText(
-                                        this@CreateAccountActivity,
-                                        "Account created successfully",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-
-                                    startActivity(
-                                        Intent(this@CreateAccountActivity, ViewPager::class.java)
-                                    )
-                                    finish()
-                                }
-
-                            }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    this@CreateAccountActivity,
-                                    "Firebase SignUp Error: ${e.message}",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                    } catch (e: Exception) {
-                        Toast.makeText(
-                            this@CreateAccountActivity,
-                            "Error: ${e.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
             }
         }
     }

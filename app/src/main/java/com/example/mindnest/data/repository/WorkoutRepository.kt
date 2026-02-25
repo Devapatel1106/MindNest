@@ -4,25 +4,41 @@ import com.example.mindnest.data.dao.WorkoutDao
 import com.example.mindnest.data.entity.WorkoutEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class WorkoutRepository(private val workoutDao: WorkoutDao) {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    fun getWorkoutsByUser(userId: Long): Flow<List<WorkoutEntity>> {
-        return workoutDao.getWorkoutsByUser(userId)
-    }
+    fun getWorkoutsByUser(userId: Long) =
+        workoutDao.getWorkoutsByUser(userId)
 
     suspend fun insertWorkout(workout: WorkoutEntity): Long {
 
         val id = workoutDao.insertWorkout(workout)
 
-        val uid = auth.currentUser?.uid ?: return id
+        syncWorkoutToFirebase(workout.copy(id = id))
+
+        return id
+    }
+
+    suspend fun deleteWorkout(workout: WorkoutEntity) {
+
+        workoutDao.deleteWorkout(workout)
+
+        deleteFromFirebase(workout.id)
+    }
+
+    private fun syncWorkoutToFirebase(workout: WorkoutEntity) {
+
+        val uid = auth.currentUser?.uid ?: return
 
         val workoutMap = hashMapOf(
-            "localId" to id,
+            "id" to workout.id,
             "userId" to workout.userId,
             "name" to workout.name,
             "durationMinutes" to workout.durationMinutes,
@@ -33,34 +49,48 @@ class WorkoutRepository(private val workoutDao: WorkoutDao) {
         firestore.collection("users")
             .document(uid)
             .collection("workouts")
-            .add(workoutMap)
-
-        return id
+            .document(workout.id.toString())
+            .set(workoutMap)
     }
 
-    suspend fun deleteWorkout(workout: WorkoutEntity) {
-
-        workoutDao.deleteWorkout(workout)
+    private fun deleteFromFirebase(workoutId: Long) {
 
         val uid = auth.currentUser?.uid ?: return
 
         firestore.collection("users")
             .document(uid)
             .collection("workouts")
-            .whereEqualTo("localId", workout.id)
-            .get()
-            .addOnSuccessListener { result ->
-                for (doc in result) {
-                    doc.reference.delete()
-                }
-            }
+            .document(workoutId.toString())
+            .delete()
     }
 
-    fun getWorkoutsByDateRange(
-        userId: Long,
-        startDate: Long,
-        endDate: Long
-    ): Flow<List<WorkoutEntity>> {
-        return workoutDao.getWorkoutsByDateRange(userId, startDate, endDate)
+    fun startRealtimeSync(userId: Long) {
+
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(uid)
+            .collection("workouts")
+            .addSnapshotListener { snapshot, _ ->
+
+                if (snapshot == null) return@addSnapshotListener
+
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    for (doc in snapshot.documents) {
+
+                        val workout = WorkoutEntity(
+                            id = doc.getLong("id") ?: 0,
+                            userId = userId,
+                            name = doc.getString("name") ?: "",
+                            durationMinutes = (doc.getLong("durationMinutes") ?: 0).toInt(),
+                            intensity = doc.getString("intensity") ?: "",
+                            date = doc.getLong("date") ?: System.currentTimeMillis()
+                        )
+
+                        workoutDao.insertWorkout(workout)
+                    }
+                }
+            }
     }
 }

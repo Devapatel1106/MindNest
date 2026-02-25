@@ -27,8 +27,12 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     val suggestion = MutableLiveData("You can eat this much today!")
 
     init {
+
         val dao = AppDatabase.getDatabase(application).calorieDao()
         repository = CalorieRepository(dao)
+
+        repository.startUserRealtimeSync(USER_ID)
+        repository.startFoodRealtimeSync(USER_ID)
 
         viewModelScope.launch {
 
@@ -42,41 +46,18 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
                     savedUser.gender,
                     savedUser.targetCalories
                 )
-            } else {
-
-                val savedGender = preferenceManager.getUserGender() ?: "Male"
-
-                val defaultUser = UserInfo(
-                    weight = 0,
-                    height = 0,
-                    age = 0,
-                    gender = savedGender,
-                    targetCalories = 2000
-                )
-
-                userInfo.value = defaultUser
-
-                repository.saveUser(
-                    UserInfoEntity(
-                        userId = USER_ID,
-                        weight = 60,
-                        height = 170,
-                        age = 20,
-                        gender = savedGender,
-                        targetCalories = 2000
-                    )
-                )
             }
 
             repository.resetOldFood(USER_ID, today)
 
-            val foodEntities = repository.getTodayFood(USER_ID, today)
+            repository.getTodayFood(USER_ID, today).collect { foodEntities ->
 
-            foodList.value = foodEntities.map {
-                FoodItem(it.name, it.category, it.calories, it.quantity)
-            }.toMutableList()
+                foodList.value = foodEntities.map {
+                    FoodItem(it.name, it.category, it.calories, it.quantity)
+                }.toMutableList()
 
-            recalcCalories()
+                recalcCalories()
+            }
         }
     }
 
@@ -93,49 +74,33 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
             )
 
             repository.addFood(entity)
-
-            val list = foodList.value ?: mutableListOf()
-            list.add(food)
-            foodList.value = list
-
-            recalcCalories()
         }
     }
 
     fun removeFood(food: FoodItem) {
         viewModelScope.launch {
 
-            val entity = FoodItemEntity(
-                userId = USER_ID,
-                name = food.name,
-                category = food.category,
-                calories = food.calories,
-                quantity = food.quantity,
-                date = today
+            repository.removeFoodByData(
+                USER_ID,
+                food.name,
+                food.category,
+                today
             )
-
-            repository.removeFood(entity)
-
-            val list = foodList.value ?: mutableListOf()
-            list.remove(food)
-            foodList.value = list
-
-            recalcCalories()
         }
     }
 
     fun clearFoodList() {
 
-        foodList.value = mutableListOf()
-        consumedCalories.value = 0
-
-        val target = userInfo.value?.targetCalories ?: 2000
-        remainingCalories.value = target
-        suggestion.value = "You can eat this much today!"
-
         viewModelScope.launch {
-            // ✅ Correct function (no error now)
+
             repository.clearAllFood(USER_ID)
+
+            foodList.postValue(mutableListOf())
+            consumedCalories.postValue(0)
+
+            val target = userInfo.value?.targetCalories ?: 2000
+            remainingCalories.postValue(target)
+            suggestion.postValue("You can eat this much today!")
         }
     }
 

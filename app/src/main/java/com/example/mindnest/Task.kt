@@ -31,6 +31,12 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
     val tasks: LiveData<List<Task>> = _tasks
 
     init {
+        val userId = preferenceManager.getUserId()
+
+        if (userId > 0) {
+            app.taskRepository.startRealtimeSync(userId)
+        }
+
         loadTasks()
     }
 

@@ -19,7 +19,15 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     val workouts: LiveData<List<Workout>> = _workouts
 
     init {
+        startRealtimeSync()
         loadWorkouts()
+    }
+
+    private fun startRealtimeSync() {
+        val userId = preferenceManager.getUserId()
+        if (userId <= 0) return
+
+        app.workoutRepository.startRealtimeSync(userId)
     }
 
     private fun loadWorkouts() {

@@ -21,6 +21,13 @@ class LogSleepViewModel(application: Application) : AndroidViewModel(application
     val sleepLogs: LiveData<MutableList<LogSleep>> = _sleepLogs
 
     init {
+
+        val userId = preferenceManager.getUserId()
+
+        if (userId > 0) {
+            app.sleepRepository.startRealtimeSync(userId)
+        }
+
         loadSleepLogs()
     }
 

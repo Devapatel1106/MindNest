@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "period_tracking")
 data class PeriodEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+
+    @PrimaryKey
     val userId: Long,
     val cycleLength: Int = 28,
     val startDate: String? = null,

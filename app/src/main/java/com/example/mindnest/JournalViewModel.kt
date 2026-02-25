@@ -22,6 +22,13 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
     val allJournals: LiveData<List<JournalEntry>> = _allJournals
 
     init {
+
+        val userId = preferenceManager.getUserId()
+
+        if (userId > 0) {
+            app.journalRepository.startRealtimeSync(userId)
+        }
+
         loadJournals()
     }
 
@@ -97,7 +104,6 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun parseDate(dateStr: String): Date {
-        // Stored format: dd/MM/yy
         return runCatching {
             SimpleDateFormat("dd/MM/yy", Locale.getDefault()).parse(dateStr)
         }.getOrNull() ?: Date()

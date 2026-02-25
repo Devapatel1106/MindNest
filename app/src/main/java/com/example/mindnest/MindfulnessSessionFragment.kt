@@ -40,9 +40,9 @@ class MindfulnessSessionFragment : Fragment() {
     private var sessionSaved = false
 
     private val adapter = PastSessionAdapter()
-    private val viewModel: PastSessionViewModel by activityViewModels()
+    private val sessionViewModel: PastSessionViewModel by activityViewModels()
 
-    private var userId: Int = -1
+    private var userId: Long = -1L
     private lateinit var preferenceManager: PreferenceManager
 
     override fun onCreateView(
@@ -57,26 +57,27 @@ class MindfulnessSessionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Get logged in user id from PreferenceManager (consistent with rest of app)
         preferenceManager = PreferenceManager(requireContext())
-        val userIdLong = preferenceManager.getUserId()
-        userId = if (userIdLong > 0) userIdLong.toInt() else -1
+        userId = preferenceManager.getUserId()
 
-        // Fallback: try user_prefs if PreferenceManager doesn't have userId
-        if (userId == -1) {
+        if (userId <= 0) {
             userId = requireActivity()
                 .getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-                .getInt("user_id", -1)
+                .getLong("user_id", -1L)
+        }
+
+        if (userId <= 0) {
+            return
         }
 
         activity?.findViewById<View>(R.id.toolbar)?.isVisible = false
-
         binding.btnBack.setOnClickListener { navigateBack() }
 
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
+                    saveOngoingSession()
                     navigateBack()
                 }
             }
@@ -97,14 +98,13 @@ class MindfulnessSessionFragment : Fragment() {
         updateTimerText(millisRemaining)
         initAudio()
 
-        // Load only this user's sessions
-        viewModel.loadSessions(requireContext(), userId)
+        sessionViewModel.loadSessions(requireContext(), userId)
 
-        viewModel.pastSessions.observe(viewLifecycleOwner) { list ->
+        sessionViewModel.listenForRealtimeUpdates(requireContext(), userId)
+
+        sessionViewModel.pastSessions.observe(viewLifecycleOwner) { list ->
             adapter.submitList(list.toList())
-            if (list.isNotEmpty()) {
-                binding.rvPastSessions.scrollToPosition(0)
-            }
+            if (list.isNotEmpty()) binding.rvPastSessions.scrollToPosition(0)
         }
     }
 
@@ -123,7 +123,7 @@ class MindfulnessSessionFragment : Fragment() {
     private fun setupClicks() = with(binding) {
         btnStart.setOnClickListener { startTimer() }
         btnPause.setOnClickListener { pauseTimer() }
-        btnSave.setOnClickListener { saveSession() }
+        btnSave.setOnClickListener { saveOngoingSession() }
     }
 
     private fun initAudio() {
@@ -137,6 +137,7 @@ class MindfulnessSessionFragment : Fragment() {
 
     private fun startTimer() {
         if (isRunning) return
+
         isRunning = true
         sessionSaved = false
         sessionStartTime = System.currentTimeMillis()
@@ -157,7 +158,7 @@ class MindfulnessSessionFragment : Fragment() {
                 updateTimerText(0L)
                 updateProgress()
                 stopAudio()
-                autoSaveSession()
+                saveOngoingSession()
             }
         }.start()
     }
@@ -168,7 +169,7 @@ class MindfulnessSessionFragment : Fragment() {
         mediaPlayer?.pause()
     }
 
-    private fun saveSession() {
+    private fun saveOngoingSession() {
         countDownTimer?.cancel()
         isRunning = false
         stopAudio()
@@ -176,12 +177,12 @@ class MindfulnessSessionFragment : Fragment() {
     }
 
     private fun autoSaveSession() {
-
         if (sessionSaved || millisRemaining == totalMillis) return
         sessionSaved = true
 
         val sessionEndTime = System.currentTimeMillis()
         val elapsedMillis = sessionEndTime - sessionStartTime
+
         val minutes = elapsedMillis / 1000 / 60
         val seconds = elapsedMillis / 1000 % 60
         val duration = String.format("%d:%02d min", minutes, seconds)
@@ -193,7 +194,7 @@ class MindfulnessSessionFragment : Fragment() {
             startMillis = sessionStartTime
         )
 
-        viewModel.addSession(newSession, userId, requireContext())
+        sessionViewModel.addSession(newSession, userId, requireContext())
     }
 
     private fun updateTimerText(millis: Long) {
@@ -219,12 +220,7 @@ class MindfulnessSessionFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        if (isRunning) {
-            countDownTimer?.cancel()
-            stopAudio()
-            autoSaveSession()
-            isRunning = false
-        }
+        if (isRunning) saveOngoingSession()
     }
 
     override fun onDestroyView() {

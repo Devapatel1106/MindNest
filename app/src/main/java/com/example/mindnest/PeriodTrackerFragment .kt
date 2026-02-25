@@ -36,7 +36,6 @@ class PeriodTrackerFragment : Fragment() {
     private val preferenceManager by lazy { PreferenceManager(requireContext()) }
 
     private var userId: Long = -1
-    private var currentPeriodId: Long = 0
     private var isUpdatingFromDatabase = false
     private var lastStartDate: LocalDate? = null
     private var lastEndDate: LocalDate? = null
@@ -62,31 +61,43 @@ class PeriodTrackerFragment : Fragment() {
         userId = preferenceManager.getUserId()
         if (userId <= 0) return
 
+        app.periodRepository.startRealtimeSync(userId)
+
         lifecycleScope.launch {
             app.periodRepository.getPeriodTracking(userId).collectLatest { period ->
+
                 isUpdatingFromDatabase = true
+
                 try {
                     period?.let { p ->
-                        currentPeriodId = p.id
-                        val start = p.startDate?.let { s -> LocalDate.parse(s, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
-                        val end = p.endDate?.let { s -> LocalDate.parse(s, DateTimeFormatter.ofPattern("dd/MM/yyyy")) }
+
+                        val start = p.startDate?.let {
+                            LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        }
+
+                        val end = p.endDate?.let {
+                            LocalDate.parse(it, DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        }
 
                         start?.let {
                             lastStartDate = it
                             viewModel.setStartDate(it)
                         }
+
                         end?.let {
                             lastEndDate = it
                             viewModel.setEndDate(it)
                         }
+
                         lastCycleLength = p.cycleLength
                         viewModel.setCycleLength(p.cycleLength)
 
                         updateUpcomingCycles()
+
                     } ?: run {
-                        currentPeriodId = 0
                         updateUpcomingCycles()
                     }
+
                 } finally {
                     isUpdatingFromDatabase = false
                 }
@@ -95,28 +106,31 @@ class PeriodTrackerFragment : Fragment() {
 
         setupObservers()
         setupClickListeners()
-
     }
 
     private fun setupObservers() {
+
         viewModel.startDate.observe(viewLifecycleOwner) { date ->
             if (!isUpdatingFromDatabase && date != lastStartDate) {
                 lastStartDate = date
                 updateAndSavePeriod()
             }
         }
+
         viewModel.endDate.observe(viewLifecycleOwner) { date ->
             if (!isUpdatingFromDatabase && date != lastEndDate) {
                 lastEndDate = date
                 updateAndSavePeriod()
             }
         }
+
         viewModel.cycleLength.observe(viewLifecycleOwner) { length ->
             if (!isUpdatingFromDatabase && length != lastCycleLength) {
                 lastCycleLength = length
                 updateAndSavePeriod()
             }
         }
+
         viewModel.periodDuration.observe(viewLifecycleOwner) {
             binding.tvFlow.text = "Your period lasted for: $it days"
         }
@@ -130,14 +144,18 @@ class PeriodTrackerFragment : Fragment() {
     }
 
     private fun savePeriodData() {
+
         if (userId <= 0) return
 
-        val start = viewModel.startDate.value?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        val end = viewModel.endDate.value?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+        val start = viewModel.startDate.value
+            ?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
+        val end = viewModel.endDate.value
+            ?.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+
         val cycle = viewModel.cycleLength.value ?: 28
 
         val period = PeriodEntity(
-            id = currentPeriodId,
             userId = userId,
             startDate = start,
             endDate = end,
@@ -158,15 +176,21 @@ class PeriodTrackerFragment : Fragment() {
     }
 
     private fun openDatePicker(isStart: Boolean) {
-        val date = if (isStart) viewModel.startDate.value else viewModel.endDate.value
+
+        val date =
+            if (isStart) viewModel.startDate.value else viewModel.endDate.value
+
         val defaultDate = date ?: LocalDate.now()
 
         DatePickerDialog(
             requireActivity(),
             { _, year, month, day ->
+
                 val pickedDate = LocalDate.of(year, month + 1, day)
+
                 if (isStart) viewModel.setStartDate(pickedDate)
                 else viewModel.setEndDate(pickedDate)
+
             },
             defaultDate.year,
             defaultDate.monthValue - 1,
@@ -175,23 +199,32 @@ class PeriodTrackerFragment : Fragment() {
     }
 
     private fun openCyclePicker() {
+
         Dialog(requireActivity(), R.style.TransparentBottomSheetDialog).apply {
+
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setContentView(R.layout.dialog_cycle_picker)
 
             window?.apply {
                 setBackgroundDrawableResource(android.R.color.transparent)
-                setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT)
+                setLayout(
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT
+                )
                 setGravity(Gravity.CENTER)
                 setDimAmount(0.5f)
             }
 
             val picker = findViewById<NumberPicker>(R.id.npCycle)
-            val tvFocus = findViewById<androidx.appcompat.widget.AppCompatTextView>(R.id.tvCycleFocus)
+            val tvFocus =
+                findViewById<androidx.appcompat.widget.AppCompatTextView>(R.id.tvCycleFocus)
 
             picker.minValue = 20
             picker.maxValue = 40
-            picker.value = viewModel.cycleLength.value?.coerceIn(20, 40) ?: 28
+
+            picker.value =
+                viewModel.cycleLength.value?.coerceIn(20, 40) ?: 28
+
             tvFocus.text = picker.value.toString()
 
             picker.setOnValueChangedListener { _, _, newVal ->
@@ -208,9 +241,16 @@ class PeriodTrackerFragment : Fragment() {
     }
 
     private fun updateUpcomingCycles() {
+
         try {
-            binding.tvStartDate.text = viewModel.startDate.value?.format(textFormatter) ?: "Select date"
-            binding.tvEndDate.text = viewModel.endDate.value?.format(textFormatter) ?: "Select date"
+
+            binding.tvStartDate.text =
+                viewModel.startDate.value?.format(textFormatter)
+                    ?: "Select date"
+
+            binding.tvEndDate.text =
+                viewModel.endDate.value?.format(textFormatter)
+                    ?: "Select date"
 
             val dates = viewModel.getUpcomingCycles(8)
             val container = binding.llUpcomingCyclesContainer
@@ -225,41 +265,76 @@ class PeriodTrackerFragment : Fragment() {
             }
 
             val inflater = LayoutInflater.from(requireContext())
-            val dayFormatter = java.text.SimpleDateFormat("dd", Locale.getDefault())
-            val monthYearFormatter = java.text.SimpleDateFormat("MMM yyyy", Locale.getDefault())
+
+            val dayFormatter =
+                java.text.SimpleDateFormat("dd", Locale.getDefault())
+
+            val monthYearFormatter =
+                java.text.SimpleDateFormat("MMM yyyy", Locale.getDefault())
 
             for (date in dates) {
+
                 try {
-                    val cardBinding = ItemCycleCardBinding.inflate(inflater, container, false)
+
+                    val cardBinding =
+                        ItemCycleCardBinding.inflate(inflater, container, false)
+
                     val cal = Calendar.getInstance()
                     cal.set(date.year, date.monthValue - 1, date.dayOfMonth)
 
-                    cardBinding.tvDate.text = dayFormatter.format(cal.time)
-                    cardBinding.tvMonth.text = monthYearFormatter.format(cal.time)
+                    cardBinding.tvDate.text =
+                        dayFormatter.format(cal.time)
+
+                    cardBinding.tvMonth.text =
+                        monthYearFormatter.format(cal.time)
+
                     cardBinding.tvLabel.text = "Expected"
 
                     val layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                         LinearLayout.LayoutParams.WRAP_CONTENT
                     )
+
                     layoutParams.marginEnd = 8.dpToPx()
+
                     cardBinding.root.layoutParams = layoutParams
 
                     container.addView(cardBinding.root)
+
                 } catch (e: OutOfMemoryError) {
-                    android.util.Log.e("PeriodTracker", "OutOfMemoryError while creating cycle card", e)
+
+                    android.util.Log.e(
+                        "PeriodTracker",
+                        "OutOfMemoryError while creating cycle card",
+                        e
+                    )
                     break
                 }
             }
 
-            binding.tvNextPeriod.text = viewModel.nextPeriod()?.format(textFormatter) ?: "-"
+            binding.tvNextPeriod.text =
+                viewModel.nextPeriod()?.format(textFormatter) ?: "-"
+
             viewModel.fertileWindow()?.let {
+
                 binding.tvOvulation.text =
-                    "Fertile window: ${it.first.format(numericFormatter)} – ${it.second.format(numericFormatter)}"
+                    "Fertile window: ${
+                        it.first.format(numericFormatter)
+                    } – ${
+                        it.second.format(numericFormatter)
+                    }"
             }
-            binding.tvInsight.text = viewModel.cycleInsight()
+
+            binding.tvInsight.text =
+                viewModel.cycleInsight()
+
         } catch (e: Exception) {
-            android.util.Log.e("PeriodTracker", "Error updating upcoming cycles", e)
+
+            android.util.Log.e(
+                "PeriodTracker",
+                "Error updating upcoming cycles",
+                e
+            )
         }
     }
 
@@ -268,5 +343,6 @@ class PeriodTrackerFragment : Fragment() {
         _binding = null
     }
 
-    private fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
+    private fun Int.dpToPx(): Int =
+        (this * resources.displayMetrics.density).toInt()
 }

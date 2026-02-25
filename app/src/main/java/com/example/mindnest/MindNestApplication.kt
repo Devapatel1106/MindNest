@@ -19,6 +19,7 @@ class MindNestApplication : Application() {
     val calorieRepository by lazy { CalorieRepository(database.calorieDao()) }
     val userSettingsRepository by lazy { UserSettingsRepository(database.userSettingsDao()) }
     val mindScoreRepository by lazy { MindScoreRepository(database.mindScoreDao()) }
+    val chatRepository by lazy { ChatRepository(database.chatDao()) }
     val firebaseAuth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
 }

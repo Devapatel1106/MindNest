@@ -4,16 +4,18 @@ import com.example.mindnest.data.dao.SleepDao
 import com.example.mindnest.data.entity.SleepEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class SleepRepository(private val sleepDao: SleepDao) {
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    fun getSleepLogsByUser(userId: Long): Flow<List<SleepEntity>> {
-        return sleepDao.getSleepLogsByUser(userId)
-    }
+    fun getSleepLogsByUser(userId: Long) =
+        sleepDao.getSleepLogsByUser(userId)
 
     suspend fun insertSleepLog(sleep: SleepEntity): Long {
 
@@ -22,7 +24,7 @@ class SleepRepository(private val sleepDao: SleepDao) {
         val uid = auth.currentUser?.uid ?: return id
 
         val sleepMap = hashMapOf(
-            "localId" to id,
+            "id" to id,
             "userId" to sleep.userId,
             "startHour" to sleep.startHour,
             "startMinute" to sleep.startMinute,
@@ -35,7 +37,9 @@ class SleepRepository(private val sleepDao: SleepDao) {
         firestore.collection("users")
             .document(uid)
             .collection("sleep_logs")
-            .add(sleepMap)
+            .document(id.toString())
+            .set(sleepMap)
+            .await()
 
         return id
     }
@@ -49,31 +53,54 @@ class SleepRepository(private val sleepDao: SleepDao) {
         firestore.collection("users")
             .document(uid)
             .collection("sleep_logs")
-            .whereEqualTo("localId", sleep.id)
-            .get()
-            .addOnSuccessListener { result ->
-                for (doc in result) {
-                    doc.reference.delete()
-                }
-            }
+            .document(sleep.id.toString())
+            .delete()
+            .await()
     }
 
     suspend fun deleteSleepLogById(sleepId: Long) {
 
-
         sleepDao.deleteSleepLogById(sleepId)
-
 
         val uid = auth.currentUser?.uid ?: return
 
         firestore.collection("users")
             .document(uid)
             .collection("sleep_logs")
-            .whereEqualTo("localId", sleepId)
-            .get()
-            .addOnSuccessListener { result ->
-                for (doc in result) {
-                    doc.reference.delete()
+            .document(sleepId.toString())
+            .delete()
+            .await()
+    }
+
+    fun startRealtimeSync(userId: Long) {
+
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(uid)
+            .collection("sleep_logs")
+            .addSnapshotListener { snapshot, _ ->
+
+                if (snapshot == null) return@addSnapshotListener
+
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    for (doc in snapshot.documents) {
+
+                        val sleep = SleepEntity(
+                            id = doc.getLong("id") ?: 0,
+                            userId = userId,
+                            startHour = (doc.getLong("startHour") ?: 0).toInt(),
+                            startMinute = (doc.getLong("startMinute") ?: 0).toInt(),
+                            endHour = (doc.getLong("endHour") ?: 0).toInt(),
+                            endMinute = (doc.getLong("endMinute") ?: 0).toInt(),
+                            date = doc.getString("date") ?: "",
+                            createdAt = doc.getLong("createdAt")
+                                ?: System.currentTimeMillis()
+                        )
+
+                        sleepDao.insertSleepLog(sleep)
+                    }
                 }
             }
     }

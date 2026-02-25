@@ -5,6 +5,11 @@ import com.example.mindnest.data.entity.FoodItemEntity
 import com.example.mindnest.data.entity.UserInfoEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class CalorieRepository(private val dao: CalorieDao) {
 
@@ -13,68 +18,120 @@ class CalorieRepository(private val dao: CalorieDao) {
 
     suspend fun saveUser(user: UserInfoEntity) {
 
-
         dao.insertUser(user)
 
-
         val uid = auth.currentUser?.uid ?: return
-
-        val map = hashMapOf(
-            "userId" to user.userId,
-            "weight" to user.weight,
-            "height" to user.height,
-            "age" to user.age,
-            "gender" to user.gender,
-            "targetCalories" to user.targetCalories
-        )
 
         firestore.collection("users")
             .document(uid)
             .collection("calorie")
             .document("user_info")
-            .set(map)
+            .set(user)
+            .await()
     }
 
     suspend fun getUser(userId: String) =
         dao.getUser(userId)
 
+    fun getTodayFood(userId: String, date: String): Flow<List<FoodItemEntity>> =
+        dao.getTodayFood(userId, date)
+
     suspend fun addFood(food: FoodItemEntity) {
 
-
-        dao.insertFood(food)
-
+        val id = dao.insertFood(food).toInt()
 
         val uid = auth.currentUser?.uid ?: return
 
-        val map = hashMapOf(
-            "name" to food.name,
-            "category" to food.category,
-            "calories" to food.calories,
-            "quantity" to food.quantity,
-            "date" to food.date
-        )
+        val finalFood = food.copy(id = id)
 
         firestore.collection("users")
             .document(uid)
             .collection("calorie")
             .document("data")
             .collection("food_items")
-            .add(map)
+            .document(id.toString())
+            .set(finalFood)
+            .await()
     }
 
-    suspend fun removeFood(food: FoodItemEntity) {
-        dao.deleteFood(food)
+    suspend fun removeFoodByData(
+        userId: String,
+        name: String,
+        category: String,
+        date: String
+    ) {
 
+        val foods = dao.getTodayFoodOnce(userId, date)
+
+        val match = foods.find {
+            it.name == name && it.category == category
+        } ?: return
+
+        dao.deleteFood(match)
+
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(uid)
+            .collection("calorie")
+            .document("data")
+            .collection("food_items")
+            .document(match.id.toString())
+            .delete()
+            .await()
     }
-
-    suspend fun getTodayFood(userId: String, date: String) =
-        dao.getTodayFood(userId, date)
 
     suspend fun resetOldFood(userId: String, date: String) =
         dao.deleteOldFood(userId, date)
 
     suspend fun clearAllFood(userId: String) {
+
         dao.clearAllFood(userId)
+
+        val uid = auth.currentUser?.uid ?: return
+
+        val snapshot = firestore.collection("users")
+            .document(uid)
+            .collection("calorie")
+            .document("data")
+            .collection("food_items")
+            .get()
+            .await()
+
+        snapshot.documents.forEach {
+            it.reference.delete()
+        }
+    }
+
+    fun startUserRealtimeSync(userId: String) {
+
+        val uid = auth.currentUser?.uid ?: return
+
+        firestore.collection("users")
+            .document(uid)
+            .collection("calorie")
+            .document("user_info")
+            .addSnapshotListener { doc, _ ->
+
+                if (doc == null || !doc.exists()) return@addSnapshotListener
+
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    val user = UserInfoEntity(
+                        userId = userId,
+                        weight = (doc.getLong("weight") ?: 0).toInt(),
+                        height = (doc.getLong("height") ?: 0).toInt(),
+                        age = (doc.getLong("age") ?: 0).toInt(),
+                        gender = doc.getString("gender") ?: "",
+                        targetCalories = (doc.getLong("targetCalories") ?: 0).toInt()
+                    )
+
+                    dao.insertUser(user)
+                }
+            }
+    }
+
+    fun startFoodRealtimeSync(userId: String) {
 
         val uid = auth.currentUser?.uid ?: return
 
@@ -83,11 +140,26 @@ class CalorieRepository(private val dao: CalorieDao) {
             .collection("calorie")
             .document("data")
             .collection("food_items")
-            .get()
-            .addOnSuccessListener { result ->
-                for (doc in result) {
-                    doc.reference.delete()
+            .addSnapshotListener { snapshot, _ ->
 
+                if (snapshot == null) return@addSnapshotListener
+
+                CoroutineScope(Dispatchers.IO).launch {
+
+                    for (doc in snapshot.documents) {
+
+                        val food = FoodItemEntity(
+                            id = (doc.getLong("id") ?: 0L).toInt(),
+                            userId = userId,
+                            name = doc.getString("name") ?: "",
+                            category = doc.getString("category") ?: "",
+                            calories = (doc.getLong("calories") ?: 0L).toInt(),
+                            quantity = (doc.getLong("quantity") ?: 0L).toInt(),
+                            date = doc.getString("date") ?: ""
+                        )
+
+                        dao.insertFood(food)
+                    }
                 }
             }
     }

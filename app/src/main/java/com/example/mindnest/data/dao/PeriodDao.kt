@@ -1,6 +1,9 @@
 package com.example.mindnest.data.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.example.mindnest.data.entity.PeriodEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -12,7 +15,4 @@ interface PeriodDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPeriodTracking(period: PeriodEntity)
-
-    @Update
-    suspend fun updatePeriodTracking(period: PeriodEntity)
 }
