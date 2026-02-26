@@ -62,8 +62,21 @@ class DashboardActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+
                 if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    return
+                }
+
+                val currentFragment =
+                    supportFragmentManager.findFragmentById(R.id.fragmentContainer)
+
+                if (currentFragment !is OverviewFragment) {
+
+                    binding.navigationView.setCheckedItem(R.id.nav_overview)
+                    binding.toolbar.title = "Overview"
+                    loadFragment(OverviewFragment())
+
                 } else {
                     AlertDialog.Builder(this@DashboardActivity)
                         .setTitle("Exit App")
@@ -155,7 +168,6 @@ class DashboardActivity : AppCompatActivity() {
             .commit()
     }
 
-    /** Called when user taps an overview card; opens the matching module and updates toolbar. */
     fun openModuleFromOverview(moduleTitle: String) {
         val (fragment, title, navId) = when (moduleTitle) {
             "Tasks" -> Triple(FragmentTask(), "Tasks", R.id.nav_tasks)
