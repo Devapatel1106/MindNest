@@ -260,20 +260,19 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             val physical = computePhysicalScore(userId)
             val tasks = computeTaskScore(userId, today)
 
-
-
             val score =
-                (emotional * 0.26 +
-                        sleep * 0.22 +
-                        meditation * 0.16 +
-                        water * 0.11 +
-                        physical * 0.15 +
-                        tasks * 0.10).toInt()
+                (emotional * 0.12 +
+                        sleep * 0.20 +
+                        meditation * 0.15 +
+                        water * 0.15 +
+                        physical * 0.20 +
+                        tasks * 0.18).toInt()
 
             val finalScore = score.coerceIn(0, 100)
 
             _mindScore.postValue(finalScore)
             _mindScoreStatus.postValue(interpretScore(finalScore))
+
             val todayDbFormat = convertToDbDateFormat(today)
 
             val existing =
