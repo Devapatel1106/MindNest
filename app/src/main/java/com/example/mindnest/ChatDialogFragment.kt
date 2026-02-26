@@ -5,6 +5,7 @@ import android.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mindnest.R
 import com.example.mindnest.databinding.FragmentChatDialogBinding
 import com.example.mindnest.data.ChatBotContext
 import com.example.mindnest.data.ChatBotEngine
@@ -24,13 +25,19 @@ class ChatDialogFragment : DialogFragment() {
 
     override fun onStart() {
         super.onStart()
+
         dialog?.window?.apply {
+
             setLayout(
                 (resources.displayMetrics.widthPixels * 0.92).toInt(),
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+
             setGravity(Gravity.CENTER)
+
             setBackgroundDrawableResource(android.R.color.transparent)
+
+            attributes?.windowAnimations = R.style.DialogAnimation
         }
     }
 
@@ -47,34 +54,13 @@ class ChatDialogFragment : DialogFragment() {
 
         adapter = ChatAdapter(emptyList())
 
-        binding.rvChat.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvChat.adapter = adapter
-
-
-        chatViewModel.messages.observe(viewLifecycleOwner) { list ->
-            val uiList = list?.map {
-                ChatMessage(
-                    it.message,
-                    it.isUser
-                )
-            } ?: emptyList()
-
-            adapter.updateMessages(uiList)
-
-
-            if (uiList.isEmpty() && !hasTriggeredWelcome) {
-                hasTriggeredWelcome = true
-                chatViewModel.sendMessage(
-                    "Hi! I'm your MindNest assistant. How can I help you today?",
-                    false
-                )
-            }
-
-            if (uiList.isNotEmpty()) {
-                binding.rvChat.scrollToPosition(uiList.size - 1)
-            }
+        binding.rvChat.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@ChatDialogFragment.adapter
+            setHasFixedSize(true)
         }
 
+        observeMessages()
 
         binding.btnSend.setOnClickListener {
 
@@ -87,6 +73,7 @@ class ChatDialogFragment : DialogFragment() {
                 binding.etMessage.text?.clear()
 
                 val prefs = PreferenceManager(requireContext())
+
                 val botContext = ChatBotContext(
                     userName = prefs.getUserName().orEmpty(),
                     mindScore = overviewViewModel.mindScore.value ?: 0,
@@ -103,12 +90,42 @@ class ChatDialogFragment : DialogFragment() {
 
                 val reply = ChatBotEngine.getReply(text, requireContext(), botContext)
 
-                chatViewModel.sendMessage(reply, false)
+                // Small delay for natural chatbot feel
+                binding.rvChat.postDelayed({
+                    chatViewModel.sendMessage(reply, false)
+                }, 400)
             }
         }
 
         binding.btnClose.setOnClickListener {
             dismiss()
+        }
+    }
+
+    private fun observeMessages() {
+
+        chatViewModel.messages.observe(viewLifecycleOwner) { list ->
+
+            val uiList = list?.map {
+                ChatMessage(
+                    it.message,
+                    it.isUser
+                )
+            } ?: emptyList()
+
+            adapter.updateMessages(uiList)
+
+            if (uiList.isEmpty() && !hasTriggeredWelcome) {
+                hasTriggeredWelcome = true
+                chatViewModel.sendMessage(
+                    "Hi! I'm your MindNest assistant. How can I help you today?",
+                    false
+                )
+            }
+
+            if (uiList.isNotEmpty()) {
+                binding.rvChat.smoothScrollToPosition(uiList.size - 1)
+            }
         }
     }
 

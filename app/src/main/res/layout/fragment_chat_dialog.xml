@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_12sdp"
     android:orientation="vertical"
-    android:padding="@dimen/_12sdp"
+    android:padding="@dimen/_14sdp"
     android:background="@drawable/bg_chat_card">
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -17,27 +18,29 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/mindnest_assistant"
-            android:textSize="@dimen/_14ssp"
-            android:textStyle="bold"/>
+            android:textSize="@dimen/_15ssp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btnClose"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
+            android:layout_width="@dimen/_22sdp"
+            android:layout_height="@dimen/_22sdp"
+            android:padding="@dimen/_2sdp"
             android:src="@drawable/close_24px"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvChat"
         android:layout_width="match_parent"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:overScrollMode="never"
-        android:layout_height="@dimen/_260sdp"/>
+        android:layout_height="@dimen/_280sdp"
+        android:layout_marginTop="@dimen/_12sdp"
+        android:overScrollMode="never"/>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_12sdp"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
@@ -45,20 +48,21 @@
             android:id="@+id/etMessage"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="@dimen/_40sdp"
+            android:layout_height="@dimen/_42sdp"
             android:background="@drawable/bg_chat_input"
             android:hint="@string/type_message"
             android:textSize="@dimen/_13ssp"
             android:paddingStart="@dimen/_14sdp"
             android:paddingEnd="@dimen/_14sdp"
             android:textColor="@color/text_primary"
-            android:textColorHint="#9E9E9E"/>
+            android:textColorHint="#9E9E9E"
+            android:maxLines="2"/>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSend"
             style="@style/Widget.MindNest.Chat.SendButton"
-            android:layout_width="@dimen/_90sdp"
-            android:layout_height="@dimen/_40sdp"
+            android:layout_width="@dimen/_88sdp"
+            android:layout_height="@dimen/_42sdp"
             android:layout_marginStart="@dimen/_10sdp"
             android:background="@drawable/bg_chat_send"
             android:text="@string/send"

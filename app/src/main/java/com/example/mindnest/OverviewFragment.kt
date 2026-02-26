@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.GridLayoutManager
@@ -63,6 +64,9 @@ class OverviewFragment : Fragment() {
         overviewViewModel.refreshAll()
 
         scheduleMidnightRefresh()
+
+        val pulse = AnimationUtils.loadAnimation(requireContext(), R.anim.fab_pulse)
+        binding.fabChatbot.startAnimation(pulse)
 
         binding.fabChatbot.setOnClickListener {
             val dialog = ChatDialogFragment()
