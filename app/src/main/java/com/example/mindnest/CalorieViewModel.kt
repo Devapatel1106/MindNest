@@ -17,7 +17,6 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     private val repository: CalorieRepository
     private val today = LocalDate.now().toString()
     private val preferenceManager = PreferenceManager(application)
-
     private val USER_ID = preferenceManager.getUserId().toString()
 
     val userInfo = MutableLiveData<UserInfo>()
@@ -27,7 +26,6 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     val suggestion = MutableLiveData("You can eat this much today!")
 
     init {
-
         val dao = AppDatabase.getDatabase(application).calorieDao()
         repository = CalorieRepository(dao)
 
@@ -46,16 +44,23 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
                     savedUser.gender,
                     savedUser.targetCalories
                 )
+            } else {
+
+                userInfo.value = UserInfo(
+                    weight = 0,
+                    height = 0,
+                    age = 0,
+                    gender = preferenceManager.getUserGender() ?: "Male",
+                    targetCalories = 2000
+                )
             }
 
             repository.resetOldFood(USER_ID, today)
 
             repository.getTodayFood(USER_ID, today).collect { foodEntities ->
-
                 foodList.value = foodEntities.map {
                     FoodItem(it.name, it.category, it.calories, it.quantity)
                 }.toMutableList()
-
                 recalcCalories()
             }
         }
@@ -63,7 +68,6 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
 
     fun addFood(food: FoodItem) {
         viewModelScope.launch {
-
             val entity = FoodItemEntity(
                 userId = USER_ID,
                 name = food.name,
@@ -72,32 +76,21 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
                 quantity = food.quantity,
                 date = today
             )
-
             repository.addFood(entity)
         }
     }
 
     fun removeFood(food: FoodItem) {
         viewModelScope.launch {
-
-            repository.removeFoodByData(
-                USER_ID,
-                food.name,
-                food.category,
-                today
-            )
+            repository.removeFoodByData(USER_ID, food.name, food.category, today)
         }
     }
 
     fun clearFoodList() {
-
         viewModelScope.launch {
-
             repository.clearAllFood(USER_ID)
-
             foodList.postValue(mutableListOf())
             consumedCalories.postValue(0)
-
             val target = userInfo.value?.targetCalories ?: 2000
             remainingCalories.postValue(target)
             suggestion.postValue("You can eat this much today!")
@@ -105,10 +98,11 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateUserInfo(weight: Int, height: Int, age: Int, gender: String) {
-
         val target = userInfo.value?.targetCalories ?: 2000
-
         userInfo.value = UserInfo(weight, height, age, gender, target)
+
+        // Save gender persistently
+        preferenceManager.saveUserGender(gender)
 
         viewModelScope.launch {
             repository.saveUser(
@@ -129,7 +123,6 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     fun increaseTarget(amount: Int = 100) {
         val info = userInfo.value ?: return
         val newTarget = info.targetCalories + amount
-
         userInfo.value = info.copy(targetCalories = newTarget)
 
         viewModelScope.launch {
@@ -151,7 +144,6 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     fun decreaseTarget(amount: Int = 100) {
         val info = userInfo.value ?: return
         val newTarget = (info.targetCalories - amount).coerceAtLeast(0)
-
         userInfo.value = info.copy(targetCalories = newTarget)
 
         viewModelScope.launch {
@@ -171,15 +163,11 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
     }
 
     private fun recalcCalories() {
-
         val list = foodList.value ?: emptyList()
         val consumed = list.sumOf { it.calories * it.quantity }
-
         consumedCalories.value = consumed
-
         val target = userInfo.value?.targetCalories ?: 2000
         remainingCalories.value = target - consumed
-
         suggestion.value = when {
             consumed < target -> "You can still eat ${target - consumed} kcal"
             consumed == target -> "Goal reached!"

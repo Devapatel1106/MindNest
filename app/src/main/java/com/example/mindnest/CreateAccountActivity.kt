@@ -42,16 +42,16 @@ class CreateAccountActivity : AppCompatActivity() {
         setLoginRedirectLink()
         handleKeyboardScroll()
 
+        // TextWatcher for gender icon update
         binding.edtGender.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
                 val text = s.toString().trim().lowercase()
-
-                val iconRes = when {
-                    text.contains("male") || text == "m" -> R.drawable.male_24px
-                    text.contains("female") || text == "f" -> R.drawable.female_24px
+                val iconRes = when (text) {
+                    "male", "m", "boy" -> R.drawable.male_24px
+                    "female", "f", "girl" -> R.drawable.female_24px
                     else -> 0
                 }
 
@@ -68,26 +68,14 @@ class CreateAccountActivity : AppCompatActivity() {
     }
 
     private fun handleSignUp() {
-
         val name = binding.name.text.toString().trim()
         val email = binding.email.text.toString().trim()
         val password = binding.edtPassword.text.toString().trim()
         val genderInput = binding.edtGender.text.toString().trim().lowercase()
 
-
-        val selectedGender = when {
-            genderInput.trim().lowercase().let {
-                it == "m" ||
-                        it.contains("male") ||
-                        it.contains("boy")
-            } -> "Male"
-
-            genderInput.trim().lowercase().let {
-                it == "f" ||
-                        it.contains("female") ||
-                        it.contains("girl")
-            } -> "Female"
-
+        val selectedGender = when (genderInput) {
+            "male", "m", "boy" -> "Male"
+            "female", "f", "girl" -> "Female"
             else -> ""
         }
 
@@ -96,17 +84,14 @@ class CreateAccountActivity : AppCompatActivity() {
                 showError(binding.name, binding.nameErrorTxt, "Name required")
                 return
             }
-
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
                 showError(binding.email, binding.emailErrorTxt, "Valid email required")
                 return
             }
-
             password.isEmpty() -> {
                 showError(binding.edtPassword, binding.passwordErrorTxt, "Password required")
                 return
             }
-
             selectedGender.isEmpty() -> {
                 showError(binding.edtGender, binding.genderErrorTxt, "Enter Male or Female")
                 return
@@ -126,7 +111,6 @@ class CreateAccountActivity : AppCompatActivity() {
                     return@addOnSuccessListener
                 }
 
-
                 val userMap = hashMapOf(
                     "uid" to uid,
                     "name" to name,
@@ -141,9 +125,7 @@ class CreateAccountActivity : AppCompatActivity() {
                     .addOnSuccessListener {
 
                         lifecycleScope.launch {
-
                             try {
-
                                 val user = User(
                                     uid = uid,
                                     name = name,
@@ -154,10 +136,11 @@ class CreateAccountActivity : AppCompatActivity() {
 
                                 val userId = app.userRepository.register(user)
 
+                                // Save all user info locally
                                 preferenceManager.saveUserId(userId)
                                 preferenceManager.saveUserName(name)
                                 preferenceManager.saveUserEmail(email)
-                                preferenceManager.saveUserGender(selectedGender)
+                                preferenceManager.saveUserGender(selectedGender) // Important!
 
                                 Toast.makeText(
                                     this@CreateAccountActivity,
@@ -173,7 +156,7 @@ class CreateAccountActivity : AppCompatActivity() {
                             } catch (e: Exception) {
                                 Toast.makeText(
                                     this@CreateAccountActivity,
-                                    "Local DB Error ${e.message}",
+                                    "Local DB Error: ${e.message}",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -190,14 +173,8 @@ class CreateAccountActivity : AppCompatActivity() {
             }
     }
 
-    private fun showError(
-        editText: AppCompatEditText,
-        errorTextView: TextView,
-        message: String
-    ) {
-        editText.background =
-            ContextCompat.getDrawable(this, R.drawable.edit_text_error)
-
+    private fun showError(editText: AppCompatEditText, errorTextView: TextView, message: String) {
+        editText.background = ContextCompat.getDrawable(this, R.drawable.edit_text_error)
         errorTextView.text = message
         errorTextView.visibility = View.VISIBLE
         editText.requestFocus()
