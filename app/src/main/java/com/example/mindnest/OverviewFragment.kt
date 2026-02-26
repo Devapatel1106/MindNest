@@ -22,7 +22,7 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Calendar
-import com.example.mindnest.ui.chat.ChatDialogFragment   // ✅ chatbot import
+import com.example.mindnest.ui.chat.ChatDialogFragment
 
 class OverviewFragment : Fragment() {
 
@@ -143,8 +143,17 @@ class OverviewFragment : Fragment() {
             (requireActivity() as? DashboardActivity)?.openModuleFromOverview(feature.title)
         }
 
+        val displayMetrics = resources.displayMetrics
+        val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
+        val spanCount = when {
+            screenWidthDp < 360 -> 1
+            screenWidthDp < 600 -> 2
+            screenWidthDp < 840 -> 3
+            else -> 4
+        }
+
         binding.recyclerViewFeatures.apply {
-            layoutManager = GridLayoutManager(requireContext(), 2)
+            layoutManager = GridLayoutManager(requireContext(), spanCount)
             adapter = featureAdapter
             setHasFixedSize(true)
         }
