@@ -161,7 +161,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
-        // Realtime Meditation sync from Firestore
         val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
         if (firebaseUid != null) {
             meditationListener = FirebaseFirestore.getInstance()
@@ -182,7 +181,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                         val count = sessions.count { it.date == today }
                         _meditationSummary.postValue("$count sessions")
 
-                        // Update local prefs for mind score calculation consistency
                         val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
                         prefs.edit().putString("sessions_$firebaseUid", Gson().toJson(sessions)).commit()
 
@@ -260,7 +258,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 return@launch
             }
 
-            // Compute individual scores
             val emotional = computeEmotionalScore(userId, today)
             val sleep = computeSleepScore(userId, today)
             val meditation = computeMeditationScore(userId, today)
@@ -276,7 +273,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
             val todayDbFormat = convertToDbDateFormat(today)
 
-            // Insert into DB + Firebase in IO context safely
             withContext(Dispatchers.IO) {
                 val existing = app.mindScoreRepository.getScoreByDate(userId, todayDbFormat)
                 if (existing != finalScore) {
@@ -333,7 +329,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    // ----- Supporting functions -----
     private suspend fun hasAnyMindData(userId: Long, today: String): Boolean {
         if (app.journalRepository.getJournalEntryByDate(userId, today).first() != null) return true
         if (app.sleepRepository.getSleepLogsByUser(userId).first().any { it.date == today }) return true
@@ -344,7 +339,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         val food = app.calorieRepository.getTodayFood(userId.toString(), LocalDate.now().toString()).first()
         if (food.isNotEmpty()) return true
 
-        // Also check meditation sessions
         val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
         val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
         if (firebaseUid != null) {
