@@ -15,6 +15,9 @@ interface WorkoutDao {
     @Delete
     suspend fun deleteWorkout(workout: WorkoutEntity)
 
+    @Query("DELETE FROM workouts WHERE id = :workoutId")
+    suspend fun deleteWorkoutById(workoutId: Long)
+
     @Query("SELECT * FROM workouts WHERE userId = :userId AND date >= :startDate AND date <= :endDate")
     fun getWorkoutsByDateRange(userId: Long, startDate: Long, endDate: Long): Flow<List<WorkoutEntity>>
 }

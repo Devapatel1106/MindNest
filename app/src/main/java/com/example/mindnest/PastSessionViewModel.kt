@@ -22,21 +22,27 @@ class PastSessionViewModel : ViewModel() {
 
     private var listenerStarted = false
 
-
     var onSessionsUpdated: (() -> Unit)? = null
 
-    fun addSession(session: PastSession, userId: Long, context: Context) {
-        val uid = auth.currentUser?.uid ?: return
+    private val uid: String? = auth.currentUser?.uid
 
-        val updatedList = loadLocalSessions(context, uid).toMutableList()
+    init {
 
+        uid?.let { startRealtimeListener(it) }
+    }
+
+
+    fun addSession(session: PastSession, context: Context) {
+        val userId = uid ?: return
+
+
+        val updatedList = loadLocalSessions(context, userId).toMutableList()
         updatedList.add(0, session)
-
-        saveLocalSessions(context, uid, updatedList)
         _pastSessions.value = updatedList
 
-        saveSessionToFirebase(session, uid)
+        saveLocalSessions(context, userId, updatedList)
 
+        saveSessionToFirebase(session, userId)
 
         onSessionsUpdated?.invoke()
     }
@@ -57,8 +63,7 @@ class PastSessionViewModel : ViewModel() {
             )
     }
 
-    fun listenForRealtimeUpdates(context: Context, userId: Long) {
-        val uid = auth.currentUser?.uid ?: return
+    private fun startRealtimeListener(uid: String) {
         if (listenerStarted) return
         listenerStarted = true
 
@@ -76,20 +81,19 @@ class PastSessionViewModel : ViewModel() {
                     PastSession(time, date, duration, startMillis)
                 }.sortedByDescending { it.startMillis }.toMutableList()
 
-
-                saveLocalSessions(context, uid, list)
-
-
                 _pastSessions.postValue(list)
+
+                snapshot.firstOrNull()?.reference?.let { saveLocalSessions(it.firestore.app.applicationContext, uid, list) }
 
                 onSessionsUpdated?.invoke()
             }
     }
 
-    fun loadSessions(context: Context, userId: Long) {
-        val uid = auth.currentUser?.uid ?: return
-        val list = loadLocalSessions(context, uid).toMutableList()
-        _pastSessions.value = list
+    fun loadSessions(context: Context) {
+        uid?.let {
+            val list = loadLocalSessions(context, it).toMutableList()
+            _pastSessions.value = list
+        }
     }
 
     private fun loadLocalSessions(context: Context, uid: String): List<PastSession> {
@@ -104,9 +108,5 @@ class PastSessionViewModel : ViewModel() {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val key = "${KEY_SESSIONS}_$uid"
         prefs.edit().putString(key, Gson().toJson(list)).apply()
-    }
-
-    fun saveOngoingSessionIfAny(session: PastSession?, context: Context) {
-        session?.let { addSession(it, 0L, context) }
     }
 }

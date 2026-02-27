@@ -12,6 +12,9 @@ interface CalorieDao {
     suspend fun insertUser(user: UserInfoEntity)
 
     @Query("SELECT * FROM user_info WHERE userId = :userId LIMIT 1")
+    fun getUserFlow(userId: String): Flow<UserInfoEntity?>
+
+    @Query("SELECT * FROM user_info WHERE userId = :userId LIMIT 1")
     suspend fun getUser(userId: String): UserInfoEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

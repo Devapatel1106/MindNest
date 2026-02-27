@@ -9,14 +9,18 @@ import com.example.mindnest.data.entity.MindScoreEntity
 import com.example.mindnest.data.entity.PeriodEntity
 import com.example.mindnest.data.entity.SleepEntity
 import com.example.mindnest.utils.PreferenceManager
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class OverviewViewModel(application: Application) : AndroidViewModel(application) {
@@ -54,6 +58,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     private val _mindScoreStatus = MutableLiveData("")
     val mindScoreStatus: LiveData<String> = _mindScoreStatus
 
+    private var meditationListener: ListenerRegistration? = null
 
     init {
         viewModelScope.launch {
@@ -111,19 +116,21 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         }
 
         viewModelScope.launch {
-            app.journalRepository
-                .getJournalEntryByDate(userId, todayDateString())
-                .collect { entry ->
-                    _journalSummary.value =
-                        if (entry == null) "Log today's mood"
-                        else "${entry.mood?.replaceFirstChar { it.uppercase() } ?: "Mood"} mood logged"
-                }
+            app.journalRepository.getJournalEntryByDate(userId, todayDateString()).collect { entry ->
+                _journalSummary.value =
+                    if (entry == null) "Log today's mood"
+                    else "${entry.mood?.replaceFirstChar { it.uppercase() } ?: "Mood"} mood logged"
+            }
         }
 
-        viewModelScope.launch { app.periodRepository.getPeriodTracking(userId).collect { _periodSummary.value = formatPeriodSummary(it) } }
+        viewModelScope.launch {
+            app.periodRepository.getPeriodTracking(userId).collect {
+                _periodSummary.value = formatPeriodSummary(it)
+            }
+        }
+
         viewModelScope.launch {
             app.sleepRepository.getSleepLogsByUser(userId).collect { list ->
-
                 val today = todayDateString()
                 val todayLogs = list.filter { it.date == today }
 
@@ -133,32 +140,57 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 }
 
                 var totalMinutes = 0
-
                 todayLogs.forEach { entity ->
                     var start = entity.startHour * 60 + entity.startMinute
                     var end = entity.endHour * 60 + entity.endMinute
-
                     if (end <= start) end += 24 * 60
-
                     totalMinutes += (end - start)
                 }
 
                 val hours = totalMinutes / 60
                 val minutes = totalMinutes % 60
-
                 _sleepSummary.value = "${hours}h ${minutes}m"
             }
         }
-        viewModelScope.launch { app.workoutRepository.getWorkoutsByUser(userId).collect { list ->
-            val (start, end) = todayMillisRange()
-            val todayWorkouts = list.filter { it.date in start..end }
-            _workoutSummary.value = if (todayWorkouts.isEmpty()) "No workout" else "${todayWorkouts.size} workouts"
-        }}
+
+        viewModelScope.launch {
+            app.workoutRepository.getWorkoutsByUser(userId).collect { list ->
+                val (start, end) = todayMillisRange()
+                val todayWorkouts = list.filter { it.date in start..end }
+                _workoutSummary.value = if (todayWorkouts.isEmpty()) "No workout" else "${todayWorkouts.size} workouts"
+            }
+        }
+
+        // Realtime Meditation sync from Firestore
+        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (firebaseUid != null) {
+            meditationListener = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(firebaseUid)
+                .collection("meditation_sessions")
+                .addSnapshotListener { snapshot, _ ->
+                    if (snapshot != null) {
+                        val today = todayDateString()
+                        val sessions = snapshot.documents.mapNotNull { doc ->
+                            val time = doc.getString("time") ?: return@mapNotNull null
+                            val date = doc.getString("date") ?: return@mapNotNull null
+                            val duration = doc.getString("duration") ?: return@mapNotNull null
+                            val startMillis = doc.getLong("startMillis") ?: 0L
+                            PastSession(time, date, duration, startMillis)
+                        }
+
+                        val count = sessions.count { it.date == today }
+                        _meditationSummary.postValue("$count sessions")
+
+                        // Update local prefs for mind score calculation consistency
+                        val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
+                        prefs.edit().putString("sessions_$firebaseUid", Gson().toJson(sessions)).commit()
+
+                        refreshMindScore()
+                    }
+                }
+        }
     }
-
-
-
-
 
     fun refreshAll() {
         refreshMeditation()
@@ -183,8 +215,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         refreshMindScore()
     }
 
-
-
     private fun refreshMeditation() {
         viewModelScope.launch {
             _meditationSummary.value = loadMeditationSummary()
@@ -192,53 +222,31 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun loadMeditationSummary(): String {
-        val prefs = getApplication<Application>()
-            .getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
-
-        val firebaseUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
-            ?: return "0 sessions"
-
+        val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
+        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid ?: return "0 sessions"
         val json = prefs.getString("sessions_$firebaseUid", null) ?: return "0 sessions"
-
-        val type = object : com.google.gson.reflect.TypeToken<MutableList<PastSession>>() {}.type
-        val list: MutableList<PastSession> = com.google.gson.Gson().fromJson(json, type) ?: mutableListOf()
-
+        val type = object : TypeToken<MutableList<PastSession>>() {}.type
+        val list: MutableList<PastSession> = Gson().fromJson(json, type) ?: mutableListOf()
         val today = todayDateString()
         val count = list.count { it.date == today }
-
         return "$count sessions"
     }
 
-
     private fun refreshCalories() {
-
         viewModelScope.launch {
-
             val userId = preferenceManager.getUserId().toString()
             val today = LocalDate.now().toString()
-
-            val list = app.calorieRepository
-                .getTodayFood(userId, today)
-                .first()
-
+            val list = app.calorieRepository.getTodayFood(userId, today).first()
             val total = list.sumOf { it.calories * it.quantity }
-
             val userInfo = app.calorieRepository.getUser(userId)
-
             val target = userInfo?.targetCalories ?: 2000
-
             _calorieSummary.value = "$total / $target kcal"
         }
     }
 
-
-
     private fun refreshMindScore() {
-
         viewModelScope.launch {
-
             val userId = preferenceManager.getUserId()
-
             if (userId <= 0) {
                 _mindScore.postValue(0)
                 _mindScoreStatus.postValue("")
@@ -246,13 +254,13 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             }
 
             val today = todayDateString()
-
             if (!hasAnyMindData(userId, today)) {
                 _mindScore.postValue(0)
                 _mindScoreStatus.postValue("")
                 return@launch
             }
 
+            // Compute individual scores
             val emotional = computeEmotionalScore(userId, today)
             val sleep = computeSleepScore(userId, today)
             val meditation = computeMeditationScore(userId, today)
@@ -260,14 +268,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             val physical = computePhysicalScore(userId)
             val tasks = computeTaskScore(userId, today)
 
-            val score =
-                (emotional * 0.12 +
-                        sleep * 0.20 +
-                        meditation * 0.15 +
-                        water * 0.15 +
-                        physical * 0.20 +
-                        tasks * 0.18).toInt()
-
+            val score = (emotional * 0.12 + sleep * 0.20 + meditation * 0.15 + water * 0.15 + physical * 0.20 + tasks * 0.18).toInt()
             val finalScore = score.coerceIn(0, 100)
 
             _mindScore.postValue(finalScore)
@@ -275,25 +276,18 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
             val todayDbFormat = convertToDbDateFormat(today)
 
-            val existing =
-                app.mindScoreRepository.getScoreByDate(userId, todayDbFormat)
-
-            if (existing != finalScore) {
-                app.mindScoreRepository.insertScore(
-                    MindScoreEntity(
-                        userId = userId,
-                        date = todayDbFormat,
-                        score = finalScore
-                    )
-                )
+            // Insert into DB + Firebase in IO context safely
+            withContext(Dispatchers.IO) {
+                val existing = app.mindScoreRepository.getScoreByDate(userId, todayDbFormat)
+                if (existing != finalScore) {
+                    app.mindScoreRepository.insertScore(MindScoreEntity(userId = userId, date = todayDbFormat, score = finalScore))
+                }
             }
-
         }
     }
 
     fun getLast7DaysMindScores(): LiveData<List<Pair<String, Int>>> {
         val result = MutableLiveData<List<Pair<String, Int>>>()
-
         viewModelScope.launch {
             val userId = preferenceManager.getUserId()
             if (userId <= 0) {
@@ -313,7 +307,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             val scoreMap = scores.associate { it.date to it.score }
 
             val resultList = mutableListOf<Pair<String, Int>>()
-
             calendar.time = dateFormat.parse(startDate) ?: Date()
 
             for (i in 0..6) {
@@ -326,7 +319,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
 
             result.postValue(resultList)
         }
-
         return result
     }
 
@@ -341,35 +333,34 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-
+    // ----- Supporting functions -----
     private suspend fun hasAnyMindData(userId: Long, today: String): Boolean {
-
         if (app.journalRepository.getJournalEntryByDate(userId, today).first() != null) return true
-
         if (app.sleepRepository.getSleepLogsByUser(userId).first().any { it.date == today }) return true
-
         if (app.waterRepository.getWaterEntriesByUser(userId).first().any { it.date == today }) return true
-
         if (app.taskRepository.getTasksByUser(userId).first().any { it.date == today }) return true
-
         val (start, end) = todayMillisRange()
-
         if (app.workoutRepository.getWorkoutsByUser(userId).first().any { it.date in start..end }) return true
-
-        val food = app.calorieRepository
-            .getTodayFood(userId.toString(), LocalDate.now().toString())
-            .first()
-
+        val food = app.calorieRepository.getTodayFood(userId.toString(), LocalDate.now().toString()).first()
         if (food.isNotEmpty()) return true
+
+        // Also check meditation sessions
+        val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
+        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
+        if (firebaseUid != null) {
+            val json = prefs.getString("sessions_$firebaseUid", null)
+            if (json != null) {
+                val type = object : TypeToken<List<PastSession>>() {}.type
+                val list: List<PastSession> = Gson().fromJson(json, type) ?: emptyList()
+                if (list.any { it.date == today }) return true
+            }
+        }
+
         return false
     }
 
-
-
-
     private suspend fun computeEmotionalScore(userId: Long, today: String): Int {
         val entry = app.journalRepository.getJournalEntryByDate(userId, today).first() ?: return 0
-
         return when (entry.mood?.lowercase()) {
             "happy" -> 80
             "neutral" -> 50
@@ -379,21 +370,13 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private suspend fun computeSleepScore(userId: Long, today: String): Int {
-        val logs =
-            app.sleepRepository.getSleepLogsByUser(userId).first()
-                .filter { it.date == today }
-
+        val logs = app.sleepRepository.getSleepLogsByUser(userId).first().filter { it.date == today }
         if (logs.isEmpty()) return 0
-
         val latest = logs.last()
-
         var start = latest.startHour * 60 + latest.startMinute
         var end = latest.endHour * 60 + latest.endMinute
-
         if (end <= start) end += 24 * 60
-
         val hours = (end - start) / 60.0
-
         return when {
             hours >= 8 -> 100
             hours >= 7 -> 80
@@ -403,21 +386,12 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun computeMeditationScore(userId: Long, today: String): Int {
-        val prefs =
-            getApplication<Application>()
-                .getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
-
-        val json =
-            prefs.getString("sessions_${userId.toInt()}", null) ?: return 0
-
+        val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
+        val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid ?: return 0
+        val json = prefs.getString("sessions_$firebaseUid", null) ?: return 0
         val type = object : TypeToken<MutableList<PastSession>>() {}.type
-
-        val list: MutableList<PastSession> =
-            Gson().fromJson(json, type) ?: return 0
-
-        val todaySessions =
-            list.filter { it.date == today }
-
+        val list: MutableList<PastSession> = Gson().fromJson(json, type) ?: return 0
+        val todaySessions = list.filter { it.date == today }
         return when {
             todaySessions.size >= 3 -> 100
             todaySessions.size == 2 -> 70
@@ -427,19 +401,12 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private suspend fun computeWaterScore(userId: Long, today: String): Int {
-        val entries =
-            app.waterRepository.getWaterEntriesByUser(userId).first()
-
+        val entries = app.waterRepository.getWaterEntriesByUser(userId).first()
         val settings = app.userSettingsRepository.getUserSettings(userId).first()
         val targetMl = settings?.waterTargetMl ?: 2000
-
-        val todayMl =
-            entries.filter { it.date == today }.sumOf { it.amountMl }
-
+        val todayMl = entries.filter { it.date == today }.sumOf { it.amountMl }
         if (todayMl == 0) return 0
-
         val ratio = todayMl.toDouble() / targetMl
-
         return when {
             ratio >= 1.2 -> 100
             ratio >= 1.0 -> 80
@@ -450,33 +417,21 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private suspend fun computeTaskScore(userId: Long, today: String): Int {
-        val tasks =
-            app.taskRepository.getTasksByUser(userId).first()
-                .filter { it.date == today }
-
+        val tasks = app.taskRepository.getTasksByUser(userId).first().filter { it.date == today }
         if (tasks.isEmpty()) return 0
-
-        val completed =
-            tasks.count { it.completed }
-
-        val pct = completed * 100 / tasks.size
-
-        return pct
+        val completed = tasks.count { it.completed }
+        return completed * 100 / tasks.size
     }
 
     private suspend fun computePhysicalScore(userId: Long): Int {
-        val workouts =
-            app.workoutRepository.getWorkoutsByUser(userId).first()
-
+        val workouts = app.workoutRepository.getWorkoutsByUser(userId).first()
         val todayWorkouts = workouts.filter { it.date in todayMillisRange().first..todayMillisRange().second }
-
         return when {
             todayWorkouts.size >= 2 -> 100
             todayWorkouts.size == 1 -> 60
             else -> 0
         }
     }
-
 
     private fun interpretScore(score: Int): String =
         when {
@@ -486,95 +441,46 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             else -> "Your mind needs some care today. Take it slow and be kind to yourself."
         }
 
-    private fun todayDateString(): String =
-        SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
+    private fun todayDateString(): String = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
 
     private fun todayMillisRange(): Pair<Long, Long> {
-
         val cal = Calendar.getInstance()
-
         cal.set(Calendar.HOUR_OF_DAY, 0)
         cal.set(Calendar.MINUTE, 0)
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MILLISECOND, 0)
-
         val start = cal.timeInMillis
         val end = start + 86400000 - 1
-
-        return Pair(start, end)
-    }
-
-
-    private fun formatSleepDuration(entity: SleepEntity): String {
-
-        var start = entity.startHour * 60 + entity.startMinute
-        var end = entity.endHour * 60 + entity.endMinute
-
-        if (end <= start) end += 24 * 60
-
-        val diff = end - start
-
-        val h = diff / 60
-        val m = diff % 60
-
-        return "${h}h ${m}m"
+        return start to end
     }
 
     private fun formatPeriodSummary(period: PeriodEntity?): String {
-
         if (period == null || period.startDate.isNullOrEmpty()) return "Not tracked"
-
         return try {
-
             val displayFormat = SimpleDateFormat("dd MMM", Locale.getDefault())
-
             fun parseDate(dateStr: String?): Date? {
                 if (dateStr.isNullOrEmpty()) return null
-
                 val formats = listOf(
                     SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()),
                     SimpleDateFormat("dd/MM/yy", Locale.getDefault())
                 )
-
                 for (format in formats) {
-                    try {
-                        return format.parse(dateStr)
-                    } catch (_: Exception) {}
+                    try { return format.parse(dateStr) } catch (_: Exception) {}
                 }
                 return null
             }
-
             val startDate = parseDate(period.startDate) ?: return "Not tracked"
             val endDate = parseDate(period.endDate)
-
             val todayCal = Calendar.getInstance()
             val todayStart = todayCal.apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
+                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
             }.time
-
-
-            if (endDate != null && !todayStart.before(startDate) && !todayStart.after(endDate)) {
-                return "Ongoing"
-            }
-
-
+            if (endDate != null && !todayStart.before(startDate) && !todayStart.after(endDate)) return "Ongoing"
             val nextCal = Calendar.getInstance()
             nextCal.time = startDate
             nextCal.add(Calendar.DAY_OF_YEAR, period.cycleLength)
-
-            val nextStart = nextCal.apply {
-                set(Calendar.HOUR_OF_DAY, 0)
-                set(Calendar.MINUTE, 0)
-                set(Calendar.SECOND, 0)
-                set(Calendar.MILLISECOND, 0)
-            }.time
-
-            val diffMillis = nextStart.time - todayStart.time
-            val days = (diffMillis / (1000 * 60 * 60 * 24)).toInt()
-
+            val nextStart = nextCal.apply { set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0) }.time
+            val days = ((nextStart.time - todayStart.time) / (1000 * 60 * 60 * 24)).toInt()
             when {
                 days < 0 -> "Next period on ${displayFormat.format(nextStart)}"
                 days == 0 -> "Today"
@@ -582,19 +488,22 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 days in 2..7 -> "In $days days"
                 else -> "Next period on ${displayFormat.format(nextStart)}"
             }
-
         } catch (e: Exception) {
             "Not tracked"
         }
     }
-    private fun startRealtimeSync() {
 
+    private fun startRealtimeSync() {
         val userId = preferenceManager.getUserId()
         if (userId <= 0) return
-
         app.taskRepository.startRealtimeSync(userId)
         app.waterRepository.startRealtimeSync(userId)
         app.workoutRepository.startRealtimeSync(userId)
         app.mindScoreRepository.startRealtimeSync(userId)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        meditationListener?.remove()
     }
 }

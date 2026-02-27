@@ -82,19 +82,34 @@ class TaskRepository(private val taskDao: TaskDao) {
 
                 CoroutineScope(Dispatchers.IO).launch {
 
-                    for (doc in snapshot.documents) {
+                    for (change in snapshot.documentChanges) {
 
-                        val task = TaskEntity(
-                            id = doc.getLong("id") ?: 0,
-                            userId = userId,
-                            title = doc.getString("title") ?: "",
-                            description = doc.getString("description") ?: "",
-                            createdAt = doc.getLong("createdAt") ?: System.currentTimeMillis(),
-                            completed = doc.getBoolean("completed") ?: false,
-                            date = doc.getString("date") ?: ""
-                        )
+                        val doc = change.document
+                        val taskId = doc.getLong("id") ?: 0
 
-                        taskDao.insertTask(task)
+                        when (change.type) {
+
+                            com.google.firebase.firestore.DocumentChange.Type.ADDED,
+                            com.google.firebase.firestore.DocumentChange.Type.MODIFIED -> {
+
+                                val task = TaskEntity(
+                                    id = taskId,
+                                    userId = userId,
+                                    title = doc.getString("title") ?: "",
+                                    description = doc.getString("description") ?: "",
+                                    createdAt = doc.getLong("createdAt") ?: System.currentTimeMillis(),
+                                    completed = doc.getBoolean("completed") ?: false,
+                                    date = doc.getString("date") ?: ""
+                                )
+
+                                taskDao.insertTask(task)
+                            }
+
+                            com.google.firebase.firestore.DocumentChange.Type.REMOVED -> {
+
+                                taskDao.deleteTaskById(taskId)
+                            }
+                        }
                     }
                 }
             }

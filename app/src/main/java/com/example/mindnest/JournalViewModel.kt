@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.flow.first
 
 class JournalViewModel(application: Application) : AndroidViewModel(application) {
     private val app = application as MindNestApplication
@@ -74,15 +75,29 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
         if (userId <= 0) return
 
         val date = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
+
         viewModelScope.launch {
-            val entity = JournalEntity(
-                id = 0,
-                userId = userId,
-                content = entry.text,
-                mood = entry.mood,
-                date = date
-            )
-            app.journalRepository.insertJournalEntry(entity)
+
+            val existing = app.journalRepository
+                .getJournalEntryByDate(userId, date)
+                .first()
+
+            if (existing != null) {
+                val updated = existing.copy(
+                    content = entry.text,
+                    mood = entry.mood
+                )
+                app.journalRepository.updateJournalEntry(updated)
+            } else {
+                val entity = JournalEntity(
+                    id = 0,
+                    userId = userId,
+                    content = entry.text,
+                    mood = entry.mood,
+                    date = date
+                )
+                app.journalRepository.insertJournalEntry(entity)
+            }
         }
     }
 

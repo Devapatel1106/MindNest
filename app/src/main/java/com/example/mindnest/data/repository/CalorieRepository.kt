@@ -4,6 +4,7 @@ import com.example.mindnest.data.dao.CalorieDao
 import com.example.mindnest.data.entity.FoodItemEntity
 import com.example.mindnest.data.entity.UserInfoEntity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +33,9 @@ class CalorieRepository(private val dao: CalorieDao) {
 
     suspend fun getUser(userId: String) =
         dao.getUser(userId)
+
+    fun getUserFlow(userId: String): Flow<UserInfoEntity?> =
+        dao.getUserFlow(userId)
 
     fun getTodayFood(userId: String, date: String): Flow<List<FoodItemEntity>> =
         dao.getTodayFood(userId, date)
@@ -86,9 +90,8 @@ class CalorieRepository(private val dao: CalorieDao) {
 
     suspend fun clearAllFood(userId: String) {
 
-        dao.clearAllFood(userId)
-
         val uid = auth.currentUser?.uid ?: return
+
 
         val snapshot = firestore.collection("users")
             .document(uid)
@@ -98,9 +101,16 @@ class CalorieRepository(private val dao: CalorieDao) {
             .get()
             .await()
 
-        snapshot.documents.forEach {
-            it.reference.delete()
+        if (!snapshot.isEmpty) {
+
+            val batch = firestore.batch()
+            snapshot.documents.forEach {
+                batch.delete(it.reference)
+            }
+            batch.commit().await()
         }
+
+        dao.clearAllFood(userId)
     }
 
     fun startUserRealtimeSync(userId: String) {
@@ -140,25 +150,41 @@ class CalorieRepository(private val dao: CalorieDao) {
             .collection("calorie")
             .document("data")
             .collection("food_items")
-            .addSnapshotListener { snapshot, _ ->
+            .addSnapshotListener { snapshot, e ->
 
-                if (snapshot == null) return@addSnapshotListener
+                if (e != null || snapshot == null) return@addSnapshotListener
 
                 CoroutineScope(Dispatchers.IO).launch {
 
-                    for (doc in snapshot.documents) {
+                    for (change in snapshot.documentChanges) {
+                        val doc = change.document
+                        val foodId = (doc.getLong("id") ?: 0L).toInt()
 
-                        val food = FoodItemEntity(
-                            id = (doc.getLong("id") ?: 0L).toInt(),
-                            userId = userId,
-                            name = doc.getString("name") ?: "",
-                            category = doc.getString("category") ?: "",
-                            calories = (doc.getLong("calories") ?: 0L).toInt(),
-                            quantity = (doc.getLong("quantity") ?: 0L).toInt(),
-                            date = doc.getString("date") ?: ""
-                        )
+                        if (change.type == DocumentChange.Type.REMOVED) {
+                            // Sync deletions across phones
+                            val foodToDelete = FoodItemEntity(
+                                id = foodId,
+                                userId = userId,
+                                name = "",
+                                category = "",
+                                calories = 0,
+                                quantity = 0,
+                                date = ""
+                            )
+                            dao.deleteFood(foodToDelete)
+                        } else {
 
-                        dao.insertFood(food)
+                            val food = FoodItemEntity(
+                                id = foodId,
+                                userId = userId,
+                                name = doc.getString("name") ?: "",
+                                category = doc.getString("category") ?: "",
+                                calories = (doc.getLong("calories") ?: 0L).toInt(),
+                                quantity = (doc.getLong("quantity") ?: 0L).toInt(),
+                                date = doc.getString("date") ?: ""
+                            )
+                            dao.insertFood(food)
+                        }
                     }
                 }
             }

@@ -33,28 +33,29 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
         repository.startFoodRealtimeSync(USER_ID)
 
         viewModelScope.launch {
-
-            val savedUser = repository.getUser(USER_ID)
-
-            if (savedUser != null) {
-                userInfo.value = UserInfo(
-                    savedUser.weight,
-                    savedUser.height,
-                    savedUser.age,
-                    savedUser.gender,
-                    savedUser.targetCalories
-                )
-            } else {
-
-                userInfo.value = UserInfo(
-                    weight = 0,
-                    height = 0,
-                    age = 0,
-                    gender = preferenceManager.getUserGender() ?: "Male",
-                    targetCalories = 2000
-                )
+            repository.getUserFlow(USER_ID).collect { savedUser ->
+                if (savedUser != null) {
+                    userInfo.value = UserInfo(
+                        savedUser.weight,
+                        savedUser.height,
+                        savedUser.age,
+                        savedUser.gender,
+                        savedUser.targetCalories
+                    )
+                } else {
+                    userInfo.value = UserInfo(
+                        weight = 0,
+                        height = 0,
+                        age = 0,
+                        gender = preferenceManager.getUserGender() ?: "Male",
+                        targetCalories = 2000
+                    )
+                }
+                recalcCalories()
             }
+        }
 
+        viewModelScope.launch {
             repository.resetOldFood(USER_ID, today)
 
             repository.getTodayFood(USER_ID, today).collect { foodEntities ->
@@ -88,12 +89,9 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
 
     fun clearFoodList() {
         viewModelScope.launch {
+            foodList.value = mutableListOf()
+            recalcCalories()
             repository.clearAllFood(USER_ID)
-            foodList.postValue(mutableListOf())
-            consumedCalories.postValue(0)
-            val target = userInfo.value?.targetCalories ?: 2000
-            remainingCalories.postValue(target)
-            suggestion.postValue("You can eat this much today!")
         }
     }
 
@@ -101,7 +99,6 @@ class CalorieViewModel(application: Application) : AndroidViewModel(application)
         val target = userInfo.value?.targetCalories ?: 2000
         userInfo.value = UserInfo(weight, height, age, gender, target)
 
-        // Save gender persistently
         preferenceManager.saveUserGender(gender)
 
         viewModelScope.launch {
