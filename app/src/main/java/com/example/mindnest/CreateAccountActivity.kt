@@ -92,6 +92,10 @@ class CreateAccountActivity : AppCompatActivity() {
                 showError(binding.edtPassword, binding.passwordErrorTxt, "Password required")
                 return
             }
+            password.length < 6 -> {
+                showError(binding.edtPassword, binding.passwordErrorTxt, "Password must be at least 6 characters")
+                return
+            }
             selectedGender.isEmpty() -> {
                 showError(binding.edtGender, binding.genderErrorTxt, "Enter Male or Female")
                 return
@@ -136,11 +140,10 @@ class CreateAccountActivity : AppCompatActivity() {
 
                                 val userId = app.userRepository.register(user)
 
-                                // Save all user info locally
                                 preferenceManager.saveUserId(userId)
                                 preferenceManager.saveUserName(name)
                                 preferenceManager.saveUserEmail(email)
-                                preferenceManager.saveUserGender(selectedGender) // Important!
+                                preferenceManager.saveUserGender(selectedGender)
 
                                 Toast.makeText(
                                     this@CreateAccountActivity,
