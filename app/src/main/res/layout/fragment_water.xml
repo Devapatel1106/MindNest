@@ -3,9 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:clipChildren="false">
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTitle"
@@ -25,10 +23,9 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="@dimen/_16sdp"
-        android:elevation="@dimen/_10sdp"
+        android:elevation="@dimen/_6sdp"
         app:cardCornerRadius="@dimen/_24sdp"
         app:cardUseCompatPadding="true"
-        app:cardPreventCornerOverlap="false"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,7 +86,6 @@
                 app:layout_constraintBottom_toTopOf="@id/tvTargetValue">
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/target"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/target"
@@ -117,13 +113,30 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvPastSessions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/past_sessions"
+        android:textColor="@color/text_primary"
+        android:textSize="@dimen/_16ssp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@android:color/white"
+        android:paddingVertical="@dimen/_8sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        app:layout_constraintTop_toBottomOf="@id/cardProgress"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvWaterHistory"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="@dimen/_16sdp"
-        android:layout_marginTop="@dimen/_12sdp"
-        app:layout_constraintTop_toBottomOf="@id/cardProgress"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:clipToPadding="true"
+        app:layout_constraintTop_toBottomOf="@id/tvPastSessions"
         app:layout_constraintBottom_toTopOf="@id/fabAddTask"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>

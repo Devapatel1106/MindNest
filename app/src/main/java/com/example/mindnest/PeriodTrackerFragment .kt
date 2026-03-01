@@ -42,7 +42,7 @@ class PeriodTrackerFragment : Fragment() {
     private var lastEndDate: LocalDate? = null
     private var lastCycleLength: Int? = null
 
-    private val textFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+    private val textFormatter = DateTimeFormatter.ofPattern("dd MMM")
     private val numericFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     override fun onCreateView(

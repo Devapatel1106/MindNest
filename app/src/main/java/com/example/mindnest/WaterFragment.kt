@@ -1,4 +1,3 @@
-// WaterFragment.kt
 package com.example.mindnest.ui.water
 
 import android.animation.ObjectAnimator
@@ -121,15 +120,27 @@ class WaterFragment : Fragment() {
 
     private fun rebuildList() {
         displayList.clear()
+
         viewModel.entries.value
             ?.groupBy { it.date }
-            ?.toSortedMap(compareByDescending { it })
             ?.forEach { (date, entries) ->
-                displayList.add(WaterListItem.DateHeader(date, viewModel.isTargetAchieved(date)))
-                entries.asReversed().forEach { displayList.add(WaterListItem.WaterLog(it)) }
+
+                displayList.add(
+                    WaterListItem.DateHeader(
+                        date,
+                        viewModel.isTargetAchieved(date)
+                    )
+                )
+
+                entries.forEach {
+                    displayList.add(WaterListItem.WaterLog(it))
+                }
             }
+
         adapter.notifyDataSetChanged()
     }
+
+
 
     private fun setupRecycler() {
         adapter = WaterHistoryAdapter(displayList)
