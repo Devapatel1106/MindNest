@@ -17,6 +17,9 @@ import com.example.mindnest.utils.PreferenceManager
 import kotlinx.coroutines.launch
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.SpannableString
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -39,10 +42,9 @@ class CreateAccountActivity : AppCompatActivity() {
 
         binding.SignInBtn.setOnClickListener { handleSignUp() }
 
-        setLoginRedirectLink()
+        setLoginSpannable()
         handleKeyboardScroll()
 
-        // TextWatcher for gender icon update
         binding.edtGender.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -65,6 +67,40 @@ class CreateAccountActivity : AppCompatActivity() {
                 )
             }
         })
+    }
+
+    private fun setLoginSpannable() {
+
+        val fullText = "Already have an account? Login"
+        val spannableString = SpannableString(fullText)
+
+        val loginStartIndex = fullText.indexOf("Login")
+        val loginEndIndex = loginStartIndex + "Login".length
+
+        val clickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                startActivity(Intent(this@CreateAccountActivity, LogInActivity::class.java))
+                finish()
+            }
+
+            override fun updateDrawState(ds: android.text.TextPaint) {
+                ds.isUnderlineText = true
+                ds.color = ContextCompat.getColor(
+                    this@CreateAccountActivity,
+                    R.color.lavender_primary
+                )
+            }
+        }
+
+        spannableString.setSpan(
+            clickableSpan,
+            loginStartIndex,
+            loginEndIndex,
+            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        binding.loginRedirectTxt.text = spannableString
+        binding.loginRedirectTxt.movementMethod = LinkMovementMethod.getInstance()
     }
 
     private fun handleSignUp() {
@@ -181,13 +217,6 @@ class CreateAccountActivity : AppCompatActivity() {
         errorTextView.text = message
         errorTextView.visibility = View.VISIBLE
         editText.requestFocus()
-    }
-
-    private fun setLoginRedirectLink() {
-        binding.loginRedirectTxt.setOnClickListener {
-            startActivity(Intent(this, LogInActivity::class.java))
-            finish()
-        }
     }
 
     private fun handleKeyboardScroll() {
