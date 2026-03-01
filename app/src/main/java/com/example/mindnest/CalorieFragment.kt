@@ -18,6 +18,7 @@ import com.example.mindnest.R
 import com.example.mindnest.databinding.FragmentCalorieBinding
 import com.example.mindnest.viewmodel.CalorieViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 
 class CalorieFragment : Fragment() {
 
@@ -159,8 +160,12 @@ class CalorieFragment : Fragment() {
 
         foodAdapter = FoodAdapter { food ->
             viewModel.addFood(food)
-            Toast.makeText(requireContext(), "${food.name} added", Toast.LENGTH_SHORT).show()
+
+            Snackbar
+                .make(binding.root, "${food.name} added", 700)
+                .show()
         }
+
 
         binding.recyclerFood.apply {
             layoutManager = LinearLayoutManager(requireContext())

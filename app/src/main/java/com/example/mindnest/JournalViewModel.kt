@@ -13,9 +13,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlinx.coroutines.flow.first
 
 class JournalViewModel(application: Application) : AndroidViewModel(application) {
+
     private val app = application as MindNestApplication
     private val preferenceManager = PreferenceManager(application)
 
@@ -23,7 +23,6 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
     val allJournals: LiveData<List<JournalEntry>> = _allJournals
 
     init {
-
         val userId = preferenceManager.getUserId()
 
         if (userId > 0) {
@@ -47,28 +46,38 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             app.journalRepository.getJournalEntriesByUser(userId)
                 .map { entities ->
-                    entities.map { entity ->
-                        val day = SimpleDateFormat("dd", Locale.getDefault()).format(parseDate(entity.date))
-                        val weekday = SimpleDateFormat("EEE", Locale.getDefault()).format(parseDate(entity.date))
-                        val monthYear = SimpleDateFormat("MMM yyyy", Locale.getDefault())
-                            .format(parseDate(entity.date))
-                            .uppercase()
 
-                        JournalEntry(
-                            id = entity.id,
-                            day = day,
-                            weekday = weekday,
-                            text = entity.content,
-                            monthYear = monthYear,
-                            mood = entity.mood
-                        )
-                    }
+                    entities.sortedByDescending { it.id }
+                        .map { entity ->
+
+                            val parsedDate = parseDate(entity.date)
+
+                            val day = SimpleDateFormat("dd", Locale.getDefault())
+                                .format(parsedDate)
+
+                            val weekday = SimpleDateFormat("EEE", Locale.getDefault())
+                                .format(parsedDate)
+
+                            val monthYear = SimpleDateFormat("MMM yyyy", Locale.getDefault())
+                                .format(parsedDate)
+                                .uppercase()
+
+                            JournalEntry(
+                                id = entity.id,
+                                day = day,
+                                weekday = weekday,
+                                text = entity.content,
+                                monthYear = monthYear,
+                                mood = entity.mood
+                            )
+                        }
                 }
                 .collect { list ->
                     _allJournals.value = list
                 }
         }
     }
+
 
     fun addJournal(entry: JournalEntry) {
         val userId = preferenceManager.getUserId()
@@ -77,27 +86,15 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
         val date = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
 
         viewModelScope.launch {
+            val entity = JournalEntity(
+                id = 0, // auto generated
+                userId = userId,
+                content = entry.text,
+                mood = entry.mood,
+                date = date
+            )
 
-            val existing = app.journalRepository
-                .getJournalEntryByDate(userId, date)
-                .first()
-
-            if (existing != null) {
-                val updated = existing.copy(
-                    content = entry.text,
-                    mood = entry.mood
-                )
-                app.journalRepository.updateJournalEntry(updated)
-            } else {
-                val entity = JournalEntity(
-                    id = 0,
-                    userId = userId,
-                    content = entry.text,
-                    mood = entry.mood,
-                    date = date
-                )
-                app.journalRepository.insertJournalEntry(entity)
-            }
+            app.journalRepository.insertJournalEntry(entity)
         }
     }
 
@@ -106,6 +103,7 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
         if (userId <= 0 || entry.id == 0L) return
 
         val date = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date())
+
         viewModelScope.launch {
             val entity = JournalEntity(
                 id = entry.id,
@@ -114,6 +112,7 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
                 mood = entry.mood,
                 date = date
             )
+
             app.journalRepository.updateJournalEntry(entity)
         }
     }
@@ -124,4 +123,3 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
         }.getOrNull() ?: Date()
     }
 }
-

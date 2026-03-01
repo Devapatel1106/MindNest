@@ -51,7 +51,7 @@
             android:layout_height="@dimen/_42sdp"
             android:background="@drawable/bg_chat_input"
             android:hint="@string/type_message"
-            android:textSize="@dimen/_13ssp"
+            android:textSize="@dimen/_10ssp"
             android:paddingStart="@dimen/_14sdp"
             android:paddingEnd="@dimen/_14sdp"
             android:textColor="@color/text_primary"

@@ -16,9 +16,11 @@
         android:layout_height="match_parent"
         android:paddingStart="@dimen/_16sdp"
         android:paddingEnd="@dimen/_16sdp"
+        android:paddingBottom="@dimen/_2sdp"
+        android:paddingTop="@dimen/_2sdp"
         android:gravity="center"
         android:text="@string/january_label"
-        android:textSize="@dimen/_11ssp"
+        android:textSize="@dimen/_8ssp"
         android:textColor="@color/lavender_dark"
         android:background="@drawable/bg_month_unselected"/>
 </androidx.cardview.widget.CardView>
