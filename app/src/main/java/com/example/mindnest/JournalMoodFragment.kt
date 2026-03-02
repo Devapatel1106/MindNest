@@ -15,6 +15,7 @@ import com.example.mindnest.adapter.MonthAdapter
 import com.example.mindnest.databinding.BottomSheetJournalBinding
 import com.example.mindnest.databinding.FragmentJournalMoodBinding
 import com.example.mindnest.model.JournalEntry
+import com.example.mindnest.ui.OverviewViewModel
 import com.example.mindnest.utils.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.text.SimpleDateFormat
@@ -33,6 +34,9 @@ class JournalMoodFragment : Fragment() {
     private val viewModel: JournalViewModel by activityViewModels {
         ViewModelFactory(requireActivity().application)
     }
+
+    // ✅ ADDED
+    private val overviewViewModel: OverviewViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,7 +59,6 @@ class JournalMoodFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        // Reload data when fragment becomes visible (e.g., after login)
         viewModel.reloadJournals()
     }
 
@@ -65,12 +68,24 @@ class JournalMoodFragment : Fragment() {
             journals.map { it.monthYear }.distinct().forEach { monthList.add(it) }
             monthAdapter.notifyDataSetChanged()
 
-            selectedMonth?.let { filterByMonth(it) } ?: run {
-                if (monthList.isNotEmpty()) {
-                    selectedMonth = monthList.last()
-                    monthAdapter.setSelected(selectedMonth!!)
-                    filterByMonth(selectedMonth!!)
-                } else {
+            val currentMonth = SimpleDateFormat("MMM yyyy", Locale.getDefault())
+                .format(Date())
+                .uppercase()
+
+            selectedMonth?.let {
+                filterByMonth(it)
+            } ?: run {
+                if (monthList.contains(currentMonth)) {
+                    selectedMonth = currentMonth
+                } else if (monthList.isNotEmpty()) {
+                    selectedMonth = monthList.first()
+                }
+
+                selectedMonth?.let {
+                    monthAdapter.setSelected(it)
+                    filterByMonth(it)
+                    binding.rvMonths.scrollToPosition(monthList.indexOf(it))
+                } ?: run {
                     filteredJournals.clear()
                     journalAdapter.notifyDataSetChanged()
                     updateEmptyState()
@@ -101,7 +116,9 @@ class JournalMoodFragment : Fragment() {
 
     private fun filterByMonth(month: String) {
         filteredJournals.clear()
-        filteredJournals.addAll(viewModel.allJournals.value?.filter { it.monthYear == month } ?: emptyList())
+        filteredJournals.addAll(
+            viewModel.allJournals.value?.filter { it.monthYear == month } ?: emptyList()
+        )
         journalAdapter.notifyDataSetChanged()
         updateEmptyState()
     }
@@ -131,7 +148,8 @@ class JournalMoodFragment : Fragment() {
         )
         val moodNames = moodMap.keys.toList()
 
-        val initialMoodName = moodMap.entries.find { it.value == editEntry?.mood }?.key ?: "Neutral"
+        val initialMoodName =
+            moodMap.entries.find { it.value == editEntry?.mood }?.key ?: "Neutral"
         var selectedMood = editEntry?.mood ?: "🙂"
 
         val adapter = ArrayAdapter(
@@ -156,7 +174,8 @@ class JournalMoodFragment : Fragment() {
             val date = Date()
             val day = SimpleDateFormat("dd", Locale.getDefault()).format(date)
             val weekday = SimpleDateFormat("EEE", Locale.getDefault()).format(date)
-            val monthYear = SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(date).uppercase()
+            val monthYear =
+                SimpleDateFormat("MMM yyyy", Locale.getDefault()).format(date).uppercase()
 
             if (editEntry != null) {
                 editEntry.text = text
@@ -166,9 +185,18 @@ class JournalMoodFragment : Fragment() {
                 editEntry.monthYear = monthYear
                 viewModel.updateJournal(editEntry)
             } else {
-                val entry = JournalEntry(id = 0, day = day, weekday = weekday, text = text, monthYear = monthYear, mood = selectedMood)
+                val entry = JournalEntry(
+                    id = 0,
+                    day = day,
+                    weekday = weekday,
+                    text = text,
+                    monthYear = monthYear,
+                    mood = selectedMood
+                )
                 viewModel.addJournal(entry)
             }
+
+            overviewViewModel.notifyJournalChanged()
 
             selectedMonth = monthYear
             monthAdapter.setSelected(monthYear)

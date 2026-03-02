@@ -87,7 +87,7 @@ class JournalViewModel(application: Application) : AndroidViewModel(application)
 
         viewModelScope.launch {
             val entity = JournalEntity(
-                id = 0, // auto generated
+                id = 0,
                 userId = userId,
                 content = entry.text,
                 mood = entry.mood,

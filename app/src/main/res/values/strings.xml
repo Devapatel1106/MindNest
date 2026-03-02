@@ -151,4 +151,9 @@
     <string name="sample_session_duration">5 min</string>
     <string name="user_name">Devanshi Patel</string>
     <string name="user_email">devanshi.axisiple@gmail.com</string>
+    <string name="weekly_performance">Weekly Performance</string>
+    <string name="weekly_average_placeholder">0</string>
+    <string name="weekly_meta_placeholder">0/0 days • 0% consistency</string>
+    <string name="weekly_insight_placeholder">Weekly insight will appear here.</string>
+    <string name="mind_score_placeholder">0</string>
 </resources>

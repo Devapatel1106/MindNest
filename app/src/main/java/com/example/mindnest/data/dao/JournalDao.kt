@@ -9,7 +9,13 @@ interface JournalDao {
     @Query("SELECT * FROM journal_entries WHERE userId = :userId ORDER BY createdAt DESC")
     fun getJournalEntriesByUser(userId: Long): Flow<List<JournalEntity>>
 
-    @Query("SELECT * FROM journal_entries WHERE userId = :userId AND date = :date")
+    @Query("""
+    SELECT * FROM journal_entries 
+    WHERE userId = :userId 
+    AND date = :date
+    ORDER BY createdAt DESC
+    LIMIT 1
+""")
     fun getJournalEntryByDate(userId: Long, date: String): Flow<JournalEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -20,4 +26,13 @@ interface JournalDao {
 
     @Delete
     suspend fun deleteJournalEntry(entry: JournalEntity)
+    @Query("""
+    SELECT * FROM journal_entries 
+    WHERE userId = :userId 
+    AND date = :date
+""")
+    fun getAllJournalEntriesByDate(
+        userId: Long,
+        date: String
+    ): Flow<List<JournalEntity>>
 }

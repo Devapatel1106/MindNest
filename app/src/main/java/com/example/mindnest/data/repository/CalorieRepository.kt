@@ -92,7 +92,6 @@ class CalorieRepository(private val dao: CalorieDao) {
 
         val uid = auth.currentUser?.uid ?: return
 
-
         val snapshot = firestore.collection("users")
             .document(uid)
             .collection("calorie")
@@ -102,7 +101,6 @@ class CalorieRepository(private val dao: CalorieDao) {
             .await()
 
         if (!snapshot.isEmpty) {
-
             val batch = firestore.batch()
             snapshot.documents.forEach {
                 batch.delete(it.reference)
@@ -110,7 +108,7 @@ class CalorieRepository(private val dao: CalorieDao) {
             batch.commit().await()
         }
 
-        dao.clearAllFood(userId)
+      dao.clearAllFood(userId)
     }
 
     fun startUserRealtimeSync(userId: String) {
@@ -160,30 +158,31 @@ class CalorieRepository(private val dao: CalorieDao) {
                         val doc = change.document
                         val foodId = (doc.getLong("id") ?: 0L).toInt()
 
-                        if (change.type == DocumentChange.Type.REMOVED) {
-                            // Sync deletions across phones
-                            val foodToDelete = FoodItemEntity(
-                                id = foodId,
-                                userId = userId,
-                                name = "",
-                                category = "",
-                                calories = 0,
-                                quantity = 0,
-                                date = ""
-                            )
-                            dao.deleteFood(foodToDelete)
-                        } else {
-
-                            val food = FoodItemEntity(
-                                id = foodId,
-                                userId = userId,
-                                name = doc.getString("name") ?: "",
-                                category = doc.getString("category") ?: "",
-                                calories = (doc.getLong("calories") ?: 0L).toInt(),
-                                quantity = (doc.getLong("quantity") ?: 0L).toInt(),
-                                date = doc.getString("date") ?: ""
-                            )
-                            dao.insertFood(food)
+                        when (change.type) {
+                            DocumentChange.Type.REMOVED -> {
+                                val dummyFood = FoodItemEntity(
+                                    id = foodId,
+                                    userId = userId,
+                                    name = "",
+                                    category = "",
+                                    calories = 0,
+                                    quantity = 0,
+                                    date = ""
+                                )
+                                dao.deleteFood(dummyFood)
+                            }
+                            else -> {
+                                val food = FoodItemEntity(
+                                    id = foodId,
+                                    userId = userId,
+                                    name = doc.getString("name") ?: "",
+                                    category = doc.getString("category") ?: "",
+                                    calories = (doc.getLong("calories") ?: 0L).toInt(),
+                                    quantity = (doc.getLong("quantity") ?: 0L).toInt(),
+                                    date = doc.getString("date") ?: ""
+                                )
+                                dao.insertFood(food)
+                            }
                         }
                     }
                 }

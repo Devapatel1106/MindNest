@@ -31,7 +31,7 @@
                     android:id="@+id/tvGreeting"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/good_morning"
+                    android:text='@{@string/good_morning + ", " + userName}'
                     android:textSize="@dimen/_16ssp"
                     android:textStyle="bold"
                     android:textColor="@color/text_primary"
@@ -50,7 +50,7 @@
                         android:id="@+id/tvQuote"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:minHeight="@dimen/_100sdp"
+                        android:minHeight="@dimen/_72sdp"
                         android:ellipsize="end"
                         android:gravity="center"
                         android:maxLines="3"
@@ -111,7 +111,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:text="0"
+                                android:text="@string/mind_score_placeholder"
                                 android:textSize="@dimen/_24ssp"
                                 android:textStyle="bold"
                                 android:textColor="@color/lavender_dark"
@@ -126,9 +126,88 @@
                             android:layout_marginTop="@dimen/_6sdp"
                             android:text="@string/good_day"
                             android:textSize="@dimen/_10ssp"
-                            tools:text="Great Day!"
                             app:layout_constraintTop_toBottomOf="@id/mindScoreCircle"
                             app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:text="Great Day!" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/weeklyReportCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/_16sdp"
+                    app:cardCornerRadius="@dimen/_12sdp"
+                    app:cardElevation="@dimen/_4sdp"
+                    app:cardBackgroundColor="@color/Light">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/_12sdp">
+
+                        <View
+                            android:id="@+id/weeklyAccent"
+                            android:layout_width="@dimen/_4sdp"
+                            android:layout_height="0dp"
+                            android:background="@color/lavender_dark"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvWeeklyTitle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_12sdp"
+                            android:text="@string/weekly_performance"
+                            android:textStyle="bold"
+                            android:textSize="@dimen/_12ssp"
+                            android:textColor="@color/text_primary"
+                            app:layout_constraintStart_toEndOf="@id/weeklyAccent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvWeeklyAverage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:text="@string/weekly_average_placeholder"
+                            android:textSize="@dimen/_16ssp"
+                            android:textStyle="bold"
+                            android:textColor="@color/lavender_dark"
+                            app:layout_constraintStart_toStartOf="@id/tvWeeklyTitle"
+                            app:layout_constraintTop_toBottomOf="@id/tvWeeklyTitle" />
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvWeeklyMeta"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:text="@string/weekly_meta_placeholder"
+                            android:textSize="@dimen/_8ssp"
+                            android:maxLines="2"
+                            android:ellipsize="end"
+                            app:layout_constraintStart_toEndOf="@id/tvWeeklyAverage"
+                            app:layout_constraintTop_toTopOf="@id/tvWeeklyAverage"
+                            app:layout_constraintBottom_toBottomOf="@id/tvWeeklyAverage"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
+                        <androidx.appcompat.widget.AppCompatTextView
+                            android:id="@+id/tvWeeklyInsight"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:text="@string/weekly_insight_placeholder"
+                            android:textSize="@dimen/_8ssp"
+                            android:textStyle="italic"
+                            android:textColor="@color/lavender_dark"
+                            app:layout_constraintTop_toBottomOf="@id/tvWeeklyAverage"
+                            app:layout_constraintStart_toStartOf="@id/tvWeeklyTitle"
                             app:layout_constraintEnd_toEndOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -159,6 +238,7 @@
             app:tint="@android:color/white"
             app:backgroundTint="@color/lavender_primary"
             app:elevation="@dimen/_6sdp"/>
+
     </FrameLayout>
 
 </layout>

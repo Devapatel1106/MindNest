@@ -53,14 +53,14 @@ class OverviewFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupGreeting()
+        observeUserGreeting()
         setupGreetingAutoUpdate()
         startAutoQuote()
         setupFeatureGrid()
         observeSummaries()
         observeMindScore()
         setupMindScoreCardClick()
-
+        observeWeeklyPerformance()
         overviewViewModel.refreshAll()
 
         scheduleMidnightRefresh()
@@ -74,6 +74,23 @@ class OverviewFragment : Fragment() {
         }
     }
 
+    private fun observeUserGreeting() {
+
+        overviewViewModel.userName.observe(viewLifecycleOwner) { name ->
+
+            val calendar = Calendar.getInstance()
+            val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
+
+            val greeting = when {
+                hourOfDay in 0..4 -> "It's time to sleep"
+                hourOfDay in 5..11 -> "Good morning"
+                hourOfDay in 12..16 -> "Good afternoon"
+                else -> "Good evening"
+            }
+
+            binding.tvGreeting.text = "$greeting, ${name ?: "User"} 👋"
+        }
+    }
     private fun scheduleMidnightRefresh() {
 
         val now = Calendar.getInstance()
@@ -122,7 +139,20 @@ class OverviewFragment : Fragment() {
         greetingRunnable = object : Runnable {
             override fun run() {
                 if (_binding != null) {
-                    setupGreeting()
+
+                    val calendar = Calendar.getInstance()
+                    val hourOfDay = calendar.get(Calendar.HOUR_OF_DAY)
+
+                    val greeting = when {
+                        hourOfDay in 0..4 -> "It's time to sleep"
+                        hourOfDay in 5..11 -> "Good morning"
+                        hourOfDay in 12..16 -> "Good afternoon"
+                        else -> "Good evening"
+                    }
+
+                    val name = overviewViewModel.userName.value ?: "User"
+                    binding.tvGreeting.text = "$greeting, $name 👋"
+
                     handler.postDelayed(this, 60_000)
                 }
             }
@@ -356,6 +386,20 @@ class OverviewFragment : Fragment() {
 
     }
 
+    private fun observeWeeklyPerformance() {
+
+        overviewViewModel.weeklyAverage.observe(viewLifecycleOwner) {
+            binding.tvWeeklyAverage.text = it.toString()
+        }
+
+        overviewViewModel.weeklyMeta.observe(viewLifecycleOwner) {
+            binding.tvWeeklyMeta.text = it
+        }
+
+        overviewViewModel.weeklyInsight.observe(viewLifecycleOwner) {
+            binding.tvWeeklyInsight.text = it
+        }
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         quoteRunnable?.let { handler.removeCallbacks(it) }

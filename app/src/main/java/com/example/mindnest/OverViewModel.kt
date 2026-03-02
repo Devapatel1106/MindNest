@@ -8,11 +8,13 @@ import com.example.mindnest.PastSession
 import com.example.mindnest.data.entity.MindScoreEntity
 import com.example.mindnest.data.entity.PeriodEntity
 import com.example.mindnest.data.entity.SleepEntity
+import com.example.mindnest.data.repository.MindScoreRepository
 import com.example.mindnest.utils.PreferenceManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.gson.Gson
+import kotlin.math.roundToInt
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
@@ -58,33 +60,142 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     private val _mindScoreStatus = MutableLiveData("")
     val mindScoreStatus: LiveData<String> = _mindScoreStatus
 
+    private val _weeklyAverage = MutableLiveData<Int>()
+    val weeklyAverage: LiveData<Int> = _weeklyAverage
+
+    private val _weeklyMeta = MutableLiveData<String>()
+    val weeklyMeta: LiveData<String> = _weeklyMeta
+
+    private val _weeklyInsight = MutableLiveData<String>()
+    val weeklyInsight: LiveData<String> = _weeklyInsight
+
+    private val _userName = MutableLiveData<String>()
+    val userName: LiveData<String> = _userName
+
     private var meditationListener: ListenerRegistration? = null
 
     init {
         viewModelScope.launch {
+
             initUserId()
+
+            val userId = preferenceManager.getUserId()
+            if (userId <= 0) return@launch
+
             startRealtimeSync()
             startObservingModules()
+            startObservingMindScore() // Start observing mind score flow
             refreshMeditation()
-            refreshCalories()
             refreshMindScore()
+            startWeeklyObserver(userId)
         }
     }
 
     private suspend fun initUserId() {
-        if (preferenceManager.getUserId() > 0) return
+
+        if (preferenceManager.getUserId() > 0) {
+            _userName.postValue(preferenceManager.getUserName() ?: "User")
+            return
+        }
+
         val email = preferenceManager.getUserEmail()
         if (!email.isNullOrEmpty()) {
+
             val user = app.userRepository.getUserByEmail(email)
+
             if (user != null) {
                 preferenceManager.saveUserId(user.id)
                 preferenceManager.saveUserName(user.name)
                 preferenceManager.saveUserEmail(user.email)
                 preferenceManager.saveUserGender(user.gender)
+
+                _userName.postValue(user.name)
+            } else {
+                _userName.postValue("User")
             }
+        } else {
+            _userName.postValue("User")
         }
     }
 
+    private fun refreshWeeklyPerformance() {
+        viewModelScope.launch {
+
+            val userId = preferenceManager.getUserId()
+            if (userId <= 0) {
+                _weeklyAverage.postValue(0)
+                _weeklyMeta.postValue("0/7 days • 0% consistency")
+                _weeklyInsight.postValue("Start tracking your progress this week.")
+                return@launch
+            }
+
+            val calendar = Calendar.getInstance()
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+            val endDate = dateFormat.format(calendar.time)
+
+            calendar.add(Calendar.DAY_OF_YEAR, -6)
+            val startDate = dateFormat.format(calendar.time)
+
+            val scores = withContext(Dispatchers.IO) {
+                app.mindScoreRepository.getScoresBetween(userId, startDate, endDate)
+            }
+
+            val daysLogged = scores.size
+            val totalScore = scores.sumOf { it.score }
+
+            val average = if (daysLogged > 0) totalScore / daysLogged else 0
+            val consistency = ((daysLogged / 7.0) * 100).toInt()
+
+            _weeklyAverage.postValue(average)
+            _weeklyMeta.postValue("$daysLogged/7 days • $consistency% consistency")
+            _weeklyInsight.postValue(
+                generateWeeklyInsight(average, daysLogged)
+            )
+        }
+    }
+
+    private fun generateWeeklyInsight(avg: Int, daysTracked: Int): String {
+
+        if (daysTracked <= 2) {
+            return when {
+                avg >= 80 ->
+                    "Strong start to the week 🌟 Keep this momentum going."
+                avg >= 60 ->
+                    "A steady beginning. Stay consistent and build from here."
+                avg > 0 ->
+                    "A gentle start. Small mindful steps today will shape your week."
+                else ->
+                    "Log your habits to start building this week’s emotional story."
+            }
+        }
+
+        return when {
+            avg >= 90 ->
+                "This week felt aligned and powerful. You're showing real emotional strength 🌿"
+
+            avg >= 80 ->
+                "You stayed consistent and grounded. Small daily efforts are adding up beautifully."
+
+            avg >= 70 ->
+                "A strong week overall. Even on tougher days, you kept showing up."
+
+            avg >= 60 ->
+                "Some ups and downs, but you're navigating them with awareness."
+
+            avg >= 50 ->
+                "A mixed week. Consider a little more rest or mindful time for yourself."
+
+            avg >= 35 ->
+                "Energy felt a bit unstable this week. Gentle routines could help restore balance."
+
+            avg > 0 ->
+                "This week asked more from you. Slow down, reset, and prioritize yourself."
+
+            else ->
+                "Start tracking your days to unlock your weekly emotional story."
+        }
+    }
     private fun startObservingModules() {
         val userId = preferenceManager.getUserId()
         if (userId <= 0) return
@@ -161,6 +272,23 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             }
         }
 
+
+        viewModelScope.launch {
+            val userIdStr = userId.toString()
+            val today = LocalDate.now().toString()
+            combine(
+                app.calorieRepository.getTodayFood(userIdStr, today),
+                app.calorieRepository.getUserFlow(userIdStr)
+            ) { foodList, userInfo ->
+                val total = foodList.sumOf { it.calories * it.quantity }
+                val target = userInfo?.targetCalories ?: 2000
+                "$total / $target kcal"
+            }.collect { summary ->
+                _calorieSummary.value = summary
+                refreshMindScore()
+            }
+        }
+
         val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
         if (firebaseUid != null) {
             meditationListener = FirebaseFirestore.getInstance()
@@ -187,6 +315,22 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                         refreshMindScore()
                     }
                 }
+        }
+    }
+
+    private fun startObservingMindScore() {
+        val userId = preferenceManager.getUserId()
+        if (userId <= 0) return
+
+        viewModelScope.launch {
+            val todayDbFormat = convertToDbDateFormat(todayDateString())
+            app.mindScoreRepository.observeScoresBetween(userId, todayDbFormat, todayDbFormat).collect { scores ->
+                val latestScore = scores.firstOrNull()?.score
+                if (latestScore != null && _mindScore.value != latestScore) {
+                    _mindScore.postValue(latestScore)
+                    _mindScoreStatus.postValue(interpretScore(latestScore))
+                }
+            }
         }
     }
 
@@ -258,14 +402,24 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 return@launch
             }
 
+
             val emotional = computeEmotionalScore(userId, today)
             val sleep = computeSleepScore(userId, today)
             val meditation = computeMeditationScore(userId, today)
             val water = computeWaterScore(userId, today)
             val physical = computePhysicalScore(userId)
             val tasks = computeTaskScore(userId, today)
+            val calories = computeCalorieScore(userId)
 
-            val score = (emotional * 0.12 + sleep * 0.20 + meditation * 0.15 + water * 0.15 + physical * 0.20 + tasks * 0.18).toInt()
+            val score = (
+                    emotional * 0.10 +
+                            sleep * 0.16 +
+                            meditation * 0.15 +
+                            water * 0.14 +
+                            physical * 0.15 +
+                            calories * 0.15 +
+                            tasks * 0.15
+                    ).roundToInt()
             val finalScore = score.coerceIn(0, 100)
 
             _mindScore.postValue(finalScore)
@@ -280,6 +434,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                 }
             }
         }
+
     }
 
     fun getLast7DaysMindScores(): LiveData<List<Pair<String, Int>>> {
@@ -342,7 +497,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
         val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
         if (firebaseUid != null) {
-            val json = prefs.getString("sessions_$firebaseUid", null)
+            val json = json(prefs.getString("sessions_$firebaseUid", null))
             if (json != null) {
                 val type = object : TypeToken<List<PastSession>>() {}.type
                 val list: List<PastSession> = Gson().fromJson(json, type) ?: emptyList()
@@ -353,24 +508,51 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         return false
     }
 
+    private fun json(str: String?): String? = str
+
+    private val moodScoreMap = mapOf(
+        "😊" to 100,
+        "🙂" to 80,
+        "😔" to 40
+    )
+
     private suspend fun computeEmotionalScore(userId: Long, today: String): Int {
-        val entry = app.journalRepository.getJournalEntryByDate(userId, today).first() ?: return 0
-        return when (entry.mood?.lowercase()) {
-            "happy" -> 80
-            "neutral" -> 50
-            "sad" -> 20
-            else -> 40
+
+        val entries = app.journalRepository
+            .getAllJournalEntriesByDate(userId, today)
+            .first()
+
+        if (entries.isEmpty()) return 0
+
+        val moodScores = entries.map { entry ->
+            moodScoreMap[entry.mood] ?: 50
         }
+
+        return moodScores.average().toInt()
     }
 
     private suspend fun computeSleepScore(userId: Long, today: String): Int {
-        val logs = app.sleepRepository.getSleepLogsByUser(userId).first().filter { it.date == today }
+
+        val logs = app.sleepRepository
+            .getSleepLogsByUser(userId)
+            .first()
+            .filter { it.date == today }
+
         if (logs.isEmpty()) return 0
-        val latest = logs.last()
-        var start = latest.startHour * 60 + latest.startMinute
-        var end = latest.endHour * 60 + latest.endMinute
-        if (end <= start) end += 24 * 60
-        val hours = (end - start) / 60.0
+
+        var totalMinutes = 0
+
+        logs.forEach { entity ->
+            var start = entity.startHour * 60 + entity.startMinute
+            var end = entity.endHour * 60 + entity.endMinute
+
+            if (end <= start) end += 24 * 60
+
+            totalMinutes += (end - start)
+        }
+
+        val hours = totalMinutes / 60.0
+
         return when {
             hours >= 8 -> 100
             hours >= 7 -> 80
@@ -380,16 +562,31 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun computeMeditationScore(userId: Long, today: String): Int {
-        val prefs = getApplication<Application>().getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
+
+        val prefs = getApplication<Application>()
+            .getSharedPreferences("mindful_sessions", Context.MODE_PRIVATE)
+
         val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid ?: return 0
         val json = prefs.getString("sessions_$firebaseUid", null) ?: return 0
+
         val type = object : TypeToken<MutableList<PastSession>>() {}.type
         val list: MutableList<PastSession> = Gson().fromJson(json, type) ?: return 0
-        val todaySessions = list.filter { it.date == today }
+
+        val (start, end) = todayMillisRange()
+
+        val todaySessions = list.filter {
+            it.startMillis in start..end
+        }
+
+        val totalMinutes = todaySessions.sumOf { session ->
+            session.duration
+                .replace("[^0-9]".toRegex(), "")
+                .toIntOrNull() ?: 0
+        }
+
         return when {
-            todaySessions.size >= 3 -> 100
-            todaySessions.size == 2 -> 70
-            todaySessions.size == 1 -> 40
+            totalMinutes >= 10 -> 100
+            totalMinutes > 0 -> ((totalMinutes / 10.0) * 100).toInt()
             else -> 0
         }
     }
@@ -410,6 +607,35 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    private suspend fun computeCalorieScore(userId: Long): Int {
+
+        val today = LocalDate.now().toString()
+
+        val foodList = app.calorieRepository
+            .getTodayFood(userId.toString(), today)
+            .first()
+
+        if (foodList.isEmpty()) return 0
+
+        val totalCalories = foodList.sumOf { it.calories * it.quantity }
+
+        val userInfo = app.calorieRepository.getUser(userId.toString())
+        val targetCalories = userInfo?.targetCalories ?: 2000
+
+        if (targetCalories <= 0) return 0
+
+        val percentage = (totalCalories.toDouble() / targetCalories) * 100
+
+        return when {
+            percentage in 95.0..105.0 -> 100
+            percentage in 85.0..94.9 -> 80
+            percentage in 70.0..84.9 -> 60
+            percentage > 105.0 && percentage <= 120.0 -> 70
+            percentage > 120.0 -> 50
+            percentage in 50.0..69.9 -> 40
+            else -> 0
+        }
+    }
     private suspend fun computeTaskScore(userId: Long, today: String): Int {
         val tasks = app.taskRepository.getTasksByUser(userId).first().filter { it.date == today }
         if (tasks.isEmpty()) return 0
@@ -494,6 +720,77 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
         app.waterRepository.startRealtimeSync(userId)
         app.workoutRepository.startRealtimeSync(userId)
         app.mindScoreRepository.startRealtimeSync(userId)
+        app.journalRepository.startRealtimeSync(userId)
+        app.sleepRepository.startRealtimeSync(userId)
+        app.periodRepository.startRealtimeSync(userId)
+        app.calorieRepository.startUserRealtimeSync(userId.toString())
+        app.calorieRepository.startFoodRealtimeSync(userId.toString())
+    }
+
+    fun startWeeklyObserver(userId: Long) {
+
+        viewModelScope.launch {
+
+            val (startDate, endDate) = getCurrentWeekRange()
+
+            app.mindScoreRepository
+                .observeScoresBetween(userId, startDate, endDate)
+                .collect { scores ->
+
+                    val today = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        .format(Date())
+
+                    val filtered = scores.filter { it.date <= today }
+
+                    val daysPassed = getDaysPassedInWeek()
+                    val daysLogged = filtered.size
+
+                    val totalScore = filtered.sumOf { it.score }
+                    val average = if (daysLogged > 0) totalScore / daysLogged else 0
+
+                    val consistency = ((daysLogged / daysPassed.toDouble()) * 100).toInt()
+
+                    _weeklyAverage.value = average
+                    _weeklyMeta.value =
+                        "$daysLogged/$daysPassed days • $consistency% consistency"
+                    _weeklyInsight.postValue(
+                        generateWeeklyInsight(average, daysLogged)
+                    )
+                }
+        }
+    }
+
+    private fun getDaysPassedInWeek(): Int {
+
+        val calendar = Calendar.getInstance()
+        val today = calendar.get(Calendar.DAY_OF_WEEK)
+
+        return when (today) {
+            Calendar.MONDAY -> 1
+            Calendar.TUESDAY -> 2
+            Calendar.WEDNESDAY -> 3
+            Calendar.THURSDAY -> 4
+            Calendar.FRIDAY -> 5
+            Calendar.SATURDAY -> 6
+            Calendar.SUNDAY -> 7
+            else -> 7
+        }
+    }
+
+    private fun getCurrentWeekRange(): Pair<String, String> {
+
+        val calendar = Calendar.getInstance()
+        calendar.firstDayOfWeek = Calendar.MONDAY
+
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+        val monday = calendar.time
+
+        calendar.add(Calendar.DAY_OF_YEAR, 6)
+        val sunday = calendar.time
+
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        return format.format(monday) to format.format(sunday)
     }
 
     override fun onCleared() {

@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 class MindScoreRepository(private val mindScoreDao: MindScoreDao) {
@@ -20,6 +21,14 @@ class MindScoreRepository(private val mindScoreDao: MindScoreDao) {
         endDate: String
     ): List<MindScoreEntity> {
         return mindScoreDao.getScoresBetween(userId, startDate, endDate)
+    }
+
+    fun observeScoresBetween(
+        userId: Long,
+        startDate: String,
+        endDate: String
+    ): Flow<List<MindScoreEntity>> {
+        return mindScoreDao.observeScoresBetween(userId, startDate, endDate)
     }
 
     suspend fun getScoreByDate(

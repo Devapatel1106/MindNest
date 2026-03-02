@@ -7,6 +7,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 class JournalRepository(private val journalDao: JournalDao) {
@@ -72,6 +73,10 @@ class JournalRepository(private val journalDao: JournalDao) {
             .document(entry.id.toString())
             .delete()
             .await()
+    }
+
+    fun getAllJournalEntriesByDate(userId: Long, date: String): Flow<List<JournalEntity>> {
+        return journalDao.getAllJournalEntriesByDate(userId, date)
     }
 
     fun startRealtimeSync(userId: Long) {
