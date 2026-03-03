@@ -63,6 +63,12 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     private val _weeklyAverage = MutableLiveData<Int>()
     val weeklyAverage: LiveData<Int> = _weeklyAverage
 
+    private val _weeklyHigh = MutableLiveData<Int>()
+    val weeklyHigh: LiveData<Int> = _weeklyHigh
+
+    private val _weeklyLow = MutableLiveData<Int>()
+    val weeklyLow: LiveData<Int> = _weeklyLow
+
     private val _weeklyMeta = MutableLiveData<String>()
     val weeklyMeta: LiveData<String> = _weeklyMeta
 
@@ -115,43 +121,6 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
             }
         } else {
             _userName.postValue("User")
-        }
-    }
-
-    private fun refreshWeeklyPerformance() {
-        viewModelScope.launch {
-
-            val userId = preferenceManager.getUserId()
-            if (userId <= 0) {
-                _weeklyAverage.postValue(0)
-                _weeklyMeta.postValue("0/7 days • 0% consistency")
-                _weeklyInsight.postValue("Start tracking your progress this week.")
-                return@launch
-            }
-
-            val calendar = Calendar.getInstance()
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
-            val endDate = dateFormat.format(calendar.time)
-
-            calendar.add(Calendar.DAY_OF_YEAR, -6)
-            val startDate = dateFormat.format(calendar.time)
-
-            val scores = withContext(Dispatchers.IO) {
-                app.mindScoreRepository.getScoresBetween(userId, startDate, endDate)
-            }
-
-            val daysLogged = scores.size
-            val totalScore = scores.sumOf { it.score }
-
-            val average = if (daysLogged > 0) totalScore / daysLogged else 0
-            val consistency = ((daysLogged / 7.0) * 100).toInt()
-
-            _weeklyAverage.postValue(average)
-            _weeklyMeta.postValue("$daysLogged/7 days • $consistency% consistency")
-            _weeklyInsight.postValue(
-                generateWeeklyInsight(average, daysLogged)
-            )
         }
     }
 
@@ -440,37 +409,38 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
     fun getLast7DaysMindScores(): LiveData<List<Pair<String, Int>>> {
         val result = MutableLiveData<List<Pair<String, Int>>>()
         viewModelScope.launch {
-            val userId = preferenceManager.getUserId()
-            if (userId <= 0) {
-                result.postValue(emptyList())
-                return@launch
-            }
-
-            val calendar = Calendar.getInstance()
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val displayFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
-
-            val endDate = dateFormat.format(calendar.time)
-            calendar.add(Calendar.DAY_OF_YEAR, -6)
-            val startDate = dateFormat.format(calendar.time)
-
-            val scores = app.mindScoreRepository.getScoresBetween(userId, startDate, endDate)
-            val scoreMap = scores.associate { it.date to it.score }
-
-            val resultList = mutableListOf<Pair<String, Int>>()
-            calendar.time = dateFormat.parse(startDate) ?: Date()
-
-            for (i in 0..6) {
-                val dateKey = dateFormat.format(calendar.time)
-                val displayDate = displayFormat.format(calendar.time)
-                val score = scoreMap[dateKey] ?: 0
-                resultList.add(Pair(displayDate, score))
-                calendar.add(Calendar.DAY_OF_YEAR, 1)
-            }
-
-            result.postValue(resultList)
+            val list = fetchLast7DaysMindScoresSync()
+            result.postValue(list)
         }
         return result
+    }
+
+    suspend fun fetchLast7DaysMindScoresSync(): List<Pair<String, Int>> = withContext(Dispatchers.IO) {
+        val userId = preferenceManager.getUserId()
+        if (userId <= 0) return@withContext emptyList()
+
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val displayFormat = SimpleDateFormat("dd/MM", Locale.getDefault())
+
+        val endDate = dateFormat.format(calendar.time)
+        calendar.add(Calendar.DAY_OF_YEAR, -6)
+        val startDate = dateFormat.format(calendar.time)
+
+        val scores = app.mindScoreRepository.getScoresBetween(userId, startDate, endDate)
+        val scoreMap = scores.associate { it.date to it.score }
+
+        val resultList = mutableListOf<Pair<String, Int>>()
+        calendar.time = dateFormat.parse(startDate) ?: Date()
+
+        for (i in 0..6) {
+            val dateKey = dateFormat.format(calendar.time)
+            val displayDate = displayFormat.format(calendar.time)
+            val score = scoreMap[dateKey] ?: 0
+            resultList.add(Pair(displayDate, score))
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+        resultList
     }
 
     private fun convertToDbDateFormat(dateStr: String): String {
@@ -748,11 +718,14 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                     val totalScore = filtered.sumOf { it.score }
                     val average = if (daysLogged > 0) totalScore / daysLogged else 0
 
-                    val consistency = ((daysLogged / daysPassed.toDouble()) * 100).toInt()
+                    val maxScore = filtered.maxByOrNull { it.score }?.score ?: 0
+                    val minScore = filtered.minByOrNull { it.score }?.score ?: 0
 
                     _weeklyAverage.value = average
+                    _weeklyHigh.value = maxScore
+                    _weeklyLow.value = minScore
                     _weeklyMeta.value =
-                        "$daysLogged/$daysPassed days • $consistency% consistency"
+                        "$daysLogged/$daysPassed days • ${((daysLogged / daysPassed.toDouble()) * 100).toInt()}% consistency"
                     _weeklyInsight.postValue(
                         generateWeeklyInsight(average, daysLogged)
                     )

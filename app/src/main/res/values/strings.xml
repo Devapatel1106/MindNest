@@ -156,4 +156,5 @@
     <string name="weekly_meta_placeholder">0/0 days • 0% consistency</string>
     <string name="weekly_insight_placeholder">Weekly insight will appear here.</string>
     <string name="mind_score_placeholder">0</string>
+    <string name="download_weekly_wellness_report">Download Weekly Wellness Report</string>
 </resources>

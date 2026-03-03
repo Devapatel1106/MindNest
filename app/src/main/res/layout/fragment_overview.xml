@@ -139,7 +139,7 @@
                     android:id="@+id/weeklyReportCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/_16sdp"
+                    android:layout_marginBottom="@dimen/_12sdp"
                     app:cardCornerRadius="@dimen/_12sdp"
                     app:cardElevation="@dimen/_4sdp"
                     app:cardBackgroundColor="@color/Light">
@@ -213,6 +213,18 @@
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadReport"
+                    style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/_20sdp"
+                    android:text="@string/download_weekly_wellness_report"
+                    android:textColor="@color/lavender_dark"
+                    android:textSize="@dimen/_10sdp"
+                    app:icon="@drawable/assignment_add_24px"
+                    app:iconTint="@color/lavender_dark" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recyclerViewFeatures"
