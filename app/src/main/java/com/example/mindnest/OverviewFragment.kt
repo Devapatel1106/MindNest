@@ -261,7 +261,7 @@ class OverviewFragment : Fragment() {
 
         val leftAxis = lineChart.axisLeft
         leftAxis.axisMinimum = 0f
-        leftAxis.axisMaximum = 100f
+        leftAxis.axisMaximum = 110f
         leftAxis.setDrawGridLines(true)
         leftAxis.textSize = 10f
 
