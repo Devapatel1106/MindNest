@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.mindnest.data.dao.*
 import com.example.mindnest.data.entity.*
 
@@ -24,7 +22,7 @@ import com.example.mindnest.data.entity.*
         MindScoreEntity::class,
         ChatMessageEntity::class
     ],
-    version = 4,
+    version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -45,44 +43,6 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-
-        private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-
-                database.execSQL("ALTER TABLE task ADD COLUMN dueDate TEXT DEFAULT '' NOT NULL")
-
-            }
-        }
-
-
-        private val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS mind_score (
-                        userId INTEGER NOT NULL,
-                        date TEXT NOT NULL,
-                        score INTEGER NOT NULL,
-                        PRIMARY KEY(userId, date)
-                    )
-                """.trimIndent())
-            }
-        }
-
-        private val MIGRATION_3_4 = object : Migration(3, 4) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
-                    CREATE TABLE IF NOT EXISTS chat_messages (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-                        userId INTEGER NOT NULL,
-                        message TEXT NOT NULL,
-                        isUser INTEGER NOT NULL,
-                        timestamp INTEGER NOT NULL
-                    )
-                """.trimIndent())
-            }
-        }
-
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -90,8 +50,9 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "mindnest_database"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                    .fallbackToDestructiveMigration()
                     .build()
+
                 INSTANCE = instance
                 instance
             }
