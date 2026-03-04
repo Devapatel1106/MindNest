@@ -1,4 +1,3 @@
-// WaterViewModel.kt
 package com.example.mindnest
 
 import android.app.Application
