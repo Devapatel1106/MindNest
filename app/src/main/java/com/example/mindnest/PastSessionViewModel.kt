@@ -78,7 +78,7 @@ class PastSessionViewModel : ViewModel() {
                     val date = doc.getString("date") ?: return@mapNotNull null
                     val duration = doc.getString("duration") ?: return@mapNotNull null
                     val startMillis = doc.getLong("startMillis") ?: 0L
-                    PastSession(time, date, duration, startMillis)
+                    PastSession(time.uppercase(), date, duration, startMillis)
                 }.sortedByDescending { it.startMillis }.toMutableList()
 
                 _pastSessions.postValue(list)
