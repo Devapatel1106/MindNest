@@ -734,7 +734,7 @@ class OverviewViewModel(application: Application) : AndroidViewModel(application
                     _weeklyHigh.value = maxScore
                     _weeklyLow.value = minScore
                     _weeklyMeta.value =
-                        "$daysLogged/$daysPassed days • ${((daysLogged / daysPassed.toDouble()) * 100).toInt()}% consistency"
+                        "$daysLogged/7 days • ${((daysLogged / 7.0) * 100).toInt()}% consistency"
                     _weeklyInsight.postValue(
                         generateWeeklyInsight(average, daysLogged)
                     )
