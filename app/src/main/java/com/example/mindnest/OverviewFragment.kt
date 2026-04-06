@@ -197,6 +197,9 @@ class OverviewFragment : Fragment() {
     }
 
     private fun animateProgressBar(score: Int) {
+
+        if (!isAdded || _binding == null) return
+
         val animator = android.animation.ObjectAnimator.ofInt(
             binding.progressMindScore,
             "progress",
@@ -208,10 +211,16 @@ class OverviewFragment : Fragment() {
     }
 
     private fun animateScoreText(score: Int) {
+
+        if (!isAdded || _binding == null) return
+
         val animator = android.animation.ValueAnimator.ofInt(0, score)
         animator.duration = 1000
 
         animator.addUpdateListener {
+
+            if (!isAdded || _binding == null) return@addUpdateListener
+
             binding.tvMindScore.text = (it.animatedValue as Int).toString()
         }
 

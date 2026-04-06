@@ -174,83 +174,107 @@ class LogInActivity : AppCompatActivity() {
             else -> {
 
                 firebaseAuth.signInWithEmailAndPassword(email, password)
-                    .addOnSuccessListener { authResult ->
+                    .addOnCompleteListener { task ->
 
-                        val firebaseUser = authResult.user ?: return@addOnSuccessListener
-                        val uid = firebaseUser.uid
-                        val userEmail = firebaseUser.email ?: email
+                        if (task.isSuccessful) {
 
-                        lifecycleScope.launch {
+                            val firebaseUser = firebaseAuth.currentUser
 
-                            var user = app.userRepository.getUserByEmail(userEmail)
+                            if (firebaseUser == null) {
+                                Toast.makeText(this, "User not found", Toast.LENGTH_LONG).show()
+                                return@addOnCompleteListener
+                            }
 
-                            if (user == null) {
+                            val uid = firebaseUser.uid
+                            val userEmail = firebaseUser.email ?: email
 
-                                val doc = firestore.collection("users")
-                                    .document(uid)
-                                    .get()
-                                    .await()
+                            lifecycleScope.launch {
+                                try {
 
-                                if (doc.exists()) {
+                                    var user = app.userRepository.getUserByEmail(userEmail)
 
-                                    val name = doc.getString("name") ?: "User"
-                                    val gender = doc.getString("gender") ?: ""
+                                    if (user == null) {
 
-                                    val newUser = User(
-                                        uid = uid,
-                                        name = name,
-                                        email = userEmail,
-                                        password = "",
-                                        gender = gender
+                                        val doc = firestore.collection("users")
+                                            .document(uid)
+                                            .get()
+                                            .await()
+
+                                        if (!doc.exists()) {
+                                            Toast.makeText(
+                                                this@LogInActivity,
+                                                "User data not found in database",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                            return@launch
+                                        }
+
+                                        val name = doc.getString("name") ?: "User"
+                                        val gender = doc.getString("gender") ?: ""
+
+                                        val newUser = User(
+                                            uid = uid,
+                                            name = name,
+                                            email = userEmail,
+                                            password = "",
+                                            gender = gender
+                                        )
+
+                                        val id = app.userRepository.register(newUser)
+                                        user = newUser.copy(id = id)
+                                    }
+
+                                    if (user == null) {
+                                        Toast.makeText(
+                                            this@LogInActivity,
+                                            "User data not found",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                        return@launch
+                                    }
+
+                                    preferenceManager.saveUserId(user.id)
+                                    preferenceManager.saveUserName(user.name)
+                                    preferenceManager.saveUserEmail(user.email)
+                                    preferenceManager.saveUserGender(user.gender)
+
+                                    startActivity(
+                                        Intent(this@LogInActivity, DashboardActivity::class.java)
                                     )
+                                    finish()
 
-                                    val id = app.userRepository.register(newUser)
-                                    user = newUser.copy(id = id)
+                                    try {
+                                        app.taskRepository.startRealtimeSync(user.id)
+                                        app.waterRepository.startRealtimeSync(user.id)
+                                        app.sleepRepository.startRealtimeSync(user.id)
+                                        app.workoutRepository.startRealtimeSync(user.id)
+                                        app.periodRepository.syncPeriodFromFirebase(user.id)
+                                        app.calorieRepository.startUserRealtimeSync(user.id.toString())
+                                        app.calorieRepository.startFoodRealtimeSync(user.id.toString())
+                                        app.journalRepository.startRealtimeSync(user.id)
+                                        app.mindScoreRepository.startRealtimeSync(user.id)
+                                        app.chatRepository.syncChatFromFirebase(user.id)
+                                        app.userSettingsRepository.startRealtimeSync(user.id)
+                                    } catch (e: Exception) {
+                                        e.printStackTrace()
+                                    }
+
+                                } catch (e: Exception) {
+                                    Toast.makeText(
+                                        this@LogInActivity,
+                                        "Error: ${e.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
                                 }
                             }
 
-                            if (user == null) {
-                                Toast.makeText(
-                                    this@LogInActivity,
-                                    "User data not found",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                                return@launch
-                            }
-
-                            preferenceManager.saveUserId(user.id)
-                            preferenceManager.saveUserName(user.name)
-                            preferenceManager.saveUserEmail(user.email)
-                            preferenceManager.saveUserGender(user.gender)
-
-                            startActivity(
-                                Intent(this@LogInActivity, DashboardActivity::class.java)
-                            )
-                            finish()
-
-                            try {
-                                app.taskRepository.startRealtimeSync(user.id)
-                                app.waterRepository.startRealtimeSync(user.id)
-                                app.sleepRepository.startRealtimeSync(user.id)
-                                app.workoutRepository.startRealtimeSync(user.id)
-                                app.periodRepository.syncPeriodFromFirebase(user.id)
-                                app.calorieRepository.startUserRealtimeSync(user.id.toString())
-                                app.calorieRepository.startFoodRealtimeSync(user.id.toString())
-                                app.journalRepository.startRealtimeSync(user.id)
-                                app.mindScoreRepository.startRealtimeSync(user.id)
-                                app.chatRepository.syncChatFromFirebase(user.id)
-                                app.userSettingsRepository.startRealtimeSync(user.id)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
+                        } else {
+                            Toast.makeText(
+                                this,
+                                "Login failed: ${task.exception?.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(
-                            this,
-                            "Login failed: ${it.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
                     }
             }
         }
