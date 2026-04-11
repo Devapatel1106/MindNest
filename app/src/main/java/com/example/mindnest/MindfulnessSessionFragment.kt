@@ -168,7 +168,7 @@ class MindfulnessSessionFragment : Fragment() {
         val duration = String.format("%d:%02d min", minutes, seconds)
 
         val newSession = PastSession(
-            time = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(sessionStartTime)),
+            time = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date()),
             date = SimpleDateFormat("dd/MM/yy", Locale.getDefault()).format(Date(sessionStartTime)),
             duration = duration,
             startMillis = sessionStartTime
