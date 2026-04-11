@@ -54,7 +54,6 @@ class MindfulnessSessionFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         preferenceManager = PreferenceManager(requireContext())
-        val userId = preferenceManager.getUserId()
 
         activity?.findViewById<View>(R.id.toolbar)?.isVisible = false
         binding.btnBack.setOnClickListener { navigateBack() }
@@ -156,6 +155,7 @@ class MindfulnessSessionFragment : Fragment() {
         isRunning = false
         stopAudio()
         autoSaveSession()
+        sessionViewModel.saveCurrentSessionIfAny(requireContext())
     }
 
     private fun autoSaveSession() {
@@ -173,7 +173,8 @@ class MindfulnessSessionFragment : Fragment() {
             duration = duration,
             startMillis = sessionStartTime
         )
-        sessionViewModel.addSession(newSession, requireContext())
+
+        sessionViewModel.currentSession = newSession
     }
 
     private fun updateTimerText(millis: Long) {

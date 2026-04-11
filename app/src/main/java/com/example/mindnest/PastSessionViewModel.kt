@@ -26,25 +26,29 @@ class PastSessionViewModel : ViewModel() {
 
     private val uid: String? = auth.currentUser?.uid
 
-    init {
+    var currentSession: PastSession? = null
 
+    init {
         uid?.let { startRealtimeListener(it) }
     }
 
-
     fun addSession(session: PastSession, context: Context) {
         val userId = uid ?: return
-
 
         val updatedList = loadLocalSessions(context, userId).toMutableList()
         updatedList.add(0, session)
         _pastSessions.value = updatedList
 
         saveLocalSessions(context, userId, updatedList)
-
         saveSessionToFirebase(session, userId)
 
         onSessionsUpdated?.invoke()
+    }
+
+    fun saveCurrentSessionIfAny(context: Context) {
+        val session = currentSession ?: return
+        addSession(session, context)
+        currentSession = null
     }
 
     private fun saveSessionToFirebase(session: PastSession, uid: String) {
@@ -83,7 +87,9 @@ class PastSessionViewModel : ViewModel() {
 
                 _pastSessions.postValue(list)
 
-                snapshot.firstOrNull()?.reference?.let { saveLocalSessions(it.firestore.app.applicationContext, uid, list) }
+                snapshot.firstOrNull()?.reference?.let {
+                    saveLocalSessions(it.firestore.app.applicationContext, uid, list)
+                }
 
                 onSessionsUpdated?.invoke()
             }
