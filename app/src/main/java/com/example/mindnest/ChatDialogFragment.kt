@@ -90,7 +90,6 @@ class ChatDialogFragment : DialogFragment() {
 
                 val reply = ChatBotEngine.getReply(text, requireContext(), botContext)
 
-                // Small delay for natural chatbot feel
                 binding.rvChat.postDelayed({
                     chatViewModel.sendMessage(reply, false)
                 }, 400)

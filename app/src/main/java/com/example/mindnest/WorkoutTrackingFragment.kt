@@ -75,7 +75,16 @@ class WorkoutTrackingFragment :
         val sheetBinding = BottomSheetAddWorkoutBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val workoutTypes = listOf("Cardio", "HIIT", "Walking", "Jogging", "Core Strength", "Yoga")
+        val workoutTypes = listOf(
+            "Cardio",
+            "HIIT",
+            "Walking",
+            "Strength",
+            "Flexibility",
+            "Yoga",
+            "Dance",
+            "Other"
+        )
         val intensityLevels = listOf("Low", "Medium", "High")
 
         sheetBinding.actWorkoutType.setAdapter(
