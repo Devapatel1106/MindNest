@@ -2,6 +2,7 @@ package com.example.mindnest.data
 
 import android.content.Context
 import java.util.*
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 data class ChatBotContext(
@@ -17,26 +18,61 @@ data class ChatBotContext(
     val calorieSummary: String,
     val meditationSummary: String,
     val pastWeekWater: List<Int> = emptyList(),
-    val pastWeekSleep: List<Double> = emptyList(),
-    val pastWeekMindScore: List<Int> = emptyList()
+    val pastWeekSleep: List<Double> = emptyList()
 ) {
-    fun hasSleep() = sleepSummary.isNotBlank() && !sleepSummary.contains("No", true)
-    fun hasWater() = waterSummary.isNotBlank() && !waterSummary.contains("No", true)
-    fun hasWorkout() = workoutSummary.isNotBlank() && !workoutSummary.contains("No", true)
-    fun hasTasks() = taskSummary.isNotBlank() && !taskSummary.contains("No", true)
-    fun hasMood() = journalSummary.isNotBlank()
-    fun validScore() = mindScore in 1..100
+
+    fun hasWaterData() = waterSummary.isMeaningful()
+    fun hasSleepData() = sleepSummary.isMeaningful()
+    fun hasWorkoutData() = workoutSummary.isMeaningful()
+    fun hasMoodData() = journalSummary.isMeaningful()
+    fun hasTaskData() = taskSummary.isMeaningful()
+    fun hasMeditationData() = meditationSummary.isMeaningful()
+    fun hasCalorieData() = calorieSummary.isMeaningful()
+    fun hasValidMindScore() = mindScore in 1..100
+
+    private fun String.isMeaningful(): Boolean {
+        val invalid = listOf("Loading", "No", "Set", "0 sessions", "Log")
+        return this.isNotBlank() && invalid.none { this.contains(it, true) }
+    }
 }
 
 data class ChatMemory(
-    var lastTopics: List<String> = emptyList(),
-    var emotion: String = "neutral",
+    var lastIntent: String? = null,
+    var emotionalTone: String = "neutral",
+    var lastAdvice: String = "",
     val history: MutableList<String> = mutableListOf()
 )
 
 object ChatBotEngine {
 
     private val random = Random
+
+    private val intentLibrary = mapOf(
+
+        "greeting" to listOf("hi","hello","hey","good morning","good afternoon","good evening","good night"),
+        "workout" to listOf("workout","exercise","gym","training","fitness","physical","activity"),
+        "sleep" to listOf("sleep","rest","tired","bed","insomnia"),
+        "water" to listOf("water","hydration","drink"),
+        "calorie" to listOf("calorie","food","eat","diet","nutrition"),
+        "period" to listOf("period","cycle","menstrual","pms"),
+        "mindscore" to listOf("mindscore","mental score","performance"),
+        "summary" to listOf("summary","overview","report","everything","full report"),
+        "motivation" to listOf("motivate","encourage","push","discipline","inspire"),
+        "advice" to listOf("improve","suggest","guide","better"),
+        "stress" to listOf("stress","anxious","overwhelmed","burnout","pressure"),
+        "mood" to listOf("mood","feel","emotion","sad","happy","angry","low")
+    )
+
+    private val expandedIntentLibrary = mapOf(
+        "meditation" to listOf("meditation","breathing","mindfulness","calm","relax"),
+        "task" to listOf("task","todo","productivity","pending","completed"),
+        "calorie_detail" to listOf("protein","carbs","fat","macros"),
+        "period_detail" to listOf("ovulation","cycle day","flow","cramps"),
+        "water_detail" to listOf("litre","liters","ml","dehydrated"),
+        "sleep_detail" to listOf("deep sleep","rem","sleep quality"),
+        "motivation_strong" to listOf("push me hard","be strict","discipline mode"),
+        "general_ai" to listOf("talk to me","chat","conversation","random")
+    )
 
     fun getReply(
         message: String,
@@ -45,252 +81,308 @@ object ChatBotEngine {
         memory: ChatMemory = ChatMemory()
     ): String {
 
-        val msg = message.lowercase().trim()
-        if (msg.isBlank()) return "I'm here. Tell me what's on your mind."
+        val clean = message.trim()
+        if (clean.isBlank()) return "Tell me what’s on your mind 🌿"
 
-        val emotion = detectEmotion(msg)
-        val intents = detectIntents(msg)
+        memory.history.add("U:$clean")
 
-        memory.emotion = emotion
-        memory.lastTopics = intents
+        val intent = detectIntent(clean.lowercase(Locale.getDefault()), memory)
+        memory.lastIntent = intent
 
-        val reply = when {
-            isFact(msg) -> smartFact(ctx)
-            msg.contains("why") -> whyAnalysis(ctx)
-            msg.contains("plan") || msg.contains("improve") -> actionPlan(ctx)
-            msg.contains("summary") -> summary(ctx)
-            else -> buildResponse(msg, intents, emotion, ctx, memory)
+        val response = buildReply(intent, clean, ctx, memory)
+
+        memory.history.add("B:$response")
+
+        return response
+    }
+
+    private fun detectIntent(message: String, memory: ChatMemory): String {
+
+        var bestIntent = "general"
+        var bestScore = 0
+
+        (intentLibrary + expandedIntentLibrary).forEach { (intent, keywords) ->
+            val score = keywords.count { message.contains(it) }
+            if (score > bestScore) {
+                bestScore = score
+                bestIntent = intent
+            }
         }
 
-        memory.history.add(message)
-        memory.history.add(reply)
-
-        return reply
-    }
-    fun getSuggestions(ctx: ChatBotContext): List<String> {
-
-        val list = mutableListOf(
-            "How am I doing today?",
-            "Motivate me",
-            "Improve my sleep",
-            "Reduce stress",
-            "Analyze my habits"
-        )
-
-        if (!ctx.hasWorkout()) list.add("How should I start working out?")
-        if (!ctx.hasSleep()) list.add("Fix my sleep schedule")
-        if (!ctx.hasWater()) list.add("Increase hydration")
-        if (ctx.validScore()) list.add("Explain my MindScore")
-
-        return list.shuffled().take(6)
-    }
-    fun dailyBrief(ctx: ChatBotContext): String {
-
-        val insights = mutableListOf<String>()
-
-        if (!ctx.hasSleep()) insights.add("Sleep is not optimized")
-        if (!ctx.hasWater()) insights.add("Hydration is low")
-        if (!ctx.hasWorkout()) insights.add("No physical activity detected")
-
-        val focus = if (insights.isEmpty())
-            "Maintain consistency across all habits"
-        else
-            insights.joinToString(" + ")
-
-        return """
-Good day ${ctx.userName} ☀️
-
-Here’s your daily intelligence briefing:
-
-• MindScore: ${ctx.mindScore}/100
-• Key gaps: $focus
-
-Today’s focus:
-→ Improve weakest habit
-→ Complete 1 high-value task early
-
-Small improvements today will compound.
-        """.trimIndent()
+        return if (bestScore > 0) bestIntent else memory.lastIntent ?: "general"
     }
 
-    private fun detectEmotion(msg: String): String {
-        return when {
-            listOf("sad","low","tired").any { msg.contains(it) } -> "low"
-            listOf("stress","anxious","overwhelmed").any { msg.contains(it) } -> "stress"
-            listOf("good","great","happy").any { msg.contains(it) } -> "positive"
-            else -> "neutral"
-        }
-    }
-
-    private fun detectIntents(msg: String): List<String> {
-
-        val intents = mutableListOf<String>()
-
-        if (msg.contains("sleep")) intents.add("sleep")
-        if (msg.contains("workout") || msg.contains("gym")) intents.add("workout")
-        if (msg.contains("water")) intents.add("water")
-        if (msg.contains("task")) intents.add("task")
-        if (msg.contains("stress")) intents.add("stress")
-        if (msg.contains("food")) intents.add("food")
-
-        return if (intents.isEmpty()) listOf("general") else intents
-    }
-
-    private fun buildResponse(
-        msg: String,
-        intents: List<String>,
-        emotion: String,
+    private fun buildReply(
+        intent: String,
+        raw: String,
         ctx: ChatBotContext,
         memory: ChatMemory
     ): String {
 
-        val tone = when (emotion) {
-            "low" -> "I understand you're not feeling your best."
-            "stress" -> "It seems like you're under pressure."
-            "positive" -> "That's great to hear."
-            else -> "Got it."
+        val core = when (intent) {
+
+            "greeting" -> greeting(ctx)
+            "workout" -> workout(ctx)
+            "sleep" -> sleep(ctx)
+            "water" -> water(ctx)
+            "calorie" -> calorie(ctx)
+            "period" -> period(ctx)
+            "mindscore" -> mindScore(ctx)
+            "summary" -> summary(ctx)
+            "motivation" -> motivation(ctx)
+            "motivation_strong" -> strongMotivation()
+            "advice" -> advice(ctx)
+            "stress" -> stressSupport(memory)
+            "mood" -> moodReflection(ctx, memory)
+            "meditation" -> meditationAdvanced(ctx)
+            "task" -> taskAdvanced(ctx)
+            "general_ai" -> advancedConversation()
+            else -> normalConversation(raw)
         }
 
-        val insights = intents.mapNotNull { insight(it, ctx) }
-        val actions = intents.mapNotNull { action(it) }
+        val adaptive = adaptiveInsights(ctx)
+        val weekly = weeklyInsights(ctx)
 
-        return listOf(
-            tone,
-            insights.joinToString("\n"),
-            actions.joinToString("\n"),
-            efficiency(ctx),
-            followUp(intents),
-            memoryLine(memory)
-        ).filter { it.isNotBlank() }
+        return listOf(core, adaptive, weekly)
+            .filter { it.isNotBlank() }
             .joinToString("\n\n")
     }
 
-    private fun insight(intent: String, ctx: ChatBotContext): String? {
 
-        return when (intent) {
-
-            "sleep" ->
-                if (!ctx.hasSleep())
-                    "Your sleep may be affecting energy and focus."
-                else
-                    "Your sleep is influencing mood and recovery."
-
-            "workout" ->
-                if (!ctx.hasWorkout())
-                    "Lack of movement can reduce mental clarity."
-                else
-                    "Your workouts are supporting your mental state."
-
-            "water" ->
-                if (!ctx.hasWater())
-                    "Low hydration may be affecting your energy."
-                else
-                    "Your hydration supports cognitive performance."
-
-            else -> null
-        }
-    }
-
-    private fun action(intent: String): String? {
-
-        return when (intent) {
-            "sleep" -> "Fix your sleep schedule and reduce screen exposure."
-            "workout" -> "Add 20–30 minutes of daily movement."
-            "water" -> "Drink 2–3L water daily."
-            "task" -> "Start with one high-impact task."
-            else -> null
-        }
-    }
-
-    private fun efficiency(ctx: ChatBotContext): String {
-
-        val list = mutableListOf<String>()
-
-        if (!ctx.hasSleep()) list.add("Fix sleep")
-        if (!ctx.hasWorkout()) list.add("Add movement")
-        if (!ctx.hasWater()) list.add("Increase hydration")
-
-        return if (list.isEmpty()) {
-            "You're well balanced. Focus on consistency."
-        } else {
-            "Focus now:\n• ${list.joinToString("\n• ")}"
-        }
-    }
-
-    private fun followUp(intents: List<String>): String {
+    private fun greeting(ctx: ChatBotContext): String {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         return when {
-            "sleep" in intents -> "Has your sleep been inconsistent lately?"
-            "stress" in intents -> "What’s causing the most stress right now?"
-            else -> "What would you like to improve next?"
+            hour < 12 -> "Good morning ${ctx.userName} ☀️ Let’s build momentum today."
+            hour < 17 -> "Good afternoon ${ctx.userName} 🌿 Stay steady and intentional."
+            hour < 21 -> "Good evening ${ctx.userName} 🌙 Reflect on your effort."
+            else -> goodNight(ctx)
         }
     }
 
-    private fun memoryLine(memory: ChatMemory): String {
-        return if (memory.history.size > 4)
-            "You’ve mentioned similar concerns earlier."
-        else ""
+    private fun goodNight(ctx: ChatBotContext): String {
+        if (!ctx.hasValidMindScore())
+            return "Good night 🌙 Rest and recharge."
+
+        return when {
+            ctx.mindScore >= 85 -> "Outstanding day 🌙 You performed at an elite level."
+            ctx.mindScore >= 70 -> "Strong disciplined day 🌙 Keep compounding success."
+            ctx.mindScore >= 50 -> "Decent progress 🌙 Reflect and refine tomorrow."
+            else -> "Tough day 🌙 Rest without guilt. Reset and rise tomorrow."
+        }
     }
 
-    private fun isFact(msg: String): Boolean {
-        return listOf("fact","interesting","tell me something").any { msg.contains(it) }
+    private fun workout(ctx: ChatBotContext): String {
+        if (!ctx.hasWorkoutData())
+            return "No workout logged. Even 20 minutes improves clarity."
+
+        val evaluation = when {
+            ctx.workoutSummary.contains("60") -> "Excellent endurance and intensity."
+            ctx.workoutSummary.contains("45") -> "Strong structured session."
+            ctx.workoutSummary.contains("30") -> "Good baseline activity."
+            else -> "Movement recorded. Try progressive overload."
+        }
+
+        return "Workout Summary:\n${ctx.workoutSummary}\n\n$evaluation"
     }
 
-    private fun smartFact(ctx: ChatBotContext): String {
+    private fun sleep(ctx: ChatBotContext): String {
+        if (!ctx.hasSleepData())
+            return "Sleep not logged."
 
-        val facts = mutableListOf(
-            "Poor sleep can reduce focus by up to 30%.",
-            "Even slight dehydration impacts mood and energy.",
-            "Exercise improves brain function instantly.",
-            "Your brain uses 20% of your body’s energy."
-        )
+        val weeklyAvg = if (ctx.pastWeekSleep.isNotEmpty())
+            ctx.pastWeekSleep.average().roundToInt()
+        else null
 
-        if (!ctx.hasSleep()) facts.add("Improving sleep will significantly boost your performance.")
-        if (!ctx.hasWorkout()) facts.add("Adding movement will improve your mental clarity.")
-
-        return facts.random()
+        return buildString {
+            append("Sleep Summary:\n${ctx.sleepSummary}")
+            if (weeklyAvg != null) append("\nWeekly Avg: $weeklyAvg hrs.")
+            append("\nSleep regulates mood, memory and recovery.")
+        }
     }
 
-    private fun whyAnalysis(ctx: ChatBotContext): String {
+    private fun water(ctx: ChatBotContext): String {
+        if (!ctx.hasWaterData())
+            return "Hydration not logged."
+        return "Hydration Summary:\n${ctx.waterSummary}\nHydration boosts cognition and metabolism."
+    }
+
+    private fun calorie(ctx: ChatBotContext): String {
+        if (!ctx.hasCalorieData())
+            return "Nutrition not tracked."
 
         return """
-Here’s what might be happening:
+Nutrition Summary:
+${ctx.calorieSummary}
 
-• Sleep: ${ctx.sleepSummary}
-• Workout: ${ctx.workoutSummary}
-• Water: ${ctx.waterSummary}
-
-These factors together directly influence your mood and performance.
-
-This isn’t random — it’s pattern-based.
+Insight:
+• Prioritize protein (1.2–1.6g/kg bodyweight)
+• Avoid large late-night sugar spikes
+• Balance carbs around workouts
         """.trimIndent()
     }
 
-    private fun actionPlan(ctx: ChatBotContext): String {
+    private fun period(ctx: ChatBotContext): String {
+        if (ctx.periodSummary.isBlank())
+            return "Cycle data unavailable."
 
         return """
-Let’s improve step by step:
+Cycle Update:
+${ctx.periodSummary}
 
-Step 1: Fix sleep timing
-Step 2: Add 20 min movement daily
-Step 3: Complete 1 important task early
-
-Start simple — build consistency first.
+Recommendations:
+• Follicular → Best for high intensity workouts
+• Luteal → Focus on recovery and magnesium
+• Menstrual → Light movement + iron rich foods
         """.trimIndent()
+    }
+
+    private fun meditationAdvanced(ctx: ChatBotContext): String {
+        if (!ctx.hasMeditationData())
+            return "Meditation not logged yet."
+
+        return """
+Meditation Summary:
+${ctx.meditationSummary}
+
+Meditation improves:
+• Emotional regulation
+• Focus stability
+• Stress response control
+
+Aim for 10–15 minutes daily consistency.
+        """.trimIndent()
+    }
+
+    private fun taskAdvanced(ctx: ChatBotContext): String {
+        if (!ctx.hasTaskData())
+            return "No tasks logged."
+
+        return """
+Task Progress:
+${ctx.taskSummary}
+
+Suggestion:
+• Tackle high-value tasks first
+• Apply 90-minute deep work blocks
+• Reduce distractions during focus time
+        """.trimIndent()
+    }
+
+    private fun mindScore(ctx: ChatBotContext): String {
+        if (!ctx.hasValidMindScore())
+            return "MindScore unavailable."
+        return "MindScore: ${ctx.mindScore}/100\n${ctx.mindScoreStatus}"
     }
 
     private fun summary(ctx: ChatBotContext): String {
-
         return """
-Current status:
+Full Overview:
 
-MindScore: ${ctx.mindScore}/100
+MindScore: ${ctx.mindScore}
 Sleep: ${ctx.sleepSummary}
+Hydration: ${ctx.waterSummary}
 Workout: ${ctx.workoutSummary}
-Water: ${ctx.waterSummary}
+Calories: ${ctx.calorieSummary}
 Mood: ${ctx.journalSummary}
-
-You're building your system gradually.
+Meditation: ${ctx.meditationSummary}
+Tasks: ${ctx.taskSummary}
         """.trimIndent()
     }
 
+    private fun motivation(ctx: ChatBotContext): String {
+        val messages = listOf(
+            "Consistency creates confidence.",
+            "Small progress compounds massively.",
+            "Discipline builds identity.",
+            "Action reduces anxiety.",
+            "Show up especially when it’s hard."
+        )
+        return messages.random()
+    }
+
+    private fun strongMotivation(): String {
+        return """
+No excuses.
+
+You don’t need motivation.
+You need discipline.
+
+Do the work.
+Stack the wins.
+Build the identity.
+        """.trimIndent()
+    }
+
+    private fun advice(ctx: ChatBotContext): String {
+        val tips = mutableListOf<String>()
+
+        if (!ctx.hasSleepData()) tips.add("Improve sleep timing and consistency.")
+        if (!ctx.hasWaterData()) tips.add("Increase hydration.")
+        if (!ctx.hasWorkoutData()) tips.add("Add structured exercise.")
+        if (!ctx.hasMeditationData()) tips.add("Include short meditation.")
+
+        return if (tips.isEmpty())
+            "You are maintaining balanced habits."
+        else
+            "Focus Areas:\n${tips.joinToString("\n")}"
+    }
+
+    private fun stressSupport(memory: ChatMemory): String {
+        memory.emotionalTone = "supportive"
+        return listOf(
+            "Pause. Take a slow breath.",
+            "Stress is feedback, not failure.",
+            "Focus only on the next small step.",
+            "You are not behind. You are learning.",
+            "Regulate first. Solve second."
+        ).random()
+    }
+
+    private fun moodReflection(ctx: ChatBotContext, memory: ChatMemory): String {
+        memory.emotionalTone = "empathetic"
+        if (!ctx.hasMoodData()) return "You haven’t logged mood today."
+        return "Mood Reflection:\n${ctx.journalSummary}\nAwareness builds control."
+    }
+
+    private fun normalConversation(input: String): String {
+        return advancedConversation()
+    }
+
+    private fun advancedConversation(): String {
+        val responses = listOf(
+            "Tell me more about that.",
+            "What’s your biggest focus right now?",
+            "What would progress look like?",
+            "Interesting perspective. Continue.",
+            "How are you feeling about that?",
+            "Let’s break that into steps.",
+            "What outcome are you aiming for?",
+            "That matters. Expand on it.",
+            "What’s stopping you?",
+            "What would your best self do here?",
+            "If today improved by 1%, what would change?",
+            "What’s one action you can take now?",
+            "Clarity reduces stress. Let’s clarify."
+        )
+        return responses.random()
+    }
+
+    private fun adaptiveInsights(ctx: ChatBotContext): String {
+        if (!ctx.hasValidMindScore()) return ""
+        return when {
+            ctx.mindScore > 90 -> "You are operating in elite cognitive range."
+            ctx.mindScore < 40 -> "Prioritize recovery, sleep and low-intensity day."
+            else -> ""
+        }
+    }
+
+    private fun weeklyInsights(ctx: ChatBotContext): String {
+        if (ctx.pastWeekSleep.isEmpty()) return ""
+        val avg = ctx.pastWeekSleep.average()
+        return if (avg < 6) "Weekly sleep average is below optimal." else ""
+    }
+
+    fun typingDelay(text: String): Long {
+        return (text.length * 15L).coerceIn(700L, 2800L)
+    }
 }
